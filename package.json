@@ -62,6 +62,8 @@
   },
   "dependencies": {
     "core-js": "^2.0.0",
+    "enzyme": "^2.2.0",
+    "expect": "^1.19.0",
     "normalize.css": "^4.0.0",
     "react": "^0.14.0",
     "react-dom": "^0.14.8",

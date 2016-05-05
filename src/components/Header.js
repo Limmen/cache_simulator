@@ -4,7 +4,7 @@ import React from 'react';
 
 require('styles//Header.css');
 
-let HeaderComponent = (props) => (
+let Header = () => (
   <div className="header-component">
     <div className="jumbotron">
       <h1 className="display-2 text-center">Cache-Simulator</h1>
@@ -12,10 +12,10 @@ let HeaderComponent = (props) => (
   </div>
 );
 
-HeaderComponent.displayName = 'HeaderComponent';
+Header.displayName = 'Header';
 
 // Uncomment properties you need
-// HeaderComponent.propTypes = {};
-// HeaderComponent.defaultProps = {};
+// Header.propTypes = {};
+// Header.defaultProps = {};
 
-export default HeaderComponent;
+export default Header;

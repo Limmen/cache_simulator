@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Router, Route, browserHistory, IndexRoute} from 'react-router'
+import {Router, Route, browserHistory} from 'react-router'
 import {Provider} from 'react-redux'
 import {syncHistoryWithStore} from 'react-router-redux'
 import configureStore from './store/configureStore'
 import App from './containers/App';
-import CounterContainer from './containers/CounterContainer';
+import Counter from './containers/Counter';
 
 
 const store = configureStore()
@@ -18,7 +18,7 @@ ReactDOM.render(
     { /* Tell the Router to use our enhanced history */ }
     <Router history={history}>
       <Route path="/" component={App}>
-        <Route path="counter" component={CounterContainer}/>
+        <Route path="counter" component={Counter}/>
       </Route>
     </Router>
   </Provider>,

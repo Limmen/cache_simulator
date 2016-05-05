@@ -32,8 +32,9 @@ module.exports = {
     alias: {
       actions: `${defaultSettings.srcPath}/actions/`,
       components: `${defaultSettings.srcPath}/components/`,
-      sources: `${defaultSettings.srcPath}/sources/`,
-      stores: `${defaultSettings.srcPath}/stores/`,
+      reducers: `${defaultSettings.srcPath}/reducers/`,
+      constants: `${defaultSettings.srcPath}/constants/`,
+      store: `${defaultSettings.srcPath}/store/`,
       styles: `${defaultSettings.srcPath}/styles/`,
       config: `${defaultSettings.srcPath}/config/` + process.env.REACT_WEBPACK_ENV
     }

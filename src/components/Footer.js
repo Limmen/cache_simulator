@@ -4,7 +4,7 @@ import React from 'react';
 
 require('styles//Footer.css');
 
-let FooterComponent = (props) => (
+let Footer = () => (
   <div className="footer-component">
     <footer className="footer">
       <div className="container">
@@ -14,10 +14,10 @@ let FooterComponent = (props) => (
   </div>
 );
 
-FooterComponent.displayName = 'FooterComponent';
+Footer.displayName = 'Footer';
 
 // Uncomment properties you need
-// FooterComponent.propTypes = {};
-// FooterComponent.defaultProps = {};
+// Footer.propTypes = {};
+// Footer.defaultProps = {};
 
-export default FooterComponent;
+export default Footer;

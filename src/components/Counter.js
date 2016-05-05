@@ -4,7 +4,7 @@ import React from 'react';
 
 require('styles//Counter.css');
 
-let CounterComponent = (props) => (
+let Counter = (props) => (
   <div className="counter-component">
     <div className="row">
       <div className="col-sm-3"></div>
@@ -19,12 +19,12 @@ let CounterComponent = (props) => (
   </div>
 );
 
-CounterComponent.displayName = 'CounterComponent';
+Counter.displayName = 'Counter';
 
-CounterComponent.propTypes = {
+Counter.propTypes = {
   value: React.PropTypes.number.isRequired,
-  onIncrement: React.PropTypes.func.isRequired,
+  onIncrement: React.PropTypes.func.isRequired
 };
-//CounterComponent.defaultProps = {};
+//Counter.defaultProps = {};
 
-export default CounterComponent;
+export default Counter;

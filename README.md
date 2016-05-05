@@ -51,8 +51,6 @@ $ npm run copy
 # run  for deployment without dev-server
 $ npm run deploy
 ```
-### Naming Components
-Uppercase for component file naming e.g. [Component.js](https://github.com/petehunt/ReactHack/tree/master/src/components).
 
 ### Modules
 Each component is a module and can be required using the [Webpack](http://webpack.github.io/) module system. [Webpack](http://webpack.github.io/) uses [Loaders](http://webpack.github.io/docs/loaders.html) which means you can also require CSS and a host of other file types. Read the [Webpack documentation](http://webpack.github.io/docs/home.html) to find out more.

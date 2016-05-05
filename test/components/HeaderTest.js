@@ -6,17 +6,16 @@
 // Uncomment the following lines to use the react test utilities
 // import TestUtils from 'react-addons-test-utils';
 import createComponent from 'helpers/shallowRenderHelper';
+import Header from 'components//Header.js';
 
-import CounterComponent from 'components//CounterComponent.js';
-
-describe('CounterComponent', () => {
+describe('Header', () => {
   let component;
 
   beforeEach(() => {
-    component = createComponent(CounterComponent);
+    component = createComponent(Header);
   });
 
   it('should have its component name as default className', () => {
-    expect(component.props.className).to.equal('counter-component');
+    expect(component.props.className).to.equal('header-component');
   });
 });

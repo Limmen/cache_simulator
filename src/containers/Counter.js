@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { connect } from 'react-redux'
-import CounterComponent from './../components/CounterComponent';
+import CounterComponent from './../components/Counter';
 
 require('normalize.css/normalize.css');
-//require('styles/CounterContainer.css');
+//require('styles/Counter.css');
 
-class CounterContainer extends React.Component {
+class Counter extends React.Component {
   render() {
     return (
       <div>
@@ -20,9 +20,9 @@ class CounterContainer extends React.Component {
   }
 }
 
-//CounterContainer.defaultProps = {};
-CounterContainer.propTypes = {
-  value: React.PropTypes.number.isRequired,
+//Counter.defaultProps = {};
+Counter.propTypes = {
+  value: React.PropTypes.number.isRequired
 }
 
 function mapStateToProps(state) {
@@ -42,5 +42,5 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(CounterContainer)
+)(Counter)
 

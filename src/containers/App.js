@@ -3,9 +3,8 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import HeaderComponent from './../components/HeaderComponent';
-import FooterComponent from './../components/FooterComponent';
-//import CounterComponent from './../components/CounterComponent';
+import Header from './../components/Header';
+import Footer from './../components/Footer';
 
 require('normalize.css/normalize.css');
 require('styles/App.css');
@@ -15,7 +14,7 @@ class App extends React.Component {
     return (
       <div className="index container-fluid">
         <div className="row">
-          <HeaderComponent/>
+          <Header/>
         </div>
         <div className="row">
           <div className="col-sm-3"></div>
@@ -27,7 +26,7 @@ class App extends React.Component {
           <div className="col-sm-3"></div>
         </div>
         <div className="row">
-          <FooterComponent />
+          <Footer />
         </div>
       </div>
     );
@@ -36,7 +35,7 @@ class App extends React.Component {
 
 //App.defaultProps = {};
 App.propTypes = {
-  value: React.PropTypes.number.isRequired,
+  value: React.PropTypes.number.isRequired
 }
 
 function mapStateToProps(state) {
