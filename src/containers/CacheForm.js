@@ -6,23 +6,17 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import CacheFormComponent from './../components/CacheForm';
+import { CACHE_FORM_SUBMIT } from '../constants/ActionTypes'
 
 require('normalize.css/normalize.css');
 //require('styles/CacheForm.css');
 
 class CacheForm extends React.Component {
+
   render() {
     return (
       <div>
-        <CacheFormComponent
-          blockSize=""
-          cacheSize=""
-          associativity=""
-          fetchAddress=""
-          resetForm=""
-          handleSubmit=""
-          submitting=""
-        />
+        <CacheFormComponent onSubmit={this.props.handleSubmit} />
       </div>
     );
   }
@@ -30,17 +24,20 @@ class CacheForm extends React.Component {
 
 //CacheForm.defaultProps = {};
 CacheForm.propTypes = {
-
+  handleSubmit: React.PropTypes.func.isRequired
 }
 
 function mapStateToProps(state) {
   return {
-
+    fields : state.cacheform
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    handleSubmit: (data) => {
+      dispatch({ type: CACHE_FORM_SUBMIT , fields: data})
+    }
   }
 }
 
