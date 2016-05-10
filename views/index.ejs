@@ -2,18 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>React Webpack Template Title</title>
+  <title>Cache Simulator</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/lumen/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/Footer.css">
 </head>
 <body>
-<div id="app">APPLICATION CONTENT</div>
+<div id="app"><div><%- html %></div></div>
 
 <script>__REACT_DEVTOOLS_GLOBAL_HOOK__ = parent.__REACT_DEVTOOLS_GLOBAL_HOOK__</script>
-<script type="text/javascript" src="./assets/app.js"></script>
+
+    <script type="text/javascript" charset="utf-8">window.__REDUX_STATE__ = '<%= initialState %>'; </script>
+    <script type="text/javascript" src="./assets/app.js"></script>
 </body>
 </html>

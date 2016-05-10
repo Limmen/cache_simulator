@@ -2,8 +2,6 @@
 
 import React from 'react';
 
-require('styles//Header.css');
-
 let Header = () => (
   <div className="header-component">
     <div className="jumbotron">

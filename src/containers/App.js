@@ -8,9 +8,6 @@ import Footer from './../components/Footer';
 import CacheForm from './../containers/CacheForm';
 import FetchForm from './../containers/FetchForm';
 
-require('normalize.css/normalize.css');
-require('styles/App.css');
-
 class App extends React.Component {
   render() {
     return (

@@ -4,9 +4,6 @@ import React from 'react';
 import { connect } from 'react-redux'
 import CounterComponent from './../components/Counter';
 
-require('normalize.css/normalize.css');
-//require('styles/Counter.css');
-
 class Counter extends React.Component {
   render() {
     return (

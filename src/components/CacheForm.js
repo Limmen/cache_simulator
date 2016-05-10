@@ -4,8 +4,6 @@ import React from 'react';
 import { reduxForm } from 'redux-form'
 export const fields = ['cacheSize', 'blockSize', 'associativity']
 
-require('styles//CacheForm.css');
-
 const validate = values => {
   const errors = {}
   if (!values.cacheSize) {
@@ -15,7 +13,7 @@ const validate = values => {
   } else if (!Number.isInteger(Number(values.cacheSize))) {
     errors.cacheSize = 'Must be a positive integer'
   } else if (Number(values.cacheSize) < 0) {
-    errors.cacheSize = "Must be a positive integer"
+    errors.cacheSize = 'Must be a positive integer'
   }
 
   if (!values.blockSize) {
@@ -25,7 +23,7 @@ const validate = values => {
   } else if (!Number.isInteger(Number(values.blockSize))) {
     errors.blockSize = 'Must be a positive integer'
   } else if (Number(values.blockSize) < 0) {
-    errors.blockSize = "Must be a positive integer"
+    errors.blockSize = 'Must be a positive integer'
   }
 
   if (!values.associativity) {
@@ -35,7 +33,7 @@ const validate = values => {
   } else if (!Number.isInteger(Number(values.associativity))) {
     errors.associativity = 'Must be a positive integer'
   } else if (Number(values.associativity) < 0) {
-    errors.associativity = "Must be a positive integer"
+    errors.associativity = 'Must be a positive integer'
   }
 
   return errors

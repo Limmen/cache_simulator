@@ -8,9 +8,6 @@ import { connect } from 'react-redux'
 import CacheFormComponent from './../components/CacheForm';
 import { CACHE_FORM_SUBMIT } from '../constants/ActionTypes'
 
-require('normalize.css/normalize.css');
-//require('styles/CacheForm.css');
-
 class CacheForm extends React.Component {
 
   render() {

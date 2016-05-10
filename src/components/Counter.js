@@ -2,8 +2,6 @@
 
 import React from 'react';
 
-require('styles//Counter.css');
-
 let Counter = (props) => (
   <div className="counter-component">
     <div className="row">

@@ -7,8 +7,10 @@ import configureStore from './store/configureStore'
 import App from './containers/App';
 import Counter from './containers/Counter';
 
+// Grab the state from a global injected into server-generated HTML
+const initialState = window.__INITIAL_STATE__
 
-const store = configureStore()
+const store = configureStore(initialState)
 // Render the main component into the dom
 // Create an enhanced history that syncs navigation events with the store
 const history = syncHistoryWithStore(browserHistory, store)

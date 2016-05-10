@@ -11,18 +11,6 @@ Table of Contents
 
 ## Current State
 
-## Generating new components with yeoman
-```bash
-$ yo react-webpack:component my/namespaced/components/name
-```
-
-The above command will create a new component, as well as its stylesheet and a basic testcase.
-
-## Generating new stateless functional components with yeoman
-```
-$ yo react-webpack:component my/namespaced/components/name --stateless
-```
-
 ## Usage
 The following commands are available in the project:
 ```bash

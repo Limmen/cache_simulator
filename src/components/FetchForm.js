@@ -13,7 +13,6 @@ const validate = values => {
   return errors
 }
 
-
 class FetchForm extends React.Component {
   render() {
     const { fields: { fetchAddress, operationType }, handleSubmit, submitting } = this.props

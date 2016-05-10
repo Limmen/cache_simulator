@@ -2,8 +2,6 @@
 
 import React from 'react';
 
-require('styles//Footer.css');
-
 let Footer = () => (
   <div className="footer-component">
     <footer className="footer">

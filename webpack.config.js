@@ -1,32 +1,31 @@
-'use strict';
-
-const path = require('path');
-const args = require('minimist')(process.argv.slice(2));
-
-// List of allowed environments
-const allowedEnvs = ['dev', 'dist', 'test'];
-
-// Set the correct environment
-var env;
-if (args._.length > 0 && args._.indexOf('start') !== -1) {
-  env = 'test';
-} else if (args.env) {
-  env = args.env;
-} else {
-  env = 'dev';
-}
-process.env.REACT_WEBPACK_ENV = env;
-
 /**
- * Build the webpack configuration
- * @param  {String} wantedEnv The wanted environment
- * @return {Object} Webpack config
+ * Created by kim on 2016-05-10.
  */
-function buildConfig(wantedEnv) {
-  let isValid = wantedEnv && wantedEnv.length > 0 && allowedEnvs.indexOf(wantedEnv) !== -1;
-  let validEnv = isValid ? wantedEnv : 'dev';
-  let config = require(path.join(__dirname, 'cfg/' + validEnv));
-  return config;
-}
 
-module.exports = buildConfig(env);
+'use strict';
+const webpack = require('webpack');
+const path = require('path');
+
+var BUILD_DIR = path.resolve(__dirname, './dist/assets');
+
+var config = {
+  entry: "./src/index.js",
+  output: {
+    path: BUILD_DIR,
+    filename: 'app.js'
+  },
+  resolve: {
+    extensions: ['', '.js', '.jsx']
+  },
+  module : {
+    loaders : [
+      {
+        test : /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        loader: 'babel',
+      }
+    ]
+  }
+};
+
+module.exports = config;

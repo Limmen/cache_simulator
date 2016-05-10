@@ -8,9 +8,6 @@ import { connect } from 'react-redux'
 import FetchFormComponent from './../components/FetchForm';
 import { FETCH_FORM_SUBMIT } from '../constants/ActionTypes'
 
-require('normalize.css/normalize.css');
-//require('styles/FetchForm.css');
-
 class FetchForm extends React.Component {
   render() {
     const myInitialValues = {
