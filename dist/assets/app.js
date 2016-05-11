@@ -64,7 +64,7 @@
 
 	var _configureStore2 = _interopRequireDefault(_configureStore);
 
-	var _index = __webpack_require__(304);
+	var _index = __webpack_require__(303);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -27004,15 +27004,15 @@
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxThunk = __webpack_require__(295);
+	var _reduxThunk = __webpack_require__(294);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _reduxPromise = __webpack_require__(296);
+	var _reduxPromise = __webpack_require__(295);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxLogger = __webpack_require__(303);
+	var _reduxLogger = __webpack_require__(302);
 
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 
@@ -27045,22 +27045,17 @@
 
 	var _reactRouterRedux = __webpack_require__(240);
 
-	var _counter = __webpack_require__(291);
-
-	var _counter2 = _interopRequireDefault(_counter);
-
-	var _cacheform = __webpack_require__(293);
+	var _cacheform = __webpack_require__(291);
 
 	var _cacheform2 = _interopRequireDefault(_cacheform);
 
-	var _fetchform = __webpack_require__(294);
+	var _fetchform = __webpack_require__(293);
 
 	var _fetchform2 = _interopRequireDefault(_fetchform);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var rootReducer = (0, _redux.combineReducers)({
-	  counter: _counter2.default,
 	  cacheform: _cacheform2.default,
 	  fetchform: _fetchform2.default,
 	  form: _reduxForm.reducer,
@@ -30097,24 +30092,24 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Created by kim on 2016-05-05.
+	 * Created by kim on 2016-05-06.
 	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = counter;
+	exports.default = cacheform;
 
 	var _ActionTypes = __webpack_require__(292);
 
-	function counter() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+	function cacheform() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? { fields: {} } : arguments[0];
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case _ActionTypes.INCREMENT:
-	      return state + 1;
+	    case _ActionTypes.CACHE_FORM_SUBMIT:
+	      return action.fields;
 	    default:
 	      return state;
 	  }
@@ -30132,7 +30127,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var INCREMENT = exports.INCREMENT = 'INCREMENT';
 	var CACHE_FORM_SUBMIT = exports.CACHE_FORM_SUBMIT = 'CACHE_FORM_SUBMIT';
 	var FETCH_FORM_SUBMIT = exports.FETCH_FORM_SUBMIT = 'FETCH_FORM_SUBMIT';
 
@@ -30148,40 +30142,12 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = cacheform;
+	exports.default = fetchform;
 
 	var _ActionTypes = __webpack_require__(292);
 
-	function cacheform() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case _ActionTypes.CACHE_FORM_SUBMIT:
-	      return action.fields;
-	    default:
-	      return state;
-	  }
-	}
-
-/***/ },
-/* 294 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Created by kim on 2016-05-06.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = cacheform;
-
-	var _ActionTypes = __webpack_require__(292);
-
-	function cacheform() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	function fetchform() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? { fields: {} } : arguments[0];
 	  var action = arguments[1];
 
 	  switch (action.type) {
@@ -30193,7 +30159,7 @@
 	}
 
 /***/ },
-/* 295 */
+/* 294 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30221,7 +30187,7 @@
 	exports['default'] = thunk;
 
 /***/ },
-/* 296 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30232,7 +30198,7 @@
 
 	exports['default'] = promiseMiddleware;
 
-	var _fluxStandardAction = __webpack_require__(297);
+	var _fluxStandardAction = __webpack_require__(296);
 
 	function isPromise(val) {
 	  return val && typeof val.then === 'function';
@@ -30259,7 +30225,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 297 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30270,7 +30236,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodashIsplainobject = __webpack_require__(298);
+	var _lodashIsplainobject = __webpack_require__(297);
 
 	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
 
@@ -30289,7 +30255,7 @@
 	}
 
 /***/ },
-/* 298 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -30300,9 +30266,9 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var baseFor = __webpack_require__(299),
-	    isArguments = __webpack_require__(300),
-	    keysIn = __webpack_require__(301);
+	var baseFor = __webpack_require__(298),
+	    isArguments = __webpack_require__(299),
+	    keysIn = __webpack_require__(300);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -30398,7 +30364,7 @@
 
 
 /***/ },
-/* 299 */
+/* 298 */
 /***/ function(module, exports) {
 
 	/**
@@ -30452,7 +30418,7 @@
 
 
 /***/ },
-/* 300 */
+/* 299 */
 /***/ function(module, exports) {
 
 	/**
@@ -30701,7 +30667,7 @@
 
 
 /***/ },
-/* 301 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -30712,8 +30678,8 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var isArguments = __webpack_require__(300),
-	    isArray = __webpack_require__(302);
+	var isArguments = __webpack_require__(299),
+	    isArray = __webpack_require__(301);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -30839,7 +30805,7 @@
 
 
 /***/ },
-/* 302 */
+/* 301 */
 /***/ function(module, exports) {
 
 	/**
@@ -31025,7 +30991,7 @@
 
 
 /***/ },
-/* 303 */
+/* 302 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -31258,7 +31224,7 @@
 	module.exports = createLogger;
 
 /***/ },
-/* 304 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31273,19 +31239,11 @@
 
 	var _reactRouter = __webpack_require__(159);
 
-	var _reactRedux = __webpack_require__(220);
-
-	var _reactRouterRedux = __webpack_require__(240);
-
-	var _configureStore = __webpack_require__(245);
-
-	var _configureStore2 = _interopRequireDefault(_configureStore);
-
-	var _App = __webpack_require__(305);
+	var _App = __webpack_require__(304);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Index = __webpack_require__(308);
+	var _Index = __webpack_require__(307);
 
 	var _Index2 = _interopRequireDefault(_Index);
 
@@ -31294,10 +31252,6 @@
 	var _2 = _interopRequireDefault(_);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/**
-	 * Created by kim on 2016-05-11.
-	 */
 
 	exports.default = function (history) {
 	  return _react2.default.createElement(
@@ -31310,10 +31264,12 @@
 	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
 	    )
 	  );
-	};
+	}; /**
+	    * Created by kim on 2016-05-11.
+	    */
 
 /***/ },
-/* 305 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31330,13 +31286,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _reactRouter = __webpack_require__(159);
-
-	var _Header = __webpack_require__(306);
+	var _Header = __webpack_require__(305);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Footer = __webpack_require__(307);
+	var _Footer = __webpack_require__(306);
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
@@ -31393,18 +31347,18 @@
 
 	App.propTypes = {};
 
-	function mapStateToProps(state) {
+	function mapStateToProps() {
 	  return {};
 	}
 
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	var mapDispatchToProps = function mapDispatchToProps() {
 	  return {};
 	};
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
 
 /***/ },
-/* 306 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31444,7 +31398,7 @@
 	exports.default = Header;
 
 /***/ },
-/* 307 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31488,7 +31442,7 @@
 	exports.default = Footer;
 
 /***/ },
-/* 308 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -31511,15 +31465,19 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(309);
+	var _CacheForm = __webpack_require__(308);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _FetchForm = __webpack_require__(310);
+	var _FetchForm = __webpack_require__(309);
 
 	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
-	var _ActionTypes = __webpack_require__(292);
+	var _actions = __webpack_require__(310);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31543,7 +31501,7 @@
 	    value: function render() {
 	      var myInitialValues = {
 	        initialValues: {
-	          operationType: "LOAD"
+	          operationType: 'LOAD'
 	        }
 	      };
 	      return _react2.default.createElement(
@@ -31563,17 +31521,17 @@
 	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
 	};
 
-	function mapStateToProps(state) {
+	function mapStateToProps() {
 	  return {};
 	}
 
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
-	    cacheHandleSubmit: function cacheHandleSubmit(data) {
-	      dispatch({ type: _ActionTypes.CACHE_FORM_SUBMIT, fields: data });
+	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
+	      dispatch(actions.cacheFormSubmit(fields));
 	    },
-	    fetchHandleSubmit: function fetchHandleSubmit(data) {
-	      dispatch({ type: _ActionTypes.FETCH_FORM_SUBMIT, fields: data });
+	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	      dispatch(actions.fetchFormSubmit(fields));
 	    }
 	  };
 	};
@@ -31581,7 +31539,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Index);
 
 /***/ },
-/* 309 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31770,7 +31728,7 @@
 	})(CacheForm);
 
 /***/ },
-/* 310 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31912,6 +31870,41 @@
 	  fields: fields,
 	  validate: validate
 	})(FetchForm);
+
+/***/ },
+/* 310 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.cacheFormSubmit = cacheFormSubmit;
+	exports.fetchFormSubmit = fetchFormSubmit;
+
+	var _ActionTypes = __webpack_require__(292);
+
+	var types = _interopRequireWildcard(_ActionTypes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function cacheFormSubmit(fields) {
+	  return {
+	    type: types.CACHE_FORM_SUBMIT,
+	    fields: fields
+	  };
+	} /**
+	   * Created by kim on 2016-05-05.
+	   */
+
+
+	function fetchFormSubmit(fields) {
+	  return {
+	    type: types.FETCH_FORM_SUBMIT,
+	    fields: fields
+	  };
+	}
 
 /***/ },
 /* 311 */

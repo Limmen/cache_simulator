@@ -19,7 +19,7 @@ describe('Counter', () => {
   });
 
   it('should have its component name as default className', () => {
-    expect(component.props.className).toBe('counter-component');
+    expect(component.props.className).toBe('cacheform-component');
   });
 
   it('should display count', () => {

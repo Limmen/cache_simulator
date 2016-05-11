@@ -4,7 +4,7 @@
 'use strict';
 import { FETCH_FORM_SUBMIT } from '../constants/ActionTypes'
 
-export default function cacheform(state = {}, action) {
+export default function fetchform(state = {fields: {}}, action) {
   switch (action.type) {
     case  FETCH_FORM_SUBMIT:
       return action.fields

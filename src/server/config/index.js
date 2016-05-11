@@ -15,7 +15,7 @@ const configInit = (server, express) => {
   api.use(clientErrorHandler);
 
   function clientErrorHandler(err, req, res, next) {
-    logger.log("error", "Something wrong with an XHR request", err.stack);
+    logger.log('error', 'Something wrong with an XHR request', err.stack);
 
     if (req.xhr) {
       res.send(500, {error: 'Something blew up!'});
@@ -23,19 +23,19 @@ const configInit = (server, express) => {
       next(err);
     }
   }
-  logger.debug("Enabling GZip compression.");
+  logger.debug('Enabling GZip compression.');
   server.use(compression());
-  logger.debug("Setting static folder");
+  logger.debug('Setting static folder');
   server.use(express.static(path.dirname(module.parent.filename) + '/../../dist'));
-  logger.debug("Setting views folder");
+  logger.debug('Setting views folder');
   server.set('views', path.dirname(module.parent.filename) + '/views');
-  logger.debug("Setting 'ejs' as view engine");
+  logger.debug('Setting "ejs" as view engine');
   server.set('view engine', 'ejs');
-  logger.debug("Setting parse urlencoded request bodies into req.body.");
+  logger.debug('Setting parse urlencoded request bodies into req.body.');
   server.use(bodyParser.urlencoded());
   server.use(bodyParser.json());
-  logger.debug("Overriding 'express' logger");
-  server.use(morgan ({ "stream": logger.stream }));
+  logger.debug('Overriding "express" logger');
+  server.use(morgan ({ 'stream': logger.stream }));
 
 }
 

@@ -22,6 +22,7 @@ var config = {
       {
         test : /\.(js|jsx)$/,
         exclude: /node_modules/,
+        //include:/__tests__/,
         loader: 'babel',
       }
     ]

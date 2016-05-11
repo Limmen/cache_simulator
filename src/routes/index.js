@@ -3,10 +3,7 @@
  */
 
 import React from 'react';
-import {Router, Route, IndexRoute, browserHistory} from 'react-router'
-import {Provider} from 'react-redux'
-import {syncHistoryWithStore} from 'react-router-redux'
-import configureStore from './../client/store/configureStore'
+import {Router, Route, IndexRoute} from 'react-router'
 
 import App from './../client/containers/App';
 import Index from './../client/containers/Index';

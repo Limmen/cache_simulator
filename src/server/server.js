@@ -2,14 +2,12 @@
 
 'use strict';
 
-
 import express from 'express'
 import React from 'react'
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 import { renderToString } from './../../node_modules/react-dom/server'
 import cacheSimulatorApp from './../client/reducers'
-import App from './../client/containers/App'
 import config from './config/'
 import logger from './util/logger'
 import { match, RouterContext } from 'react-router'
@@ -19,9 +17,9 @@ import { createMemoryHistory, useQueries } from 'history';
 const server = express()
 const port = 3000
 
-logger.info("configuring express....");
+logger.info('configuring express....');
 config(server, express);
-logger.info("express configured");
+logger.info('express configured');
 
 // This is fired every time the server side receives a request
 server.use(handleRender)
@@ -31,7 +29,7 @@ function handleRender(req, res) {
   // Create a new Redux store instance
   let store = createStore(cacheSimulatorApp)
   let routes = createRoutes(history);
-  let location = history.createLocation(req.url);
+  //let location = history.createLocation(req.url);
 
   match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
     if (error) {
@@ -55,4 +53,4 @@ function handleRender(req, res) {
   })
 }
 server.listen(port)
-console.log("Server listening on port: " + port)
+console.log('Server listening on port: ' + port)

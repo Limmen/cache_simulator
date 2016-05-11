@@ -8,14 +8,14 @@ import React from 'react';
 import { connect } from 'react-redux'
 import CacheFormComponent from './../components/CacheForm';
 import FetchFormComponent from './../components/FetchForm';
-import { CACHE_FORM_SUBMIT, FETCH_FORM_SUBMIT } from '../constants/ActionTypes'
+import * as actions from '../actions/'
 
 class Index extends React.Component {
 
   render() {
     const myInitialValues = {
       initialValues: {
-        operationType: "LOAD"
+        operationType: 'LOAD'
       }
     }
     return (
@@ -32,18 +32,18 @@ Index.propTypes = {
   fetchHandleSubmit: React.PropTypes.func.isRequired
 }
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    cacheHandleSubmit: (data) => {
-      dispatch({ type: CACHE_FORM_SUBMIT , fields: data})
+    cacheHandleSubmit: (fields) => {
+      dispatch(actions.cacheFormSubmit(fields))
     },
-    fetchHandleSubmit: (data) => {
-      dispatch({ type: FETCH_FORM_SUBMIT , fields: data})
+    fetchHandleSubmit: (fields) => {
+      dispatch(actions.fetchFormSubmit(fields))
     }
   }
 }

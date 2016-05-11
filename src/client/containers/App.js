@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
 import Header from './../components/Header';
 import Footer from './../components/Footer';
 
@@ -31,11 +30,11 @@ class App extends React.Component {
 App.propTypes = {
 }
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {}
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = () => {
   return {}
 }
 
