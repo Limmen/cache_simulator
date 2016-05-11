@@ -7,15 +7,15 @@
   "scripts": {
     "clean": "rimraf dist/*",
     "copy": "copyfiles -f ./src/favicon.ico ./dist",
-    "dist": "npm run copy & webpack --env=dist",
+    "dist": "npm run copy & npm run lint & webpack --watch --env=dist",
     "lint": "eslint ./src",
     "posttest": "npm run lint",
     "release:major": "npm version major && npm publish && git push --follow-tags",
     "release:minor": "npm version minor && npm publish && git push --follow-tags",
     "release:patch": "npm version patch && npm publish && git push --follow-tags",
-    "serve": "node util/index.js --env=dev --history-api-fallback",
+    "serve": "node src/server/util/startup.js --env=dev --history-api-fallback",
     "serve:dist": "node util.js --env=dist --history-api-fallback",
-    "start": "node util/index.js --env=dev --history-api-fallback",
+    "start": "node src/server/util/startup.js --env=dev --history-api-fallback",
     "test": "karma start",
     "test:watch": "karma start --autoWatch=true --singleRun=false"
   },
@@ -66,6 +66,7 @@
     "babel-cli": "^6.8.0",
     "babel-core": "^6.8.0",
     "babel-preset-react": "^6.5.0",
+    "body-parser": "^1.15.1",
     "colors": "^1.1.2",
     "core-js": "^2.0.0",
     "ejs": "^2.4.1",
@@ -73,6 +74,8 @@
     "es6-module-loader": "^0.17.11",
     "expect": "^1.19.0",
     "express": "^4.13.4",
+    "history": "^2.1.1",
+    "morgan": "^1.7.0",
     "node-jsx": "^0.13.3",
     "normalize.css": "^4.0.0",
     "react": "^0.14.0",
@@ -81,6 +84,7 @@
     "react-router": "^2.4.0",
     "react-router-redux": "^4.0.4",
     "redux": "^3.5.2",
-    "redux-form": "^5.2.3"
+    "redux-form": "^5.2.3",
+    "winston": "^2.2.0"
   }
 }

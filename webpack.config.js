@@ -9,7 +9,7 @@ const path = require('path');
 var BUILD_DIR = path.resolve(__dirname, './dist/assets');
 
 var config = {
-  entry: "./src/index.js",
+  entry: "./src/client/index.js",
   output: {
     path: BUILD_DIR,
     filename: 'app.js'

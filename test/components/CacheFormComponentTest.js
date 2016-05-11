@@ -3,8 +3,8 @@
 /* eslint no-console: 0 */
 'use strict';
 
-// Uncomment the following lines to use the react test utilities
-// import TestUtils from 'react-addons-test-utils';
+// Uncomment the following lines to use the React test utilities
+// import TestUtils from 'React-addons-test-utils';
 import createComponent from 'helpers/shallowRenderHelper';
 
 import CacheFormComponent from 'components//CacheForm.js';

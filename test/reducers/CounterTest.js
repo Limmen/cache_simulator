@@ -3,8 +3,8 @@
 /* eslint no-console: 0 */
 
 import expect from 'expect'
-import counter from './../../src/reducers/counter.js'
-import { INCREMENT } from './../../src/constants/ActionTypes'
+import counter from '../../src/client/reducers/counter.js'
+import { INCREMENT } from '../../src/client/constants/ActionTypes'
 
 describe('reducers', () => {
   describe('counter', () => {

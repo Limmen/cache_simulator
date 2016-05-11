@@ -64,13 +64,9 @@
 
 	var _configureStore2 = _interopRequireDefault(_configureStore);
 
-	var _App = __webpack_require__(295);
+	var _index = __webpack_require__(295);
 
-	var _App2 = _interopRequireDefault(_App);
-
-	var _Counter = __webpack_require__(302);
-
-	var _Counter2 = _interopRequireDefault(_Counter);
+	var _index2 = _interopRequireDefault(_index);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -85,15 +81,7 @@
 	_reactDom2.default.render(_react2.default.createElement(
 	  _reactRedux.Provider,
 	  { store: store },
-	  _react2.default.createElement(
-	    _reactRouter.Router,
-	    { history: history },
-	    _react2.default.createElement(
-	      _reactRouter.Route,
-	      { path: '/', component: _App2.default },
-	      _react2.default.createElement(_reactRouter.Route, { path: 'counter', component: _Counter2.default })
-	    )
-	  )
+	  (0, _index2.default)(history)
 	), document.getElementById('app'));
 
 /***/ },
@@ -30203,6 +30191,61 @@
 	  value: true
 	});
 
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(159);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _reactRouterRedux = __webpack_require__(240);
+
+	var _configureStore = __webpack_require__(245);
+
+	var _configureStore2 = _interopRequireDefault(_configureStore);
+
+	var _App = __webpack_require__(296);
+
+	var _App2 = _interopRequireDefault(_App);
+
+	var _Index = __webpack_require__(299);
+
+	var _Index2 = _interopRequireDefault(_Index);
+
+	var _ = __webpack_require__(302);
+
+	var _2 = _interopRequireDefault(_);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * Created by kim on 2016-05-11.
+	 */
+
+	exports.default = function (history) {
+	  return _react2.default.createElement(
+	    _reactRouter.Router,
+	    { history: history },
+	    _react2.default.createElement(
+	      _reactRouter.Route,
+	      { path: '/', component: _App2.default },
+	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _Index2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
+	    )
+	  );
+	};
+
+/***/ },
+/* 296 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
@@ -30213,21 +30256,13 @@
 
 	var _reactRouter = __webpack_require__(159);
 
-	var _Header = __webpack_require__(296);
+	var _Header = __webpack_require__(297);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Footer = __webpack_require__(297);
+	var _Footer = __webpack_require__(298);
 
 	var _Footer2 = _interopRequireDefault(_Footer);
-
-	var _CacheForm = __webpack_require__(298);
-
-	var _CacheForm2 = _interopRequireDefault(_CacheForm);
-
-	var _FetchForm = __webpack_require__(300);
-
-	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30264,13 +30299,6 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'col-sm-6' },
-	            _react2.default.createElement(_CacheForm2.default, null),
-	            _react2.default.createElement(_FetchForm2.default, null),
-	            _react2.default.createElement(
-	              _reactRouter.Link,
-	              { to: '/counter' },
-	              'CounterExample'
-	            ),
 	            this.props.children
 	          ),
 	          _react2.default.createElement('div', { className: 'col-sm-3' })
@@ -30287,31 +30315,20 @@
 	  return App;
 	}(_react2.default.Component);
 
-	//App.defaultProps = {};
-
-
-	App.propTypes = {
-	  value: _react2.default.PropTypes.number.isRequired
-	};
+	App.propTypes = {};
 
 	function mapStateToProps(state) {
-	  return {
-	    value: state.counter
-	  };
+	  return {};
 	}
 
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    onIncrement: function onIncrement() {
-	      dispatch({ type: 'INCREMENT' });
-	    }
-	  };
+	  return {};
 	};
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
 
 /***/ },
-/* 296 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30351,7 +30368,7 @@
 	exports.default = Header;
 
 /***/ },
-/* 297 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30395,17 +30412,20 @@
 	exports.default = Footer;
 
 /***/ },
-/* 298 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Created by kim on 2016-05-06.
+	 * Created by kim on 2016-05-11.
 	 */
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -30415,9 +30435,13 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(299);
+	var _CacheForm = __webpack_require__(300);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
+
+	var _FetchForm = __webpack_require__(301);
+
+	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
 	var _ActionTypes = __webpack_require__(292);
 
@@ -30429,54 +30453,59 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var CacheForm = function (_React$Component) {
-	  _inherits(CacheForm, _React$Component);
+	var Index = function (_React$Component) {
+	  _inherits(Index, _React$Component);
 
-	  function CacheForm() {
-	    _classCallCheck(this, CacheForm);
+	  function Index() {
+	    _classCallCheck(this, Index);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheForm).apply(this, arguments));
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Index).apply(this, arguments));
 	  }
 
-	  _createClass(CacheForm, [{
+	  _createClass(Index, [{
 	    key: 'render',
 	    value: function render() {
+	      var myInitialValues = {
+	        initialValues: {
+	          operationType: "LOAD"
+	        }
+	      };
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_CacheForm2.default, { onSubmit: this.props.handleSubmit })
+	        _react2.default.createElement(_CacheForm2.default, { onSubmit: this.props.cacheHandleSubmit }),
+	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues))
 	      );
 	    }
 	  }]);
 
-	  return CacheForm;
+	  return Index;
 	}(_react2.default.Component);
 
-	//CacheForm.defaultProps = {};
-
-
-	CacheForm.propTypes = {
-	  handleSubmit: _react2.default.PropTypes.func.isRequired
+	Index.propTypes = {
+	  cacheHandleSubmit: _react2.default.PropTypes.func.isRequired,
+	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
 	};
 
 	function mapStateToProps(state) {
-	  return {
-	    fields: state.cacheform
-	  };
+	  return {};
 	}
 
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
-	    handleSubmit: function handleSubmit(data) {
+	    cacheHandleSubmit: function cacheHandleSubmit(data) {
 	      dispatch({ type: _ActionTypes.CACHE_FORM_SUBMIT, fields: data });
+	    },
+	    fetchHandleSubmit: function fetchHandleSubmit(data) {
+	      dispatch({ type: _ActionTypes.FETCH_FORM_SUBMIT, fields: data });
 	    }
 	  };
 	};
 
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheForm);
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Index);
 
 /***/ },
-/* 299 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30665,91 +30694,6 @@
 	})(CacheForm);
 
 /***/ },
-/* 300 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Created by kim on 2016-05-06.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _FetchForm = __webpack_require__(301);
-
-	var _FetchForm2 = _interopRequireDefault(_FetchForm);
-
-	var _ActionTypes = __webpack_require__(292);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var FetchForm = function (_React$Component) {
-	  _inherits(FetchForm, _React$Component);
-
-	  function FetchForm() {
-	    _classCallCheck(this, FetchForm);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(FetchForm).apply(this, arguments));
-	  }
-
-	  _createClass(FetchForm, [{
-	    key: 'render',
-	    value: function render() {
-	      var myInitialValues = {
-	        initialValues: {
-	          operationType: "LOAD"
-	        }
-	      };
-
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.handleSubmit }, myInitialValues))
-	      );
-	    }
-	  }]);
-
-	  return FetchForm;
-	}(_react2.default.Component);
-
-	//FetchForm.defaultProps = {};
-
-
-	FetchForm.propTypes = {};
-
-	function mapStateToProps(state) {
-	  return {};
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    handleSubmit: function handleSubmit(data) {
-	      dispatch({ type: _ActionTypes.FETCH_FORM_SUBMIT, fields: data });
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(FetchForm);
-
-/***/ },
 /* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -30897,84 +30841,9 @@
 /* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _Counter = __webpack_require__(303);
-
-	var _Counter2 = _interopRequireDefault(_Counter);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Counter = function (_React$Component) {
-	  _inherits(Counter, _React$Component);
-
-	  function Counter() {
-	    _classCallCheck(this, Counter);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Counter).apply(this, arguments));
-	  }
-
-	  _createClass(Counter, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_Counter2.default, {
-	          value: this.props.value,
-	          onIncrement: this.props.onIncrement
-	        })
-	      );
-	    }
-	  }]);
-
-	  return Counter;
-	}(_react2.default.Component);
-
-	//Counter.defaultProps = {};
-
-
-	Counter.propTypes = {
-	  value: _react2.default.PropTypes.number.isRequired
-	};
-
-	function mapStateToProps(state) {
-	  return {
-	    value: state.counter
-	  };
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    onIncrement: function onIncrement() {
-	      dispatch({ type: 'INCREMENT' });
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Counter);
-
-/***/ },
-/* 303 */
-/***/ function(module, exports, __webpack_require__) {
+	/**
+	 * Created by kim on 2016-05-11.
+	 */
 
 	'use strict';
 
@@ -30988,46 +30857,25 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var Counter = function Counter(props) {
+	var NotFound = function NotFound() {
 	  return _react2.default.createElement(
 	    'div',
-	    { className: 'counter-component' },
+	    { className: '404-component' },
 	    _react2.default.createElement(
-	      'div',
-	      { className: 'row' },
-	      _react2.default.createElement('div', { className: 'col-sm-3' }),
-	      _react2.default.createElement(
-	        'div',
-	        { className: 'col-sm-3' },
-	        _react2.default.createElement(
-	          'button',
-	          { type: 'button', className: 'btn btn-default', onClick: props.onIncrement },
-	          'Increment'
-	        )
-	      ),
-	      _react2.default.createElement(
-	        'div',
-	        { className: 'col-sm-3' },
-	        _react2.default.createElement(
-	          'p',
-	          null,
-	          props.value
-	        )
-	      ),
-	      _react2.default.createElement('div', { className: 'col-sm-3' })
+	      'h1',
+	      null,
+	      '404 - PAGE NOT FOUND'
 	    )
 	  );
 	};
 
-	Counter.displayName = 'Counter';
+	NotFound.displayName = 'NotFound';
 
-	Counter.propTypes = {
-	  value: _react2.default.PropTypes.number.isRequired,
-	  onIncrement: _react2.default.PropTypes.func.isRequired
-	};
-	//Counter.defaultProps = {};
+	// Uncomment properties you need
+	// Header.propTypes = {};
+	// Header.defaultProps = {};
 
-	exports.default = Counter;
+	exports.default = NotFound;
 
 /***/ }
 /******/ ]);

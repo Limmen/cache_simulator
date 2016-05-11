@@ -5,8 +5,6 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import Header from './../components/Header';
 import Footer from './../components/Footer';
-import CacheForm from './../containers/CacheForm';
-import FetchForm from './../containers/FetchForm';
 
 class App extends React.Component {
   render() {
@@ -18,9 +16,6 @@ class App extends React.Component {
         <div className="row">
           <div className="col-sm-3"></div>
           <div className="col-sm-6">
-            <CacheForm />
-            <FetchForm />
-            <Link to="/counter">CounterExample</Link>
             {this.props.children}
           </div>
           <div className="col-sm-3"></div>
@@ -33,23 +28,15 @@ class App extends React.Component {
   }
 }
 
-//App.defaultProps = {};
 App.propTypes = {
-  value: React.PropTypes.number.isRequired
 }
 
 function mapStateToProps(state) {
-  return {
-    value : state.counter
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    onIncrement: () => {
-      dispatch({ type: 'INCREMENT' })
-    }
-  }
+  return {}
 }
 
 export default connect(
