@@ -78,7 +78,7 @@ class CacheForm extends React.Component {
           </div>
           <div className="form-group col-sm-12">
             <button type="submit" disabled={submitting} className="btn btn-default">
-              {submitting ? <i/> : <i/>} Submit
+              {submitting ? <i/> : <i/>} Create Cache Memory
             </button>
             <button type="button" disabled={submitting} onClick={resetForm} className="btn btn-default">
               Clear Values

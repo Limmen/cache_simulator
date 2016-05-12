@@ -13,26 +13,35 @@ import Table from '../components/Table'
 
 class CacheMem extends React.Component {
 
+  createTables(){
+    let tables = [];
+    for (let i = 0; i < this.props.associativity; i++) {
+      tables.push(<Table key={i} rows={this.props.cache_size} blocksize={this.props.block_size}/>);
+    }
+    return tables;
+  }
+
   render() {
     return (
-      <div>
-        <Table rows="4" blocksize="4"/>
+      <div className="row">
+        {this.createTables()}
       </div>
     );
   }
 }
 
-CacheMem.propTypes = {
-}
+CacheMem.propTypes = {}
 
-function mapStateToProps() {
+function mapStateToProps(state) {
   return {
+    associativity: state.cacheform.associativity,
+    cache_size: state.cacheform.cacheSize,
+    block_size: state.cacheform.blockSize
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-  }
+  return {}
 }
 
 export default connect(

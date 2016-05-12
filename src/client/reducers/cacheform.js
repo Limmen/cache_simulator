@@ -13,7 +13,7 @@ import { CACHE_FORM_SUBMIT } from '../constants/ActionTypes'
  * @param action action that triggered the state change
  * @returns {*} new state
  */
-export default function cacheform(state = {fields: {}}, action) {
+export default function cacheform(state = {}, action) {
   switch (action.type) {
     case  CACHE_FORM_SUBMIT:
       return action.fields

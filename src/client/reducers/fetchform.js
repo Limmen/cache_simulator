@@ -13,7 +13,7 @@ import { FETCH_FORM_SUBMIT } from '../constants/ActionTypes'
  * @param action action that triggered the state update
  * @returns {*} new state
  */
-export default function fetchform(state = {fields: {}}, action) {
+export default function fetchform(state = {}, action) {
   switch (action.type) {
     case  FETCH_FORM_SUBMIT:
       return action.fields

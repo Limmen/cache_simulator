@@ -10,14 +10,19 @@ import React from 'react';
 import TableElement from './TableElement'
 
 class TableRow extends React.Component {
-  render() {
-    var elements = [];
-    for (var i = 0; i < this.props.blocksize; i++) {
+
+  createElements(){
+    let elements = [];
+    for (let i = 0; i < this.props.blocksize; i++) {
       elements.push(<TableElement key={i}/>);
     }
+    return elements;
+  }
+
+  render() {
     return (
       <tr className="cache_row tablerow-component">
-        {elements}
+        {this.createElements()}
       </tr>
     );
   }

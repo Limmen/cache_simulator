@@ -30288,7 +30288,7 @@
 	 * @returns {*} new state
 	 */
 	function cacheform() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? { fields: {} } : arguments[0];
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	  var action = arguments[1];
 
 	  switch (action.type) {
@@ -30342,7 +30342,7 @@
 	 * @returns {*} new state
 	 */
 	function fetchform() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? { fields: {} } : arguments[0];
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 	  var action = arguments[1];
 
 	  switch (action.type) {
@@ -32014,7 +32014,7 @@
 	              'button',
 	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
 	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Submit'
+	              ' Create Cache Memory'
 	            ),
 	            _react2.default.createElement(
 	              'button',
@@ -32230,7 +32230,7 @@
 	/**
 	 * Creates the fetchform action.
 	 *
-	 * @param fields fields of the form
+	 * @param fields
 	 * @returns {{type, fields: *}}
 	 */
 	/**
@@ -32297,12 +32297,21 @@
 	  }
 
 	  _createClass(CacheMem, [{
+	    key: 'createTables',
+	    value: function createTables() {
+	      var tables = [];
+	      for (var i = 0; i < this.props.associativity; i++) {
+	        tables.push(_react2.default.createElement(_Table2.default, { key: i, rows: this.props.cache_size, blocksize: this.props.block_size }));
+	      }
+	      return tables;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        null,
-	        _react2.default.createElement(_Table2.default, { rows: '4', blocksize: '4' })
+	        { className: 'row' },
+	        this.createTables()
 	      );
 	    }
 	  }]);
@@ -32312,8 +32321,12 @@
 
 	CacheMem.propTypes = {};
 
-	function mapStateToProps() {
-	  return {};
+	function mapStateToProps(state) {
+	  return {
+	    associativity: state.cacheform.associativity,
+	    cache_size: state.cacheform.cacheSize,
+	    block_size: state.cacheform.blockSize
+	  };
 	}
 
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
@@ -32366,22 +32379,34 @@
 	  }
 
 	  _createClass(Table, [{
-	    key: 'render',
-	    value: function render() {
+	    key: 'createRows',
+
+
+	    /**
+	     * Creates table rows.
+	     *
+	     * @returns {Array} array of rows.
+	     */
+	    value: function createRows() {
 	      var rows = [];
 	      for (var i = 0; i < this.props.rows; i++) {
 	        rows.push(_react2.default.createElement(_TableRow2.default, { blocksize: this.props.blocksize, key: i }));
 	      }
+	      return rows;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'table-component' },
+	        { className: 'table-component col-sm-4' },
 	        _react2.default.createElement(
 	          'table',
 	          { className: 'table table-bordered cache' },
 	          _react2.default.createElement(
 	            'tbody',
 	            null,
-	            rows
+	            this.createRows()
 	          )
 	        )
 	      );
@@ -32438,16 +32463,21 @@
 	  }
 
 	  _createClass(TableRow, [{
-	    key: 'render',
-	    value: function render() {
+	    key: 'createElements',
+	    value: function createElements() {
 	      var elements = [];
 	      for (var i = 0; i < this.props.blocksize; i++) {
 	        elements.push(_react2.default.createElement(_TableElement2.default, { key: i }));
 	      }
+	      return elements;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
 	      return _react2.default.createElement(
 	        'tr',
 	        { className: 'cache_row tablerow-component' },
-	        elements
+	        this.createElements()
 	      );
 	    }
 	  }]);

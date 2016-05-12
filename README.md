@@ -37,8 +37,6 @@ $ npm run clean
 
 ## Copyright and license
 
-* The repo:
-
 The MIT License (MIT)
 
 Copyright (c) 2016 Kim Hammar

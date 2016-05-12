@@ -11,16 +11,26 @@ import TableRow from './TableRow'
 
 
 class Table extends React.Component {
-  render() {
-    var rows = [];
-    for (var i = 0; i < this.props.rows; i++) {
+
+  /**
+   * Creates table rows.
+   *
+   * @returns {Array} array of rows.
+   */
+  createRows() {
+    let rows = [];
+    for (let i = 0; i < this.props.rows; i++) {
       rows.push(<TableRow blocksize={this.props.blocksize} key={i}/>);
     }
+    return rows;
+  }
+
+  render() {
     return (
-      <div className="table-component">
+      <div className="table-component col-sm-4">
         <table className="table table-bordered cache">
           <tbody>
-          {rows}
+          {this.createRows()}
           </tbody>
         </table>
       </div>
