@@ -1,0 +1,16 @@
+.cache_element
+{
+  height: 40px;
+  width: 40px;
+  overflow:hidden;
+}
+
+.cache
+{
+  overflow:hidden;
+  table-layout:fixed;
+}
+.table
+{
+  width: auto;
+}

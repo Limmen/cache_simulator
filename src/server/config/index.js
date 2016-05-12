@@ -32,10 +32,10 @@ const configInit = (server, express) => {
   logger.debug('Setting "ejs" as view engine');
   server.set('view engine', 'ejs');
   logger.debug('Setting parse urlencoded request bodies into req.body.');
-  server.use(bodyParser.urlencoded());
+  server.use(bodyParser.urlencoded({extended: true}));
   server.use(bodyParser.json());
   logger.debug('Overriding "express" logger');
-  server.use(morgan ({ 'stream': logger.stream }));
+  server.use(morgan ('combined', { 'stream': logger.stream }));
 
 }
 

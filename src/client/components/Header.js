@@ -5,7 +5,7 @@ import React from 'react';
 let Header = () => (
   <div className="header-component">
     <div className="jumbotron">
-      <h1 className="display-2 text-center">Cache-Simulator</h1>
+      <h1 className="display-2 text-center"><strong>Cache-Simulator</strong></h1>
     </div>
   </div>
 );
