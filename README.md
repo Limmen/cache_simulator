@@ -1,5 +1,7 @@
 # Cache Simulator
 
+[![Build Status](https://travis-ci.org/Limmen/cache_simulator.svg?branch=master)](https://travis-ci.org/Limmen/cache_simulator)
+
 Table of Contents
 =================
 
