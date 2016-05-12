@@ -21,7 +21,7 @@ export function cacheFormSubmit(fields) {
 /**
  * Creates the fetchform action.
  *
- * @param fields fields of the form
+ * @param fields
  * @returns {{type, fields: *}}
  */
 export function fetchFormSubmit(fields) {
