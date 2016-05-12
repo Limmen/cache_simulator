@@ -1,13 +1,20 @@
 /**
+ * Configuration for the express server-side app.
+ *
  * Created by kim on 2016-05-11.
  */
-
 import logger from './../util/logger'
 import compression from 'compression';
 import path from 'path'
 import bodyParser from 'body-parser'
 import morgan from 'morgan'
 
+/**
+ * Function to configure the express app.
+ *
+ * @param server the app/server
+ * @param express instance of the express framework
+ */
 const configInit = (server, express) => {
 
   let api = express.Router();

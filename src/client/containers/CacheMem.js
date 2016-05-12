@@ -1,4 +1,6 @@
 /**
+ * CacheMemory redux-container. Connects the cachememory layout with the redux store.
+ *
  * Created by kim on 2016-05-12.
  */
 
@@ -9,7 +11,7 @@ import { connect } from 'react-redux'
 import * as actions from '../actions/'
 import Table from '../components/Table'
 
-class Index extends React.Component {
+class CacheMem extends React.Component {
 
   render() {
     return (
@@ -20,7 +22,7 @@ class Index extends React.Component {
   }
 }
 
-Index.propTypes = {
+CacheMem.propTypes = {
 }
 
 function mapStateToProps() {
@@ -36,4 +38,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Index)
+)(CacheMem)

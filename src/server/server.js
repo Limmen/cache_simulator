@@ -1,4 +1,6 @@
-/*eslint no-console:0 */
+/**
+ * The http server - A express app that runs on node.js
+ */
 
 'use strict';
 
@@ -24,6 +26,12 @@ logger.info('express configured');
 // This is fired every time the server side receives a request
 server.use(handleRender)
 
+/**
+ * Function that handles server-side rendering with react-router.
+ *
+ * @param req http-request
+ * @param res http-response
+ */
 function handleRender(req, res) {
   let history = useQueries(createMemoryHistory)();
   // Create a new Redux store instance

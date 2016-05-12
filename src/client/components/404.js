@@ -1,4 +1,6 @@
 /**
+ * Functional stateless Component shown for 404s - when page is not found.
+ *
  * Created by kim on 2016-05-11.
  */
 
@@ -13,9 +15,4 @@ let NotFound = () => (
 );
 
 NotFound.displayName = 'NotFound';
-
-// Uncomment properties you need
-// Header.propTypes = {};
-// Header.defaultProps = {};
-
 export default NotFound;

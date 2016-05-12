@@ -1,9 +1,18 @@
+/**
+ * CacheForm component. A component that contains a form for filling in information about the cache.
+ */
 'use strict';
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
 export const fields = ['cacheSize', 'blockSize', 'associativity']
 
+/**
+ * Function to validate form input parameters.
+ *
+ * @param values values to validate
+ * @returns {{}} - object that contains errors if the exists.
+ */
 const validate = values => {
   const errors = {}
   if (!values.cacheSize) {
@@ -82,14 +91,12 @@ class CacheForm extends React.Component {
 }
 
 CacheForm.displayName = 'CacheForm';
-
 CacheForm.propTypes = {
   fields: React.PropTypes.object.isRequired,
   handleSubmit: React.PropTypes.func.isRequired,
   resetForm: React.PropTypes.func.isRequired,
   submitting: React.PropTypes.bool.isRequired
 };
-// CacheForm.defaultProps = {};
 
 export default reduxForm({
   form: 'synchronousValidation',

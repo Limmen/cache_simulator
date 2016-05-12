@@ -1,3 +1,6 @@
+/**
+ * Functional stateless Footer component.
+ */
 'use strict';
 
 import React from 'react';
@@ -13,9 +16,4 @@ let Footer = () => (
 );
 
 Footer.displayName = 'Footer';
-
-// Uncomment properties you need
-// Footer.propTypes = {};
-// Footer.defaultProps = {};
-
 export default Footer;

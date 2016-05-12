@@ -1,4 +1,6 @@
 /**
+ * Rootreducer that combine the app's reducers.
+ *
  * Created by kim on 2016-05-05.
  */
 'use strict';

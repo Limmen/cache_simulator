@@ -1,9 +1,18 @@
+/**
+ * FetchForm Component. A component containing a form for attempting to load from the cache.
+ */
 'use strict';
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
 export const fields = ['fetchAddress', 'operationType']
 
+/**
+ * Function to validate form input parameters.
+ *
+ * @param values to validate
+ * @returns {{}} - object that contains errors if the exists.
+ */
 const validate = values => {
   const errors = {}
 
@@ -53,7 +62,6 @@ FetchForm.propTypes = {
   handleSubmit: React.PropTypes.func.isRequired,
   submitting: React.PropTypes.bool.isRequired
 };
-// FetchForm.defaultProps = {};
 
 export default reduxForm({
   form: 'synchronousValidation',

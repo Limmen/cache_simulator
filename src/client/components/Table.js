@@ -1,4 +1,6 @@
 /**
+ * TableComponent. A component displaying a table, that illustrates a cachememory.
+ *
  * Created by kim on 2016-05-12.
  */
 
@@ -7,12 +9,8 @@
 import React from 'react';
 import TableRow from './TableRow'
 
+
 class Table extends React.Component {
-
-  componentDidMount() {
-
-  }
-
   render() {
     var rows = [];
     for (var i = 0; i < this.props.rows; i++) {
@@ -31,9 +29,4 @@ class Table extends React.Component {
 }
 
 Table.displayName = 'Table';
-
-// Uncomment properties you need
-// Table.propTypes = {};
-// Table.defaultProps = {};
-
 export default Table;

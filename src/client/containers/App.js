@@ -1,3 +1,6 @@
+/**
+ * Main app redux-container that bootstraps header, footer and main content depending on the active route.
+ */
 'use strict';
 
 import React from 'react';

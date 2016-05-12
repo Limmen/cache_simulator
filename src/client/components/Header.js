@@ -1,3 +1,6 @@
+/**
+ * Functional stateless Header component.
+ */
 'use strict';
 
 import React from 'react';
@@ -11,9 +14,4 @@ let Header = () => (
 );
 
 Header.displayName = 'Header';
-
-// Uncomment properties you need
-// Header.propTypes = {};
-// Header.defaultProps = {};
-
 export default Header;

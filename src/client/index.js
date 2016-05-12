@@ -1,3 +1,7 @@
+/**
+ * The entrypoint for the client-side react app. Renders the application to the DOM.
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {browserHistory} from 'react-router'

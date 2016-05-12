@@ -58,20 +58,22 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _reactRouterRedux = __webpack_require__(240);
+	var _reactRouterRedux = __webpack_require__(244);
 
-	var _configureStore = __webpack_require__(245);
+	var _configureStore = __webpack_require__(249);
 
 	var _configureStore2 = _interopRequireDefault(_configureStore);
 
-	var _index = __webpack_require__(303);
+	var _index = __webpack_require__(307);
 
 	var _index2 = _interopRequireDefault(_index);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Grab the state from a global injected into server-generated HTML
-	var initialState = window.__INITIAL_STATE__;
+	var initialState = window.__INITIAL_STATE__; /**
+	                                              * The entrypoint for the client-side react app. Renders the application to the DOM.
+	                                              */
 
 	var store = (0, _configureStore2.default)(initialState);
 	// Render the main component into the dom
@@ -249,6 +251,9 @@
 	var queueIndex = -1;
 
 	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
 	    draining = false;
 	    if (currentQueue.length) {
 	        queue = currentQueue.concat(queue);
@@ -23836,13 +23841,15 @@
 	};
 
 	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent) {
-	    var keys = Object.getOwnPropertyNames(sourceComponent);
-	    for (var i=0; i<keys.length; ++i) {
-	        if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
-	            try {
-	                targetComponent[keys[i]] = sourceComponent[keys[i]];
-	            } catch (error) {
+	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
+	        var keys = Object.getOwnPropertyNames(sourceComponent);
+	        for (var i=0; i<keys.length; ++i) {
+	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]]) {
+	                try {
+	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
+	                } catch (error) {
 
+	                }
 	            }
 	        }
 	    }
@@ -25369,7 +25376,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _isPlainObject = __webpack_require__(229);
+	var _isPlainObject = __webpack_require__(240);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
@@ -26631,6 +26638,164 @@
 /* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var getPrototype = __webpack_require__(241),
+	    isHostObject = __webpack_require__(242),
+	    isObjectLike = __webpack_require__(243);
+
+	/** `Object#toString` result references. */
+	var objectTag = '[object Object]';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to resolve the decompiled source of functions. */
+	var funcToString = Function.prototype.toString;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/** Used to infer the `Object` constructor. */
+	var objectCtorString = funcToString.call(Object);
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+
+	/**
+	 * Checks if `value` is a plain object, that is, an object created by the
+	 * `Object` constructor or one with a `[[Prototype]]` of `null`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.8.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a plain object,
+	 *  else `false`.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 * }
+	 *
+	 * _.isPlainObject(new Foo);
+	 * // => false
+	 *
+	 * _.isPlainObject([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isPlainObject({ 'x': 0, 'y': 0 });
+	 * // => true
+	 *
+	 * _.isPlainObject(Object.create(null));
+	 * // => true
+	 */
+	function isPlainObject(value) {
+	  if (!isObjectLike(value) ||
+	      objectToString.call(value) != objectTag || isHostObject(value)) {
+	    return false;
+	  }
+	  var proto = getPrototype(value);
+	  if (proto === null) {
+	    return true;
+	  }
+	  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+	  return (typeof Ctor == 'function' &&
+	    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+	}
+
+	module.exports = isPlainObject;
+
+
+/***/ },
+/* 241 */
+/***/ function(module, exports) {
+
+	/* Built-in method references for those with the same name as other `lodash` methods. */
+	var nativeGetPrototype = Object.getPrototypeOf;
+
+	/**
+	 * Gets the `[[Prototype]]` of `value`.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {null|Object} Returns the `[[Prototype]]`.
+	 */
+	function getPrototype(value) {
+	  return nativeGetPrototype(Object(value));
+	}
+
+	module.exports = getPrototype;
+
+
+/***/ },
+/* 242 */
+/***/ function(module, exports) {
+
+	/**
+	 * Checks if `value` is a host object in IE < 9.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
+	 */
+	function isHostObject(value) {
+	  // Many host objects are `Object` objects that can coerce to strings
+	  // despite having improperly defined `toString` methods.
+	  var result = false;
+	  if (value != null && typeof value.toString != 'function') {
+	    try {
+	      result = !!(value + '');
+	    } catch (e) {}
+	  }
+	  return result;
+	}
+
+	module.exports = isHostObject;
+
+
+/***/ },
+/* 243 */
+/***/ function(module, exports) {
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	module.exports = isObjectLike;
+
+
+/***/ },
+/* 244 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -26638,7 +26803,7 @@
 	});
 	exports.routerMiddleware = exports.routerActions = exports.goForward = exports.goBack = exports.go = exports.replace = exports.push = exports.CALL_HISTORY_METHOD = exports.routerReducer = exports.LOCATION_CHANGE = exports.syncHistoryWithStore = undefined;
 
-	var _reducer = __webpack_require__(241);
+	var _reducer = __webpack_require__(245);
 
 	Object.defineProperty(exports, 'LOCATION_CHANGE', {
 	  enumerable: true,
@@ -26653,7 +26818,7 @@
 	  }
 	});
 
-	var _actions = __webpack_require__(242);
+	var _actions = __webpack_require__(246);
 
 	Object.defineProperty(exports, 'CALL_HISTORY_METHOD', {
 	  enumerable: true,
@@ -26698,11 +26863,11 @@
 	  }
 	});
 
-	var _sync = __webpack_require__(243);
+	var _sync = __webpack_require__(247);
 
 	var _sync2 = _interopRequireDefault(_sync);
 
-	var _middleware = __webpack_require__(244);
+	var _middleware = __webpack_require__(248);
 
 	var _middleware2 = _interopRequireDefault(_middleware);
 
@@ -26712,7 +26877,7 @@
 	exports.routerMiddleware = _middleware2['default'];
 
 /***/ },
-/* 241 */
+/* 245 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -26756,7 +26921,7 @@
 	}
 
 /***/ },
-/* 242 */
+/* 246 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -26798,7 +26963,7 @@
 	var routerActions = exports.routerActions = { push: push, replace: replace, go: go, goBack: goBack, goForward: goForward };
 
 /***/ },
-/* 243 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26811,7 +26976,7 @@
 
 	exports['default'] = syncHistoryWithStore;
 
-	var _reducer = __webpack_require__(241);
+	var _reducer = __webpack_require__(245);
 
 	var defaultSelectLocationState = function defaultSelectLocationState(state) {
 	  return state.routing;
@@ -26950,7 +27115,7 @@
 	}
 
 /***/ },
-/* 244 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26960,7 +27125,7 @@
 	});
 	exports['default'] = routerMiddleware;
 
-	var _actions = __webpack_require__(242);
+	var _actions = __webpack_require__(246);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -26988,7 +27153,7 @@
 	}
 
 /***/ },
-/* 245 */
+/* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27000,37 +27165,47 @@
 
 	var _redux = __webpack_require__(227);
 
-	var _reducers = __webpack_require__(246);
+	var _reducers = __webpack_require__(250);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxThunk = __webpack_require__(294);
+	var _reduxThunk = __webpack_require__(298);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _reduxPromise = __webpack_require__(295);
+	var _reduxPromise = __webpack_require__(299);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxLogger = __webpack_require__(302);
+	var _reduxLogger = __webpack_require__(306);
 
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	/**
+	 * Creates the store of the redux app.
+	 *
+	 * @param initialState initial state
+	 * @returns {*} the single store of the redux app
+	 */
 	function configureStore(initialState) {
 	  var logger = (0, _reduxLogger2.default)();
 	  var store = (0, _redux.createStore)(_reducers2.default, initialState, (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default, logger));
 	  return store;
 	} /**
+	   * Function to create and bootstrap the store with reducers, initialstate and middleware.
+	   *
 	   * Created by kim on 2016-05-05.
 	   */
 
 /***/ },
-/* 246 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * Rootreducer that combine the app's reducers.
+	 *
 	 * Created by kim on 2016-05-05.
 	 */
 	'use strict';
@@ -27041,15 +27216,15 @@
 
 	var _redux = __webpack_require__(227);
 
-	var _reduxForm = __webpack_require__(247);
+	var _reduxForm = __webpack_require__(251);
 
-	var _reactRouterRedux = __webpack_require__(240);
+	var _reactRouterRedux = __webpack_require__(244);
 
-	var _cacheform = __webpack_require__(291);
+	var _cacheform = __webpack_require__(295);
 
 	var _cacheform2 = _interopRequireDefault(_cacheform);
 
-	var _fetchform = __webpack_require__(293);
+	var _fetchform = __webpack_require__(297);
 
 	var _fetchform2 = _interopRequireDefault(_fetchform);
 
@@ -27065,7 +27240,7 @@
 	exports.default = rootReducer;
 
 /***/ },
-/* 247 */
+/* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27079,7 +27254,7 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _createAll2 = __webpack_require__(248);
+	var _createAll2 = __webpack_require__(252);
 
 	var _createAll3 = _interopRequireDefault(_createAll2);
 
@@ -27143,7 +27318,7 @@
 	exports.untouchWithKey = untouchWithKey;
 
 /***/ },
-/* 248 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27154,35 +27329,35 @@
 
 	exports.default = createAll;
 
-	var _reducer = __webpack_require__(249);
+	var _reducer = __webpack_require__(253);
 
 	var _reducer2 = _interopRequireDefault(_reducer);
 
-	var _createReduxForm = __webpack_require__(260);
+	var _createReduxForm = __webpack_require__(264);
 
 	var _createReduxForm2 = _interopRequireDefault(_createReduxForm);
 
-	var _mapValues = __webpack_require__(251);
+	var _mapValues = __webpack_require__(255);
 
 	var _mapValues2 = _interopRequireDefault(_mapValues);
 
-	var _bindActionData = __webpack_require__(267);
+	var _bindActionData = __webpack_require__(271);
 
 	var _bindActionData2 = _interopRequireDefault(_bindActionData);
 
-	var _actions = __webpack_require__(266);
+	var _actions = __webpack_require__(270);
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _actionTypes = __webpack_require__(250);
+	var _actionTypes = __webpack_require__(254);
 
 	var actionTypes = _interopRequireWildcard(_actionTypes);
 
-	var _createPropTypes = __webpack_require__(290);
+	var _createPropTypes = __webpack_require__(294);
 
 	var _createPropTypes2 = _interopRequireDefault(_createPropTypes);
 
-	var _getValuesFromState = __webpack_require__(254);
+	var _getValuesFromState = __webpack_require__(258);
 
 	var _getValuesFromState2 = _interopRequireDefault(_getValuesFromState);
 
@@ -27299,7 +27474,7 @@
 	}
 
 /***/ },
-/* 249 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27311,39 +27486,39 @@
 
 	var _initialState, _behaviors;
 
-	var _actionTypes = __webpack_require__(250);
+	var _actionTypes = __webpack_require__(254);
 
-	var _mapValues = __webpack_require__(251);
+	var _mapValues = __webpack_require__(255);
 
 	var _mapValues2 = _interopRequireDefault(_mapValues);
 
-	var _read = __webpack_require__(252);
+	var _read = __webpack_require__(256);
 
 	var _read2 = _interopRequireDefault(_read);
 
-	var _write = __webpack_require__(253);
+	var _write = __webpack_require__(257);
 
 	var _write2 = _interopRequireDefault(_write);
 
-	var _getValuesFromState = __webpack_require__(254);
+	var _getValuesFromState = __webpack_require__(258);
 
 	var _getValuesFromState2 = _interopRequireDefault(_getValuesFromState);
 
-	var _initializeState = __webpack_require__(256);
+	var _initializeState = __webpack_require__(260);
 
 	var _initializeState2 = _interopRequireDefault(_initializeState);
 
-	var _resetState = __webpack_require__(257);
+	var _resetState = __webpack_require__(261);
 
 	var _resetState2 = _interopRequireDefault(_resetState);
 
-	var _setErrors = __webpack_require__(258);
+	var _setErrors = __webpack_require__(262);
 
 	var _setErrors2 = _interopRequireDefault(_setErrors);
 
-	var _fieldValue = __webpack_require__(255);
+	var _fieldValue = __webpack_require__(259);
 
-	var _normalizeFields = __webpack_require__(259);
+	var _normalizeFields = __webpack_require__(263);
 
 	var _normalizeFields2 = _interopRequireDefault(_normalizeFields);
 
@@ -27636,7 +27811,7 @@
 	exports.default = decorate(formReducer);
 
 /***/ },
-/* 250 */
+/* 254 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27661,7 +27836,7 @@
 	var UNTOUCH = exports.UNTOUCH = 'redux-form/UNTOUCH';
 
 /***/ },
-/* 251 */
+/* 255 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -27683,7 +27858,7 @@
 	}
 
 /***/ },
-/* 252 */
+/* 256 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27729,7 +27904,7 @@
 	exports.default = read;
 
 /***/ },
-/* 253 */
+/* 257 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27835,14 +28010,14 @@
 	exports.default = write;
 
 /***/ },
-/* 254 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _fieldValue = __webpack_require__(255);
+	var _fieldValue = __webpack_require__(259);
 
 	/**
 	 * A different version of getValues() that does not need the fields array
@@ -27881,7 +28056,7 @@
 	exports.default = getValuesFromState;
 
 /***/ },
-/* 255 */
+/* 259 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27906,7 +28081,7 @@
 	}
 
 /***/ },
-/* 256 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27915,7 +28090,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _fieldValue = __webpack_require__(255);
+	var _fieldValue = __webpack_require__(259);
 
 	var makeEntry = function makeEntry(value, previousValue, overwriteValues) {
 	  return (0, _fieldValue.makeFieldValue)(value === undefined ? {} : {
@@ -27987,14 +28162,14 @@
 	exports.default = initializeState;
 
 /***/ },
-/* 257 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _fieldValue = __webpack_require__(255);
+	var _fieldValue = __webpack_require__(259);
 
 	var reset = function reset(value) {
 	  return (0, _fieldValue.makeFieldValue)(value === undefined || value && value.initial === undefined ? {} : { initial: value.initial, value: value.initial });
@@ -28026,7 +28201,7 @@
 	exports.default = resetState;
 
 /***/ },
-/* 258 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28035,7 +28210,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _fieldValue = __webpack_require__(255);
+	var _fieldValue = __webpack_require__(259);
 
 	var isMetaKey = function isMetaKey(key) {
 	  return key[0] === '_';
@@ -28120,7 +28295,7 @@
 	exports.default = setErrors;
 
 /***/ },
-/* 259 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28131,7 +28306,7 @@
 
 	exports.default = normalizeFields;
 
-	var _fieldValue = __webpack_require__(255);
+	var _fieldValue = __webpack_require__(259);
 
 	function extractKey(field) {
 	  var dotIndex = field.indexOf('.');
@@ -28217,7 +28392,7 @@
 	}
 
 /***/ },
-/* 260 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28226,7 +28401,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _createReduxFormConnector = __webpack_require__(261);
+	var _createReduxFormConnector = __webpack_require__(265);
 
 	var _createReduxFormConnector2 = _interopRequireDefault(_createReduxFormConnector);
 
@@ -28291,22 +28466,22 @@
 	exports.default = createReduxForm;
 
 /***/ },
-/* 261 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _noGetters = __webpack_require__(262);
+	var _noGetters = __webpack_require__(266);
 
 	var _noGetters2 = _interopRequireDefault(_noGetters);
 
-	var _getDisplayName = __webpack_require__(264);
+	var _getDisplayName = __webpack_require__(268);
 
 	var _getDisplayName2 = _interopRequireDefault(_getDisplayName);
 
-	var _createHigherOrderComponent = __webpack_require__(265);
+	var _createHigherOrderComponent = __webpack_require__(269);
 
 	var _createHigherOrderComponent2 = _interopRequireDefault(_createHigherOrderComponent);
 
@@ -28396,14 +28571,14 @@
 	exports.default = createReduxFormConnector;
 
 /***/ },
-/* 262 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(263);
+	module.exports = __webpack_require__(267);
 
 
 /***/ },
-/* 263 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28498,7 +28673,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 264 */
+/* 268 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -28510,7 +28685,7 @@
 	}
 
 /***/ },
-/* 265 */
+/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28519,57 +28694,57 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _actions = __webpack_require__(266);
+	var _actions = __webpack_require__(270);
 
 	var importedActions = _interopRequireWildcard(_actions);
 
-	var _getDisplayName = __webpack_require__(264);
+	var _getDisplayName = __webpack_require__(268);
 
 	var _getDisplayName2 = _interopRequireDefault(_getDisplayName);
 
-	var _reducer = __webpack_require__(249);
+	var _reducer = __webpack_require__(253);
 
 	var _deepEqual = __webpack_require__(177);
 
 	var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
-	var _bindActionData = __webpack_require__(267);
+	var _bindActionData = __webpack_require__(271);
 
 	var _bindActionData2 = _interopRequireDefault(_bindActionData);
 
-	var _getValues = __webpack_require__(268);
+	var _getValues = __webpack_require__(272);
 
 	var _getValues2 = _interopRequireDefault(_getValues);
 
-	var _isValid = __webpack_require__(269);
+	var _isValid = __webpack_require__(273);
 
 	var _isValid2 = _interopRequireDefault(_isValid);
 
-	var _readFields = __webpack_require__(270);
+	var _readFields = __webpack_require__(274);
 
 	var _readFields2 = _interopRequireDefault(_readFields);
 
-	var _handleSubmit2 = __webpack_require__(284);
+	var _handleSubmit2 = __webpack_require__(288);
 
 	var _handleSubmit3 = _interopRequireDefault(_handleSubmit2);
 
-	var _asyncValidation = __webpack_require__(285);
+	var _asyncValidation = __webpack_require__(289);
 
 	var _asyncValidation2 = _interopRequireDefault(_asyncValidation);
 
-	var _silenceEvents = __webpack_require__(286);
+	var _silenceEvents = __webpack_require__(290);
 
 	var _silenceEvents2 = _interopRequireDefault(_silenceEvents);
 
-	var _silenceEvent = __webpack_require__(287);
+	var _silenceEvent = __webpack_require__(291);
 
 	var _silenceEvent2 = _interopRequireDefault(_silenceEvent);
 
-	var _wrapMapDispatchToProps = __webpack_require__(288);
+	var _wrapMapDispatchToProps = __webpack_require__(292);
 
 	var _wrapMapDispatchToProps2 = _interopRequireDefault(_wrapMapDispatchToProps);
 
-	var _wrapMapStateToProps = __webpack_require__(289);
+	var _wrapMapStateToProps = __webpack_require__(293);
 
 	var _wrapMapStateToProps2 = _interopRequireDefault(_wrapMapStateToProps);
 
@@ -28881,7 +29056,7 @@
 	exports.default = createHigherOrderComponent;
 
 /***/ },
-/* 266 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28889,7 +29064,7 @@
 	exports.__esModule = true;
 	exports.untouch = exports.touch = exports.swapArrayValues = exports.submitFailed = exports.stopSubmit = exports.stopAsyncValidation = exports.startSubmit = exports.startAsyncValidation = exports.reset = exports.removeArrayValue = exports.initialize = exports.focus = exports.destroy = exports.change = exports.blur = exports.autofill = exports.addArrayValue = undefined;
 
-	var _actionTypes = __webpack_require__(250);
+	var _actionTypes = __webpack_require__(254);
 
 	var addArrayValue = exports.addArrayValue = function addArrayValue(path, value, index, fields) {
 	  return { type: _actionTypes.ADD_ARRAY_VALUE, path: path, value: value, index: index, fields: fields };
@@ -28973,7 +29148,7 @@
 	};
 
 /***/ },
-/* 267 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28984,7 +29159,7 @@
 
 	exports.default = bindActionData;
 
-	var _mapValues = __webpack_require__(251);
+	var _mapValues = __webpack_require__(255);
 
 	var _mapValues2 = _interopRequireDefault(_mapValues);
 
@@ -29008,7 +29183,7 @@
 	}
 
 /***/ },
-/* 268 */
+/* 272 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29078,7 +29253,7 @@
 	exports.default = getValues;
 
 /***/ },
-/* 269 */
+/* 273 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29100,7 +29275,7 @@
 	}
 
 /***/ },
-/* 270 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29109,19 +29284,19 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _readField = __webpack_require__(271);
+	var _readField = __webpack_require__(275);
 
 	var _readField2 = _interopRequireDefault(_readField);
 
-	var _write = __webpack_require__(253);
+	var _write = __webpack_require__(257);
 
 	var _write2 = _interopRequireDefault(_write);
 
-	var _getValues = __webpack_require__(268);
+	var _getValues = __webpack_require__(272);
 
 	var _getValues2 = _interopRequireDefault(_getValues);
 
-	var _removeField = __webpack_require__(283);
+	var _removeField = __webpack_require__(287);
 
 	var _removeField2 = _interopRequireDefault(_removeField);
 
@@ -29171,7 +29346,7 @@
 	exports.default = readFields;
 
 /***/ },
-/* 271 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29180,35 +29355,35 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _createOnBlur = __webpack_require__(272);
+	var _createOnBlur = __webpack_require__(276);
 
 	var _createOnBlur2 = _interopRequireDefault(_createOnBlur);
 
-	var _createOnChange = __webpack_require__(275);
+	var _createOnChange = __webpack_require__(279);
 
 	var _createOnChange2 = _interopRequireDefault(_createOnChange);
 
-	var _createOnDragStart = __webpack_require__(276);
+	var _createOnDragStart = __webpack_require__(280);
 
 	var _createOnDragStart2 = _interopRequireDefault(_createOnDragStart);
 
-	var _createOnDrop = __webpack_require__(277);
+	var _createOnDrop = __webpack_require__(281);
 
 	var _createOnDrop2 = _interopRequireDefault(_createOnDrop);
 
-	var _createOnFocus = __webpack_require__(278);
+	var _createOnFocus = __webpack_require__(282);
 
 	var _createOnFocus2 = _interopRequireDefault(_createOnFocus);
 
-	var _silencePromise = __webpack_require__(279);
+	var _silencePromise = __webpack_require__(283);
 
 	var _silencePromise2 = _interopRequireDefault(_silencePromise);
 
-	var _read = __webpack_require__(252);
+	var _read = __webpack_require__(256);
 
 	var _read2 = _interopRequireDefault(_read);
 
-	var _updateField = __webpack_require__(281);
+	var _updateField = __webpack_require__(285);
 
 	var _updateField2 = _interopRequireDefault(_updateField);
 
@@ -29394,14 +29569,14 @@
 	exports.default = readField;
 
 /***/ },
-/* 272 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _getValue = __webpack_require__(273);
+	var _getValue = __webpack_require__(277);
 
 	var _getValue2 = _interopRequireDefault(_getValue);
 
@@ -29419,14 +29594,14 @@
 	exports.default = createOnBlur;
 
 /***/ },
-/* 273 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _isEvent = __webpack_require__(274);
+	var _isEvent = __webpack_require__(278);
 
 	var _isEvent2 = _interopRequireDefault(_isEvent);
 
@@ -29479,7 +29654,7 @@
 	exports.default = getValue;
 
 /***/ },
-/* 274 */
+/* 278 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -29492,14 +29667,14 @@
 	exports.default = isEvent;
 
 /***/ },
-/* 275 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _getValue = __webpack_require__(273);
+	var _getValue = __webpack_require__(277);
 
 	var _getValue2 = _interopRequireDefault(_getValue);
 
@@ -29513,7 +29688,7 @@
 	exports.default = createOnChange;
 
 /***/ },
-/* 276 */
+/* 280 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29529,14 +29704,14 @@
 	exports.default = createOnDragStart;
 
 /***/ },
-/* 277 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _createOnDragStart = __webpack_require__(276);
+	var _createOnDragStart = __webpack_require__(280);
 
 	var createOnDrop = function createOnDrop(name, change) {
 	  return function (event) {
@@ -29546,7 +29721,7 @@
 	exports.default = createOnDrop;
 
 /***/ },
-/* 278 */
+/* 282 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -29560,14 +29735,14 @@
 	exports.default = createOnFocus;
 
 /***/ },
-/* 279 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _isPromise = __webpack_require__(280);
+	var _isPromise = __webpack_require__(284);
 
 	var _isPromise2 = _interopRequireDefault(_isPromise);
 
@@ -29584,7 +29759,7 @@
 	exports.default = silencePromise;
 
 /***/ },
-/* 280 */
+/* 284 */
 /***/ function(module, exports) {
 
 	module.exports = isPromise;
@@ -29595,7 +29770,7 @@
 
 
 /***/ },
-/* 281 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29604,11 +29779,11 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _isPristine = __webpack_require__(282);
+	var _isPristine = __webpack_require__(286);
 
 	var _isPristine2 = _interopRequireDefault(_isPristine);
 
-	var _isValid = __webpack_require__(269);
+	var _isValid = __webpack_require__(273);
 
 	var _isValid2 = _interopRequireDefault(_isValid);
 
@@ -29670,7 +29845,7 @@
 	exports.default = updateField;
 
 /***/ },
-/* 282 */
+/* 286 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29708,7 +29883,7 @@
 	}
 
 /***/ },
-/* 283 */
+/* 287 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29788,18 +29963,18 @@
 	exports.default = removeField;
 
 /***/ },
-/* 284 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _isPromise = __webpack_require__(280);
+	var _isPromise = __webpack_require__(284);
 
 	var _isPromise2 = _interopRequireDefault(_isPromise);
 
-	var _isValid = __webpack_require__(269);
+	var _isValid = __webpack_require__(273);
 
 	var _isValid2 = _interopRequireDefault(_isValid);
 
@@ -29870,18 +30045,18 @@
 	exports.default = handleSubmit;
 
 /***/ },
-/* 285 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _isPromise = __webpack_require__(280);
+	var _isPromise = __webpack_require__(284);
 
 	var _isPromise2 = _interopRequireDefault(_isPromise);
 
-	var _isValid = __webpack_require__(269);
+	var _isValid = __webpack_require__(273);
 
 	var _isValid2 = _interopRequireDefault(_isValid);
 
@@ -29912,14 +30087,14 @@
 	exports.default = asyncValidation;
 
 /***/ },
-/* 286 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _silenceEvent = __webpack_require__(287);
+	var _silenceEvent = __webpack_require__(291);
 
 	var _silenceEvent2 = _interopRequireDefault(_silenceEvent);
 
@@ -29938,14 +30113,14 @@
 	exports.default = silenceEvents;
 
 /***/ },
-/* 287 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _isEvent = __webpack_require__(274);
+	var _isEvent = __webpack_require__(278);
 
 	var _isEvent2 = _interopRequireDefault(_isEvent);
 
@@ -29962,7 +30137,7 @@
 	exports.default = silenceEvent;
 
 /***/ },
-/* 288 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30005,7 +30180,7 @@
 	exports.default = wrapMapDispatchToProps;
 
 /***/ },
-/* 289 */
+/* 293 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30042,7 +30217,7 @@
 	exports.default = wrapMapStateToProps;
 
 /***/ },
-/* 290 */
+/* 294 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -30088,10 +30263,12 @@
 	exports.default = createPropTypes;
 
 /***/ },
-/* 291 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * Reducer for the cache form.
+	 *
 	 * Created by kim on 2016-05-06.
 	 */
 	'use strict';
@@ -30101,8 +30278,15 @@
 	});
 	exports.default = cacheform;
 
-	var _ActionTypes = __webpack_require__(292);
+	var _ActionTypes = __webpack_require__(296);
 
+	/**
+	 * Takes a state and an action and produces a new state. Will update the fields.
+	 *
+	 * @param state current state
+	 * @param action action that triggered the state change
+	 * @returns {*} new state
+	 */
 	function cacheform() {
 	  var state = arguments.length <= 0 || arguments[0] === undefined ? { fields: {} } : arguments[0];
 	  var action = arguments[1];
@@ -30116,10 +30300,12 @@
 	}
 
 /***/ },
-/* 292 */
+/* 296 */
 /***/ function(module, exports) {
 
 	/**
+	 * ActionTypes for the actions.
+	 *
 	 * Created by kim on 2016-05-05.
 	 */
 	'use strict';
@@ -30131,10 +30317,12 @@
 	var FETCH_FORM_SUBMIT = exports.FETCH_FORM_SUBMIT = 'FETCH_FORM_SUBMIT';
 
 /***/ },
-/* 293 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * Reducer for the fetch form.
+	 *
 	 * Created by kim on 2016-05-06.
 	 */
 	'use strict';
@@ -30144,8 +30332,15 @@
 	});
 	exports.default = fetchform;
 
-	var _ActionTypes = __webpack_require__(292);
+	var _ActionTypes = __webpack_require__(296);
 
+	/**
+	 * Takes a state and an action and produces a new state. Will update the fetchform fields.
+	 *
+	 * @param state current state
+	 * @param action action that triggered the state update
+	 * @returns {*} new state
+	 */
 	function fetchform() {
 	  var state = arguments.length <= 0 || arguments[0] === undefined ? { fields: {} } : arguments[0];
 	  var action = arguments[1];
@@ -30159,7 +30354,7 @@
 	}
 
 /***/ },
-/* 294 */
+/* 298 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30187,7 +30382,7 @@
 	exports['default'] = thunk;
 
 /***/ },
-/* 295 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30198,7 +30393,7 @@
 
 	exports['default'] = promiseMiddleware;
 
-	var _fluxStandardAction = __webpack_require__(296);
+	var _fluxStandardAction = __webpack_require__(300);
 
 	function isPromise(val) {
 	  return val && typeof val.then === 'function';
@@ -30225,7 +30420,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 296 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30236,7 +30431,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodashIsplainobject = __webpack_require__(297);
+	var _lodashIsplainobject = __webpack_require__(301);
 
 	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
 
@@ -30255,7 +30450,7 @@
 	}
 
 /***/ },
-/* 297 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -30266,9 +30461,9 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var baseFor = __webpack_require__(298),
-	    isArguments = __webpack_require__(299),
-	    keysIn = __webpack_require__(300);
+	var baseFor = __webpack_require__(302),
+	    isArguments = __webpack_require__(303),
+	    keysIn = __webpack_require__(304);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -30364,7 +30559,7 @@
 
 
 /***/ },
-/* 298 */
+/* 302 */
 /***/ function(module, exports) {
 
 	/**
@@ -30418,7 +30613,7 @@
 
 
 /***/ },
-/* 299 */
+/* 303 */
 /***/ function(module, exports) {
 
 	/**
@@ -30667,7 +30862,7 @@
 
 
 /***/ },
-/* 300 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -30678,8 +30873,8 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var isArguments = __webpack_require__(299),
-	    isArray = __webpack_require__(301);
+	var isArguments = __webpack_require__(303),
+	    isArray = __webpack_require__(305);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -30805,7 +31000,7 @@
 
 
 /***/ },
-/* 301 */
+/* 305 */
 /***/ function(module, exports) {
 
 	/**
@@ -30991,7 +31186,7 @@
 
 
 /***/ },
-/* 302 */
+/* 306 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -31224,7 +31419,7 @@
 	module.exports = createLogger;
 
 /***/ },
-/* 303 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31239,19 +31434,26 @@
 
 	var _reactRouter = __webpack_require__(159);
 
-	var _App = __webpack_require__(304);
+	var _App = __webpack_require__(308);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Index = __webpack_require__(312);
+	var _Index = __webpack_require__(311);
 
 	var _Index2 = _interopRequireDefault(_Index);
 
-	var _ = __webpack_require__(311);
+	var _ = __webpack_require__(320);
 
 	var _2 = _interopRequireDefault(_);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * Creates the react-router given a history
+	 *
+	 * @param history
+	 * @returns {XML}
+	 */
 
 	exports.default = function (history) {
 	  return _react2.default.createElement(
@@ -31265,13 +31467,18 @@
 	    )
 	  );
 	}; /**
+	    * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
+	    *
 	    * Created by kim on 2016-05-11.
 	    */
 
 /***/ },
-/* 304 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Main app redux-container that bootstraps header, footer and main content depending on the active route.
+	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -31286,11 +31493,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _Header = __webpack_require__(305);
+	var _Header = __webpack_require__(309);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Footer = __webpack_require__(306);
+	var _Footer = __webpack_require__(310);
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
@@ -31358,9 +31565,12 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
 
 /***/ },
-/* 305 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Functional stateless Header component.
+	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -31394,17 +31604,15 @@
 	};
 
 	Header.displayName = 'Header';
-
-	// Uncomment properties you need
-	// Header.propTypes = {};
-	// Header.defaultProps = {};
-
 	exports.default = Header;
 
 /***/ },
-/* 306 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Functional stateless Footer component.
+	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -31438,18 +31646,96 @@
 	};
 
 	Footer.displayName = 'Footer';
-
-	// Uncomment properties you need
-	// Footer.propTypes = {};
-	// Footer.defaultProps = {};
-
 	exports.default = Footer;
 
 /***/ },
-/* 307 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * Index redux-container. Container for the index-route and connects it to the redux store.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _Forms = __webpack_require__(312);
+
+	var _Forms2 = _interopRequireDefault(_Forms);
+
+	var _CacheMem = __webpack_require__(316);
+
+	var _CacheMem2 = _interopRequireDefault(_CacheMem);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Index = function (_React$Component) {
+	  _inherits(Index, _React$Component);
+
+	  function Index() {
+	    _classCallCheck(this, Index);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Index).apply(this, arguments));
+	  }
+
+	  _createClass(Index, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'index container-fluid' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(_Forms2.default, null)
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(_CacheMem2.default, null)
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Index;
+	}(_react2.default.Component);
+
+	Index.propTypes = {};
+
+	function mapStateToProps() {
+	  return {};
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Index);
+
+/***/ },
+/* 312 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Forms redux-container. Connects the forms to the redux-store.
+	 *
 	 * Created by kim on 2016-05-11.
 	 */
 
@@ -31469,15 +31755,15 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(308);
+	var _CacheForm = __webpack_require__(313);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _FetchForm = __webpack_require__(309);
+	var _FetchForm = __webpack_require__(314);
 
 	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
-	var _actions = __webpack_require__(310);
+	var _actions = __webpack_require__(315);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -31525,15 +31811,35 @@
 	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
 	};
 
+	/**
+	 * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
 	function mapStateToProps() {
 	  return {};
 	}
-
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{cacheHandleSubmit: cacheHandleSubmit, fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 */
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
+	    /**
+	     * Function to handle submission of the cacheform. Dispatches a action
+	     * @param fields fields of the action
+	     */
 	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
 	      dispatch(actions.cacheFormSubmit(fields));
 	    },
+	    /**
+	     * Function to handle submission of the fetchform. Dispatches a action.
+	     * @param fields of the action
+	     */
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
 	      dispatch(actions.fetchFormSubmit(fields));
 	    }
@@ -31543,9 +31849,12 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Forms);
 
 /***/ },
-/* 308 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * CacheForm component. A component that contains a form for filling in information about the cache.
+	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -31561,7 +31870,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reduxForm = __webpack_require__(247);
+	var _reduxForm = __webpack_require__(251);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31573,6 +31882,12 @@
 
 	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity'];
 
+	/**
+	 * Function to validate form input parameters.
+	 *
+	 * @param values values to validate
+	 * @returns {{}} - object that contains errors if the exists.
+	 */
 	var validate = function validate(values) {
 	  var errors = {};
 	  if (!values.cacheSize) {
@@ -31716,14 +32031,12 @@
 	}(_react2.default.Component);
 
 	CacheForm.displayName = 'CacheForm';
-
 	CacheForm.propTypes = {
 	  fields: _react2.default.PropTypes.object.isRequired,
 	  handleSubmit: _react2.default.PropTypes.func.isRequired,
 	  resetForm: _react2.default.PropTypes.func.isRequired,
 	  submitting: _react2.default.PropTypes.bool.isRequired
 	};
-	// CacheForm.defaultProps = {};
 
 	exports.default = (0, _reduxForm.reduxForm)({
 	  form: 'synchronousValidation',
@@ -31732,9 +32045,12 @@
 	})(CacheForm);
 
 /***/ },
-/* 309 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * FetchForm Component. A component containing a form for attempting to load from the cache.
+	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -31750,7 +32066,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reduxForm = __webpack_require__(247);
+	var _reduxForm = __webpack_require__(251);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31762,6 +32078,12 @@
 
 	var fields = exports.fields = ['fetchAddress', 'operationType'];
 
+	/**
+	 * Function to validate form input parameters.
+	 *
+	 * @param values to validate
+	 * @returns {{}} - object that contains errors if the exists.
+	 */
 	var validate = function validate(values) {
 	  var errors = {};
 
@@ -31867,7 +32189,6 @@
 	  handleSubmit: _react2.default.PropTypes.func.isRequired,
 	  submitting: _react2.default.PropTypes.bool.isRequired
 	};
-	// FetchForm.defaultProps = {};
 
 	exports.default = (0, _reduxForm.reduxForm)({
 	  form: 'synchronousValidation',
@@ -31876,7 +32197,7 @@
 	})(FetchForm);
 
 /***/ },
-/* 310 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31887,22 +32208,36 @@
 	exports.cacheFormSubmit = cacheFormSubmit;
 	exports.fetchFormSubmit = fetchFormSubmit;
 
-	var _ActionTypes = __webpack_require__(292);
+	var _ActionTypes = __webpack_require__(296);
 
 	var types = _interopRequireWildcard(_ActionTypes);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+	/**
+	 * Creates the cacheform action.
+	 *
+	 * @param fields fields of the form
+	 * @returns {{type, fields: *}}
+	 */
 	function cacheFormSubmit(fields) {
 	  return {
 	    type: types.CACHE_FORM_SUBMIT,
 	    fields: fields
 	  };
-	} /**
-	   * Created by kim on 2016-05-05.
-	   */
+	}
 
-
+	/**
+	 * Creates the fetchform action.
+	 *
+	 * @param fields fields of the form
+	 * @returns {{type, fields: *}}
+	 */
+	/**
+	 * ActionCreator, returns action objects of different types.
+	 *
+	 * Created by kim on 2016-05-05.
+	 */
 	function fetchFormSubmit(fields) {
 	  return {
 	    type: types.FETCH_FORM_SUBMIT,
@@ -31911,128 +32246,12 @@
 	}
 
 /***/ },
-/* 311 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NotFound = function NotFound() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: '404-component' },
-	    _react2.default.createElement(
-	      'h1',
-	      null,
-	      '404 - PAGE NOT FOUND'
-	    )
-	  );
-	};
-
-	NotFound.displayName = 'NotFound';
-
-	// Uncomment properties you need
-	// Header.propTypes = {};
-	// Header.defaultProps = {};
-
-	exports.default = NotFound;
-
-/***/ },
-/* 312 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _Forms = __webpack_require__(307);
-
-	var _Forms2 = _interopRequireDefault(_Forms);
-
-	var _CacheMem = __webpack_require__(313);
-
-	var _CacheMem2 = _interopRequireDefault(_CacheMem);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var App = function (_React$Component) {
-	  _inherits(App, _React$Component);
-
-	  function App() {
-	    _classCallCheck(this, App);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(App).apply(this, arguments));
-	  }
-
-	  _createClass(App, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'index container-fluid' },
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_Forms2.default, null)
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_CacheMem2.default, null)
-	        )
-	      );
-	    }
-	  }]);
-
-	  return App;
-	}(_react2.default.Component);
-
-	App.propTypes = {};
-
-	function mapStateToProps() {
-	  return {};
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
-
-/***/ },
-/* 313 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
+	 * CacheMemory redux-container. Connects the cachememory layout with the redux store.
+	 *
 	 * Created by kim on 2016-05-12.
 	 */
 
@@ -32050,11 +32269,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _actions = __webpack_require__(310);
+	var _actions = __webpack_require__(315);
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _Table = __webpack_require__(314);
+	var _Table = __webpack_require__(317);
 
 	var _Table2 = _interopRequireDefault(_Table);
 
@@ -32068,16 +32287,16 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Index = function (_React$Component) {
-	  _inherits(Index, _React$Component);
+	var CacheMem = function (_React$Component) {
+	  _inherits(CacheMem, _React$Component);
 
-	  function Index() {
-	    _classCallCheck(this, Index);
+	  function CacheMem() {
+	    _classCallCheck(this, CacheMem);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Index).apply(this, arguments));
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheMem).apply(this, arguments));
 	  }
 
-	  _createClass(Index, [{
+	  _createClass(CacheMem, [{
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -32088,10 +32307,10 @@
 	    }
 	  }]);
 
-	  return Index;
+	  return CacheMem;
 	}(_react2.default.Component);
 
-	Index.propTypes = {};
+	CacheMem.propTypes = {};
 
 	function mapStateToProps() {
 	  return {};
@@ -32101,13 +32320,15 @@
 	  return {};
 	};
 
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Index);
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
 
 /***/ },
-/* 314 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * TableComponent. A component displaying a table, that illustrates a cachememory.
+	 *
 	 * Created by kim on 2016-05-12.
 	 */
 
@@ -32123,7 +32344,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableRow = __webpack_require__(315);
+	var _TableRow = __webpack_require__(318);
 
 	var _TableRow2 = _interopRequireDefault(_TableRow);
 
@@ -32145,9 +32366,6 @@
 	  }
 
 	  _createClass(Table, [{
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {}
-	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var rows = [];
@@ -32174,18 +32392,15 @@
 	}(_react2.default.Component);
 
 	Table.displayName = 'Table';
-
-	// Uncomment properties you need
-	// Table.propTypes = {};
-	// Table.defaultProps = {};
-
 	exports.default = Table;
 
 /***/ },
-/* 315 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * TableRow component. Constitutes as a row in a table.
+	 *
 	 * Created by kim on 2016-05-12.
 	 */
 
@@ -32201,7 +32416,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableElement = __webpack_require__(316);
+	var _TableElement = __webpack_require__(319);
 
 	var _TableElement2 = _interopRequireDefault(_TableElement);
 
@@ -32241,18 +32456,15 @@
 	}(_react2.default.Component);
 
 	TableRow.displayName = 'TableRow';
-
-	// Uncomment properties you need
-	// TableRow.propTypes = {};
-	// TableRow.defaultProps = {};
-
 	exports.default = TableRow;
 
 /***/ },
-/* 316 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * TableElementComponent. Functional stateless component that constitutes as a element in a table.
+	 *
 	 * Created by kim on 2016-05-12.
 	 */
 
@@ -32273,12 +32485,44 @@
 	};
 
 	TableElement.displayName = 'TableElement';
-
-	// Uncomment properties you need
-	// TableRow.propTypes = {};
-	// TableRow.defaultProps = {};
-
 	exports.default = TableElement;
+
+/***/ },
+/* 320 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for 404s - when page is not found.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NotFound = function NotFound() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: '404-component' },
+	    _react2.default.createElement(
+	      'h1',
+	      null,
+	      '404 - PAGE NOT FOUND'
+	    )
+	  );
+	};
+
+	NotFound.displayName = 'NotFound';
+	exports.default = NotFound;
 
 /***/ }
 /******/ ]);

@@ -1,4 +1,6 @@
 /**
+ * TableElementComponent. Functional stateless component that constitutes as a element in a table.
+ *
  * Created by kim on 2016-05-12.
  */
 
@@ -11,9 +13,4 @@ let TableElement = () => (
 );
 
 TableElement.displayName = 'TableElement';
-
-// Uncomment properties you need
-// TableRow.propTypes = {};
-// TableRow.defaultProps = {};
-
 export default TableElement;

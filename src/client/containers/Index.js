@@ -1,3 +1,6 @@
+/**
+ * Index redux-container. Container for the index-route and connects it to the redux store.
+ */
 'use strict';
 
 import React from 'react';
@@ -5,7 +8,7 @@ import { connect } from 'react-redux'
 import Forms from './Forms';
 import CacheMemory from './CacheMem';
 
-class App extends React.Component {
+class Index extends React.Component {
   render() {
     return (
       <div className="index container-fluid">
@@ -20,7 +23,7 @@ class App extends React.Component {
   }
 }
 
-App.propTypes = {}
+Index.propTypes = {}
 
 function mapStateToProps() {
   return {}
@@ -33,6 +36,6 @@ const mapDispatchToProps = () => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(App)
+)(Index)
 
 

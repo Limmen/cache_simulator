@@ -1,4 +1,6 @@
 /**
+ * Test for the action-creator.
+ *
  * Created by kim on 2016-05-11.
  */
 

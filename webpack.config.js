@@ -1,4 +1,6 @@
 /**
+ * Webpack configuration file.
+ *
  * Created by kim on 2016-05-10.
  */
 
@@ -6,7 +8,7 @@
 const webpack = require('webpack');
 const path = require('path');
 
-var BUILD_DIR = path.resolve(__dirname, './dist/assets');
+let BUILD_DIR = path.resolve(__dirname, './dist/assets');
 
 var config = {
   entry: "./src/client/index.js",

@@ -1,4 +1,6 @@
 /**
+ * Test for the header-component
+ *
  * Created by kim on 2016-05-11.
  */
 
