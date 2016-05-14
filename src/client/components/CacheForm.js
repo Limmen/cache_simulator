@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
-export const fields = ['cacheSize', 'blockSize', 'associativity']
+export const fields = ['blockCount', 'blockSize', 'associativity']
 
 /**
  * Function to validate form input parameters.
@@ -15,14 +15,14 @@ export const fields = ['cacheSize', 'blockSize', 'associativity']
  */
 const validate = values => {
   const errors = {}
-  if (!values.cacheSize) {
-    errors.cacheSize = 'Required'
-  } else if (isNaN(Number(values.cacheSize))) {
-    errors.cacheSize = 'Must be a positive integer'
-  } else if (!Number.isInteger(Number(values.cacheSize))) {
-    errors.cacheSize = 'Must be a positive integer'
-  } else if (Number(values.cacheSize) < 0) {
-    errors.cacheSize = 'Must be a positive integer'
+  if (!values.blockCount) {
+    errors.blockCount = 'Required'
+  } else if (isNaN(Number(values.blockCount))) {
+    errors.blockCount = 'Must be a positive integer'
+  } else if (!Number.isInteger(Number(values.blockCount))) {
+    errors.blockCount = 'Must be a positive integer'
+  } else if (Number(values.blockCount) < 0) {
+    errors.blockCount = 'Must be a positive integer'
   }
 
   if (!values.blockSize) {
@@ -51,19 +51,19 @@ const validate = values => {
 
 class CacheForm extends React.Component {
   render() {
-    const { fields: { cacheSize, blockSize, associativity }, resetForm, handleSubmit, submitting } = this.props
+    const { fields: { blockCount, blockSize, associativity }, resetForm, handleSubmit, submitting } = this.props
     return (
       <div className="cacheform-component row">
         <form onSubmit={handleSubmit}>
           <div className="form-group col-sm-4">
-            <label>Cache size</label>
+            <label>Block count</label>
             <div>
-              <input type="text" placeholder="cache size" {...cacheSize} className="form-control"/>
+              <input type="text" placeholder="cache size" {...blockCount} className="form-control"/>
             </div>
-            {cacheSize.touched && cacheSize.error && <div>{cacheSize.error}</div>}
+            {blockCount.touched && blockCount.error && <div>{blockCount.error}</div>}
           </div>
           <div className="form-group col-sm-4">
-            <label>Block size</label>
+            <label>Block size (bytes)</label>
             <div>
               <input type="text" placeholder="block size" {...blockSize} className="form-control"/>
             </div>

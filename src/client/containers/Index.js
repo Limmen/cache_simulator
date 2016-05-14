@@ -5,18 +5,38 @@
 
 import React from 'react';
 import { connect } from 'react-redux'
-import Forms from './Forms';
+import SettingsPanel from './SettingsPanel';
+import InstructionPanel from './InstructionPanel';
 import CacheMemory from './CacheMem';
 
 class Index extends React.Component {
+
+  renderCache() {
+    if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
+      return (
+        <div className="cache_panel">
+          <div className="row">
+            <CacheMemory />
+          </div>
+          <div className="row">
+            <InstructionPanel />
+          </div>
+        </div>
+      )
+    }
+    else {
+      return (
+        <h3><strong>Enter properties for the cache to simulate it</strong></h3>
+      )
+    }
+  }
+
   render() {
     return (
       <div className="index container-fluid">
         <div className="row">
-          <Forms />
-        </div>
-        <div className="row">
-          <CacheMemory />
+          <SettingsPanel />
+          {this.renderCache()}
         </div>
       </div>
     );
@@ -25,8 +45,18 @@ class Index extends React.Component {
 
 Index.propTypes = {}
 
-function mapStateToProps() {
-  return {}
+/**
+ * Maps application state that is used in this container to props.
+ *
+ * @param state application state
+ * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+ */
+function mapStateToProps(state) {
+  return {
+    associativity: state.cacheform.associativity,
+    blockCount: state.cacheform.blockCount,
+    blockSize: state.cacheform.blockSize
+  }
 }
 
 const mapDispatchToProps = () => {

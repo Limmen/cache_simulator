@@ -31442,7 +31442,7 @@
 
 	var _Index2 = _interopRequireDefault(_Index);
 
-	var _ = __webpack_require__(320);
+	var _ = __webpack_require__(318);
 
 	var _2 = _interopRequireDefault(_);
 
@@ -31669,11 +31669,15 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _Forms = __webpack_require__(312);
+	var _SettingsPanel = __webpack_require__(312);
 
-	var _Forms2 = _interopRequireDefault(_Forms);
+	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
 
-	var _CacheMem = __webpack_require__(316);
+	var _InstructionPanel = __webpack_require__(315);
+
+	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
+
+	var _CacheMem = __webpack_require__(317);
 
 	var _CacheMem2 = _interopRequireDefault(_CacheMem);
 
@@ -31695,6 +31699,36 @@
 	  }
 
 	  _createClass(Index, [{
+	    key: 'renderCache',
+	    value: function renderCache() {
+	      if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
+	        return _react2.default.createElement(
+	          'div',
+	          { className: 'cache_panel' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(_CacheMem2.default, null)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(_InstructionPanel2.default, null)
+	          )
+	        );
+	      } else {
+	        return _react2.default.createElement(
+	          'h3',
+	          null,
+	          _react2.default.createElement(
+	            'strong',
+	            null,
+	            'Enter properties for the cache to simulate it'
+	          )
+	        );
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -31703,12 +31737,8 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'row' },
-	          _react2.default.createElement(_Forms2.default, null)
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_CacheMem2.default, null)
+	          _react2.default.createElement(_SettingsPanel2.default, null),
+	          this.renderCache()
 	        )
 	      );
 	    }
@@ -31719,8 +31749,12 @@
 
 	Index.propTypes = {};
 
-	function mapStateToProps() {
-	  return {};
+	function mapStateToProps(state) {
+	  return {
+	    associativity: state.cacheform.associativity,
+	    blockCount: state.cacheform.blockCount,
+	    blockSize: state.cacheform.blockSize
+	  };
 	}
 
 	var mapDispatchToProps = function mapDispatchToProps() {
@@ -31734,7 +31768,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Forms redux-container. Connects the forms to the redux-store.
+	 * SettingsPanel redux-container. Connects the forms to the redux-store.
 	 *
 	 * Created by kim on 2016-05-11.
 	 */
@@ -31744,8 +31778,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -31759,11 +31791,7 @@
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _FetchForm = __webpack_require__(314);
-
-	var _FetchForm2 = _interopRequireDefault(_FetchForm);
-
-	var _actions = __webpack_require__(315);
+	var _actions = __webpack_require__(314);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -31777,38 +31805,31 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Forms = function (_React$Component) {
-	  _inherits(Forms, _React$Component);
+	var SettingsPanel = function (_React$Component) {
+	  _inherits(SettingsPanel, _React$Component);
 
-	  function Forms() {
-	    _classCallCheck(this, Forms);
+	  function SettingsPanel() {
+	    _classCallCheck(this, SettingsPanel);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Forms).apply(this, arguments));
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsPanel).apply(this, arguments));
 	  }
 
-	  _createClass(Forms, [{
+	  _createClass(SettingsPanel, [{
 	    key: 'render',
 	    value: function render() {
-	      var myInitialValues = {
-	        initialValues: {
-	          operationType: 'LOAD'
-	        }
-	      };
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_CacheForm2.default, { onSubmit: this.props.cacheHandleSubmit }),
-	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues))
+	        _react2.default.createElement(_CacheForm2.default, { onSubmit: this.props.cacheHandleSubmit })
 	      );
 	    }
 	  }]);
 
-	  return Forms;
+	  return SettingsPanel;
 	}(_react2.default.Component);
 
-	Forms.propTypes = {
-	  cacheHandleSubmit: _react2.default.PropTypes.func.isRequired,
-	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
+	SettingsPanel.propTypes = {
+	  cacheHandleSubmit: _react2.default.PropTypes.func.isRequired
 	};
 
 	/**
@@ -31835,18 +31856,11 @@
 	     */
 	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
 	      dispatch(actions.cacheFormSubmit(fields));
-	    },
-	    /**
-	     * Function to handle submission of the fetchform. Dispatches a action.
-	     * @param fields of the action
-	     */
-	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
-	      dispatch(actions.fetchFormSubmit(fields));
 	    }
 	  };
 	};
 
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Forms);
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
 
 /***/ },
 /* 313 */
@@ -31880,7 +31894,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity'];
+	var fields = exports.fields = ['blockCount', 'blockSize', 'associativity'];
 
 	/**
 	 * Function to validate form input parameters.
@@ -31890,14 +31904,14 @@
 	 */
 	var validate = function validate(values) {
 	  var errors = {};
-	  if (!values.cacheSize) {
-	    errors.cacheSize = 'Required';
-	  } else if (isNaN(Number(values.cacheSize))) {
-	    errors.cacheSize = 'Must be a positive integer';
-	  } else if (!Number.isInteger(Number(values.cacheSize))) {
-	    errors.cacheSize = 'Must be a positive integer';
-	  } else if (Number(values.cacheSize) < 0) {
-	    errors.cacheSize = 'Must be a positive integer';
+	  if (!values.blockCount) {
+	    errors.blockCount = 'Required';
+	  } else if (isNaN(Number(values.blockCount))) {
+	    errors.blockCount = 'Must be a positive integer';
+	  } else if (!Number.isInteger(Number(values.blockCount))) {
+	    errors.blockCount = 'Must be a positive integer';
+	  } else if (Number(values.blockCount) < 0) {
+	    errors.blockCount = 'Must be a positive integer';
 	  }
 
 	  if (!values.blockSize) {
@@ -31937,7 +31951,7 @@
 	    value: function render() {
 	      var _props = this.props;
 	      var _props$fields = _props.fields;
-	      var cacheSize = _props$fields.cacheSize;
+	      var blockCount = _props$fields.blockCount;
 	      var blockSize = _props$fields.blockSize;
 	      var associativity = _props$fields.associativity;
 	      var resetForm = _props.resetForm;
@@ -31956,17 +31970,17 @@
 	            _react2.default.createElement(
 	              'label',
 	              null,
-	              'Cache size'
+	              'Block count'
 	            ),
 	            _react2.default.createElement(
 	              'div',
 	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, cacheSize, { className: 'form-control' }))
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, blockCount, { className: 'form-control' }))
 	            ),
-	            cacheSize.touched && cacheSize.error && _react2.default.createElement(
+	            blockCount.touched && blockCount.error && _react2.default.createElement(
 	              'div',
 	              null,
-	              cacheSize.error
+	              blockCount.error
 	            )
 	          ),
 	          _react2.default.createElement(
@@ -31975,7 +31989,7 @@
 	            _react2.default.createElement(
 	              'label',
 	              null,
-	              'Block size'
+	              'Block size (bytes)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
@@ -32046,6 +32060,175 @@
 
 /***/ },
 /* 314 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.cacheFormSubmit = cacheFormSubmit;
+	exports.fetchFormSubmit = fetchFormSubmit;
+
+	var _ActionTypes = __webpack_require__(296);
+
+	var types = _interopRequireWildcard(_ActionTypes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	/**
+	 * Creates the cacheform action.
+	 *
+	 * @param fields fields of the form
+	 * @returns {{type, fields: *}}
+	 */
+	function cacheFormSubmit(fields) {
+	  return {
+	    type: types.CACHE_FORM_SUBMIT,
+	    fields: fields
+	  };
+	}
+
+	/**
+	 * Creates the fetchform action.
+	 *
+	 * @param fields
+	 * @returns {{type, fields: *}}
+	 */
+	/**
+	 * ActionCreator, returns action objects of different types.
+	 *
+	 * Created by kim on 2016-05-05.
+	 */
+	function fetchFormSubmit(fields) {
+	  return {
+	    type: types.FETCH_FORM_SUBMIT,
+	    fields: fields
+	  };
+	}
+
+/***/ },
+/* 315 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * InstructionPanel redux-container. Connects the forms to the redux-store.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _FetchForm = __webpack_require__(316);
+
+	var _FetchForm2 = _interopRequireDefault(_FetchForm);
+
+	var _actions = __webpack_require__(314);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var InstructionPanel = function (_React$Component) {
+	  _inherits(InstructionPanel, _React$Component);
+
+	  function InstructionPanel() {
+	    _classCallCheck(this, InstructionPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(InstructionPanel).apply(this, arguments));
+	  }
+
+	  _createClass(InstructionPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      var myInitialValues = {
+	        initialValues: {
+	          operationType: 'LOAD'
+	        }
+	      };
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues)),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'instruction_stats' },
+	          _react2.default.createElement(
+	            'p',
+	            { className: 'col-sm-6' },
+	            'Hit rate: '
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            { className: 'col-sm-6' },
+	            'Miss rate: '
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return InstructionPanel;
+	}(_react2.default.Component);
+
+	InstructionPanel.propTypes = {
+	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
+	};
+
+	/**
+	 * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
+	function mapStateToProps() {
+	  return {};
+	}
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{cacheHandleSubmit: cacheHandleSubmit, fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 */
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    /**
+	     * Function to handle submission of the fetchform. Dispatches a action.
+	     * @param fields of the action
+	     */
+	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	      dispatch(actions.fetchFormSubmit(fields));
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
+
+/***/ },
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32197,56 +32380,7 @@
 	})(FetchForm);
 
 /***/ },
-/* 315 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.cacheFormSubmit = cacheFormSubmit;
-	exports.fetchFormSubmit = fetchFormSubmit;
-
-	var _ActionTypes = __webpack_require__(296);
-
-	var types = _interopRequireWildcard(_ActionTypes);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	/**
-	 * Creates the cacheform action.
-	 *
-	 * @param fields fields of the form
-	 * @returns {{type, fields: *}}
-	 */
-	function cacheFormSubmit(fields) {
-	  return {
-	    type: types.CACHE_FORM_SUBMIT,
-	    fields: fields
-	  };
-	}
-
-	/**
-	 * Creates the fetchform action.
-	 *
-	 * @param fields
-	 * @returns {{type, fields: *}}
-	 */
-	/**
-	 * ActionCreator, returns action objects of different types.
-	 *
-	 * Created by kim on 2016-05-05.
-	 */
-	function fetchFormSubmit(fields) {
-	  return {
-	    type: types.FETCH_FORM_SUBMIT,
-	    fields: fields
-	  };
-	}
-
-/***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32269,11 +32403,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _actions = __webpack_require__(315);
+	var _actions = __webpack_require__(314);
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _Table = __webpack_require__(317);
+	var _Table = __webpack_require__(319);
 
 	var _Table2 = _interopRequireDefault(_Table);
 
@@ -32301,9 +32435,14 @@
 	    value: function createTables() {
 	      var tables = [];
 	      for (var i = 0; i < this.props.associativity; i++) {
-	        tables.push(_react2.default.createElement(_Table2.default, { key: i, rows: this.props.cache_size, blocksize: this.props.block_size }));
+	        tables.push(_react2.default.createElement(_Table2.default, { key: i, rows: this.props.blockCount, blocksize: this.props.blockSize }));
 	      }
 	      return tables;
+	    }
+	  }, {
+	    key: 'getCacheSize',
+	    value: function getCacheSize() {
+	      return this.props.blockCount * this.props.blockSize * this.props.associativity;
 	    }
 	  }, {
 	    key: 'render',
@@ -32311,6 +32450,36 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'row' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'cache_info' },
+	          _react2.default.createElement(
+	            'p',
+	            { className: 'col-sm-3' },
+	            'Cache size: ',
+	            this.getCacheSize(),
+	            ' Bytes'
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            { className: 'col-sm-3' },
+	            'Associativity: ',
+	            this.props.associativity
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            { className: 'col-sm-3' },
+	            'Block Count: ',
+	            this.props.blockCount
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            { className: 'col-sm-3' },
+	            'Block Size: ',
+	            this.props.blockSize,
+	            ' Bytes'
+	          )
+	        ),
 	        this.createTables()
 	      );
 	    }
@@ -32324,8 +32493,8 @@
 	function mapStateToProps(state) {
 	  return {
 	    associativity: state.cacheform.associativity,
-	    cache_size: state.cacheform.cacheSize,
-	    block_size: state.cacheform.blockSize
+	    blockCount: state.cacheform.blockCount,
+	    blockSize: state.cacheform.blockSize
 	  };
 	}
 
@@ -32336,7 +32505,44 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
 
 /***/ },
-/* 317 */
+/* 318 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for 404s - when page is not found.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NotFound = function NotFound() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: '404-component' },
+	    _react2.default.createElement(
+	      'h1',
+	      null,
+	      '404 - PAGE NOT FOUND'
+	    )
+	  );
+	};
+
+	NotFound.displayName = 'NotFound';
+	exports.default = NotFound;
+
+/***/ },
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32357,7 +32563,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableRow = __webpack_require__(318);
+	var _TableRow = __webpack_require__(320);
 
 	var _TableRow2 = _interopRequireDefault(_TableRow);
 
@@ -32420,7 +32626,7 @@
 	exports.default = Table;
 
 /***/ },
-/* 318 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32441,7 +32647,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableElement = __webpack_require__(319);
+	var _TableElement = __webpack_require__(321);
 
 	var _TableElement2 = _interopRequireDefault(_TableElement);
 
@@ -32489,7 +32695,7 @@
 	exports.default = TableRow;
 
 /***/ },
-/* 319 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32516,43 +32722,6 @@
 
 	TableElement.displayName = 'TableElement';
 	exports.default = TableElement;
-
-/***/ },
-/* 320 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for 404s - when page is not found.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NotFound = function NotFound() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: '404-component' },
-	    _react2.default.createElement(
-	      'h1',
-	      null,
-	      '404 - PAGE NOT FOUND'
-	    )
-	  );
-	};
-
-	NotFound.displayName = 'NotFound';
-	exports.default = NotFound;
 
 /***/ }
 /******/ ]);

@@ -14,3 +14,19 @@
 {
   width: auto;
 }
+.cache_info
+{
+  margin-bottom:  5%;
+  font-style: italic;
+}
+
+.cache_panel
+{
+  margin-top: 5%
+}
+
+.instruction_stats
+{
+
+  font-style: italic;
+}

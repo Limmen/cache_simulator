@@ -1,5 +1,5 @@
 /**
- * Forms redux-container. Connects the forms to the redux-store.
+ * SettingsPanel redux-container. Connects the settings panel to the redux-store.
  *
  * Created by kim on 2016-05-11.
  */
@@ -9,29 +9,21 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import CacheFormComponent from './../components/CacheForm';
-import FetchFormComponent from './../components/FetchForm';
 import * as actions from '../actions/'
 
-class Forms extends React.Component {
+class SettingsPanel extends React.Component {
 
   render() {
-    const myInitialValues = {
-      initialValues: {
-        operationType: 'LOAD'
-      }
-    }
     return (
       <div>
         <CacheFormComponent onSubmit={this.props.cacheHandleSubmit}/>
-        <FetchFormComponent onSubmit={this.props.fetchHandleSubmit} {...myInitialValues} />
       </div>
     );
   }
 }
 
-Forms.propTypes = {
-  cacheHandleSubmit: React.PropTypes.func.isRequired,
-  fetchHandleSubmit: React.PropTypes.func.isRequired
+SettingsPanel.propTypes = {
+  cacheHandleSubmit: React.PropTypes.func.isRequired
 }
 
 /**
@@ -48,7 +40,7 @@ function mapStateToProps() {
  * Maps the redux dispatcher to props that this container provides.
  *
  * @param dispatch redux-dispatcher
- * @returns {{cacheHandleSubmit: cacheHandleSubmit, fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+ * @returns {{cacheHandleSubmit: cacheHandleSubmit}} - Object with action creators.
  */
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -58,13 +50,6 @@ const mapDispatchToProps = (dispatch) => {
      */
     cacheHandleSubmit: (fields) => {
       dispatch(actions.cacheFormSubmit(fields))
-    },
-    /**
-     * Function to handle submission of the fetchform. Dispatches a action.
-     * @param fields of the action
-     */
-    fetchHandleSubmit: (fields) => {
-      dispatch(actions.fetchFormSubmit(fields))
     }
   }
 }
@@ -72,4 +57,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Forms)
+)(SettingsPanel)
