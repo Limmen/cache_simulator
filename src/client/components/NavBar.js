@@ -7,7 +7,7 @@
 'use strict';
 
 import React from 'react';
-import { Link } from 'react-router'
+import NavLink from './NavLink'
 
 class NavBar extends React.Component {
 
@@ -16,13 +16,13 @@ class NavBar extends React.Component {
       <div className="navbar-component center-block align_center">
         <ul className="nav nav-pills">
           <li>
-            <Link to="/index" activeClassName="active">Simulator</Link>
+            <NavLink to="/simulator">Simulator</NavLink>
           </li>
           <li>
-            <Link to="/about" activeClassName="active" >What is this?</Link>
+            <NavLink to="/about" activeClassName="active" >What is this?</NavLink>
           </li>
           <li>
-            <Link to="/colophon" activeClassName="active">Colophon</Link>
+            <NavLink to="/colophon" activeClassName="active">Colophon</NavLink>
           </li>
         </ul>
       </div>

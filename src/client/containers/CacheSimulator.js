@@ -1,5 +1,5 @@
 /**
- * Index redux-container. Container for the index-route and connects it to the redux store.
+ * CacheSimulator redux-container. Container for the index-route and connects it to the redux store.
  */
 'use strict';
 
@@ -9,7 +9,7 @@ import SettingsPanel from './SettingsPanel';
 import InstructionPanel from './InstructionPanel';
 import CacheMemory from './CacheMem';
 
-class Index extends React.Component {
+class CacheSimulator extends React.Component {
 
   renderCache() {
     if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
@@ -43,7 +43,7 @@ class Index extends React.Component {
   }
 }
 
-Index.propTypes = {}
+CacheSimulator.propTypes = {}
 
 /**
  * Maps application state that is used in this container to props.
@@ -66,6 +66,6 @@ const mapDispatchToProps = () => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Index)
+)(CacheSimulator)
 
 

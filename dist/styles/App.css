@@ -1,8 +1,17 @@
 body
 {
-  font-size: 200%;
+  font-size: 150%;
 }
 .bold
 {
   font-weight: bolder;
+}
+
+.colophon-component
+{
+  text-align: center;
+}
+.about-component
+{
+  text-align: center;
 }

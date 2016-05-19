@@ -31438,19 +31438,19 @@
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Index = __webpack_require__(312);
+	var _CacheSimulator = __webpack_require__(326);
 
-	var _Index2 = _interopRequireDefault(_Index);
+	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
 
-	var _ = __webpack_require__(322);
+	var _ = __webpack_require__(323);
 
 	var _2 = _interopRequireDefault(_);
 
-	var _About = __webpack_require__(323);
+	var _About = __webpack_require__(324);
 
 	var _About2 = _interopRequireDefault(_About);
 
-	var _Colophon = __webpack_require__(324);
+	var _Colophon = __webpack_require__(325);
 
 	var _Colophon2 = _interopRequireDefault(_Colophon);
 
@@ -31470,8 +31470,8 @@
 	    _react2.default.createElement(
 	      _reactRouter.Route,
 	      { path: '/', component: _App2.default },
-	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _Index2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'index', component: _Index2.default }),
+	      _react2.default.createElement(_reactRouter.IndexRedirect, { from: '', to: 'simulator' }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'simulator', component: _CacheSimulator2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
@@ -31686,7 +31686,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactRouter = __webpack_require__(159);
+	var _NavLink = __webpack_require__(312);
+
+	var _NavLink2 = _interopRequireDefault(_NavLink);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31718,8 +31720,8 @@
 	            'li',
 	            null,
 	            _react2.default.createElement(
-	              _reactRouter.Link,
-	              { to: '/index', activeClassName: 'active' },
+	              _NavLink2.default,
+	              { to: '/simulator' },
 	              'Simulator'
 	            )
 	          ),
@@ -31727,7 +31729,7 @@
 	            'li',
 	            null,
 	            _react2.default.createElement(
-	              _reactRouter.Link,
+	              _NavLink2.default,
 	              { to: '/about', activeClassName: 'active' },
 	              'What is this?'
 	            )
@@ -31736,7 +31738,7 @@
 	            'li',
 	            null,
 	            _react2.default.createElement(
-	              _reactRouter.Link,
+	              _NavLink2.default,
 	              { to: '/colophon', activeClassName: 'active' },
 	              'Colophon'
 	            )
@@ -31756,121 +31758,36 @@
 /* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * Index redux-container. Container for the index-route and connects it to the redux store.
-	 */
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
+	                                                                                                                                                                                                                                                                   * Navlink component
+	                                                                                                                                                                                                                                                                   *
+	                                                                                                                                                                                                                                                                   * Created by kim on 2016-05-19.
+	                                                                                                                                                                                                                                                                   */
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactRedux = __webpack_require__(220);
-
-	var _SettingsPanel = __webpack_require__(313);
-
-	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
-
-	var _InstructionPanel = __webpack_require__(316);
-
-	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
-
-	var _CacheMem = __webpack_require__(318);
-
-	var _CacheMem2 = _interopRequireDefault(_CacheMem);
+	var _reactRouter = __webpack_require__(159);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Index = function (_React$Component) {
-	  _inherits(Index, _React$Component);
-
-	  function Index() {
-	    _classCallCheck(this, Index);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Index).apply(this, arguments));
+	exports.default = _react2.default.createClass({
+	  displayName: 'NavLink',
+	  render: function render() {
+	    return _react2.default.createElement(_reactRouter.Link, _extends({}, this.props, { activeClassName: 'active' }));
 	  }
-
-	  _createClass(Index, [{
-	    key: 'renderCache',
-	    value: function renderCache() {
-	      if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
-	        return _react2.default.createElement(
-	          'div',
-	          { className: 'cache_panel' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row' },
-	            _react2.default.createElement(_CacheMem2.default, null)
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row' },
-	            _react2.default.createElement(_InstructionPanel2.default, null)
-	          )
-	        );
-	      } else {
-	        return _react2.default.createElement(
-	          'h3',
-	          { className: 'bold' },
-	          'Enter properties for the cache to simulate it'
-	        );
-	      }
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'index container-fluid' },
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_SettingsPanel2.default, null),
-	          this.renderCache()
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Index;
-	}(_react2.default.Component);
-
-	Index.propTypes = {};
-
-	/**
-	 * Maps application state that is used in this container to props.
-	 *
-	 * @param state application state
-	 * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    associativity: state.cacheform.associativity,
-	    blockCount: state.cacheform.blockCount,
-	    blockSize: state.cacheform.blockSize
-	  };
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Index);
+	});
 
 /***/ },
-/* 313 */
+/* 313 */,
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -31893,11 +31810,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(314);
+	var _CacheForm = __webpack_require__(315);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _actions = __webpack_require__(315);
+	var _actions = __webpack_require__(316);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -31969,7 +31886,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
 
 /***/ },
-/* 314 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32177,7 +32094,7 @@
 	})(CacheForm);
 
 /***/ },
-/* 315 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32226,7 +32143,7 @@
 	}
 
 /***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32251,11 +32168,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _FetchForm = __webpack_require__(317);
+	var _FetchForm = __webpack_require__(318);
 
 	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
-	var _actions = __webpack_require__(315);
+	var _actions = __webpack_require__(316);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -32346,7 +32263,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32502,7 +32419,7 @@
 	})(FetchForm);
 
 /***/ },
-/* 318 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32525,11 +32442,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _actions = __webpack_require__(315);
+	var _actions = __webpack_require__(316);
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _Table = __webpack_require__(319);
+	var _Table = __webpack_require__(320);
 
 	var _Table2 = _interopRequireDefault(_Table);
 
@@ -32633,7 +32550,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
 
 /***/ },
-/* 319 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32654,7 +32571,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableRow = __webpack_require__(320);
+	var _TableRow = __webpack_require__(321);
 
 	var _TableRow2 = _interopRequireDefault(_TableRow);
 
@@ -32717,7 +32634,7 @@
 	exports.default = Table;
 
 /***/ },
-/* 320 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32738,7 +32655,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _TableElement = __webpack_require__(321);
+	var _TableElement = __webpack_require__(322);
 
 	var _TableElement2 = _interopRequireDefault(_TableElement);
 
@@ -32786,7 +32703,7 @@
 	exports.default = TableRow;
 
 /***/ },
-/* 321 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32815,7 +32732,7 @@
 	exports.default = TableElement;
 
 /***/ },
-/* 322 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32852,7 +32769,7 @@
 	exports.default = NotFound;
 
 /***/ },
-/* 323 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32894,7 +32811,7 @@
 	exports.default = About;
 
 /***/ },
-/* 324 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32959,6 +32876,123 @@
 
 	Colophon.displayName = 'Colophon';
 	exports.default = Colophon;
+
+/***/ },
+/* 326 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheSimulator redux-container. Container for the index-route and connects it to the redux store.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _SettingsPanel = __webpack_require__(314);
+
+	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
+
+	var _InstructionPanel = __webpack_require__(317);
+
+	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
+
+	var _CacheMem = __webpack_require__(319);
+
+	var _CacheMem2 = _interopRequireDefault(_CacheMem);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheSimulator = function (_React$Component) {
+	  _inherits(CacheSimulator, _React$Component);
+
+	  function CacheSimulator() {
+	    _classCallCheck(this, CacheSimulator);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheSimulator).apply(this, arguments));
+	  }
+
+	  _createClass(CacheSimulator, [{
+	    key: 'renderCache',
+	    value: function renderCache() {
+	      if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
+	        return _react2.default.createElement(
+	          'div',
+	          { className: 'cache_panel' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(_CacheMem2.default, null)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(_InstructionPanel2.default, null)
+	          )
+	        );
+	      } else {
+	        return _react2.default.createElement(
+	          'h3',
+	          { className: 'bold' },
+	          'Enter properties for the cache to simulate it'
+	        );
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'index container-fluid' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(_SettingsPanel2.default, null),
+	          this.renderCache()
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheSimulator;
+	}(_react2.default.Component);
+
+	CacheSimulator.propTypes = {};
+
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state application state
+	 * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    associativity: state.cacheform.associativity,
+	    blockCount: state.cacheform.blockCount,
+	    blockSize: state.cacheform.blockSize
+	  };
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheSimulator);
 
 /***/ }
 /******/ ]);

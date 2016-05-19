@@ -9,7 +9,7 @@
 import React from 'react';
 
 let Colophon = () => (
-  <div className="colophon-component">
+  <div className="colophon-component" >
     <h3 className="bold">Colophon</h3>
     <p>The site is written in JavaScript and styled with Cascading Style Sheets. </p>
     <p>React is used for view rendering with redux for state management.</p>

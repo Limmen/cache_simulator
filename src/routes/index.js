@@ -5,10 +5,10 @@
  */
 
 import React from 'react';
-import {Router, Route, IndexRoute} from 'react-router'
+import {Router, Route, IndexRoute, IndexRedirect} from 'react-router'
 
 import App from './../client/containers/App';
-import Index from './../client/containers/Index';
+import CacheSimulator from './../client/containers/CacheSimulator';
 import NotFound from './../client/components/404';
 import About from './../client/components/About';
 import Colophon from './../client/components/Colophon';
@@ -23,8 +23,8 @@ export default (history) => {
   return(
     <Router history={history}>
       <Route path="/" component={App}>
-        <IndexRoute component={Index}/>
-        <Route path="index" component={Index}/>
+        <IndexRedirect from="" to="simulator" />
+        <Route path="simulator" component={CacheSimulator}/>
         <Route path="about" component={About}/>
         <Route path="colophon" component={Colophon}/>
         <Route path="*" component={NotFound}/>
