@@ -29,4 +29,7 @@ class TableRow extends React.Component {
 }
 
 TableRow.displayName = 'TableRow';
+TableRow.propTypes = {
+  blocksize: React.PropTypes.number.isRequired
+};
 export default TableRow;

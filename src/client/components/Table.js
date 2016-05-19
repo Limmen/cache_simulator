@@ -39,4 +39,8 @@ class Table extends React.Component {
 }
 
 Table.displayName = 'Table';
+Table.propTypes = {
+  rows: React.PropTypes.number.isRequired,
+  blocksize: React.PropTypes.number.isRequired
+};
 export default Table;
