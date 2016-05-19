@@ -13,16 +13,16 @@ class NavBar extends React.Component {
 
   render() {
     return (
-      <div className="navbar-component center-block align_center">
+      <div className="navbar-component">
         <ul className="nav nav-pills">
           <li>
             <NavLink to="/simulator">Simulator</NavLink>
           </li>
           <li>
-            <NavLink to="/about" activeClassName="active" >What is this?</NavLink>
+            <NavLink to="/about">What is this?</NavLink>
           </li>
           <li>
-            <NavLink to="/colophon" activeClassName="active">Colophon</NavLink>
+            <NavLink to="/colophon">Colophon</NavLink>
           </li>
         </ul>
       </div>

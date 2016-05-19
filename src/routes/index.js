@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {Router, Route, IndexRoute, IndexRedirect} from 'react-router'
+import {Router, Route, IndexRedirect} from 'react-router'
 
 import App from './../client/containers/App';
 import CacheSimulator from './../client/containers/CacheSimulator';

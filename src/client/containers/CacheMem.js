@@ -8,7 +8,6 @@
 
 import React from 'react';
 import { connect } from 'react-redux'
-import * as actions from '../actions/'
 import Table from '../components/Table'
 
 class CacheMem extends React.Component {
@@ -56,7 +55,7 @@ function mapStateToProps(state) {
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = () => {
   return {}
 }
 
