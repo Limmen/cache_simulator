@@ -29,14 +29,16 @@ class FetchForm extends React.Component {
       <div className="cacheform-component row">
         <form onSubmit={handleSubmit}>
           <div className="form-group col-sm-6">
-            <label>Fetch Address</label>
+            <label className="bold">Fetch Address</label>
             <div>
               <input type="text" placeholder="fetch address" {...fetchAddress} className="form-control"/>
             </div>
+            <div className="error">
             {fetchAddress.touched && fetchAddress.error && <div>{fetchAddress.error}</div>}
+              </div>
           </div>
           <div className="form-group col-sm-6">
-            <label>Operation type</label>
+            <label className="bold">Operation type</label>
             <div>
               <select className="form-control" {...operationType}>
                 <option>LOAD</option>

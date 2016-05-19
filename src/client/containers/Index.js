@@ -26,7 +26,7 @@ class Index extends React.Component {
     }
     else {
       return (
-        <h3><strong>Enter properties for the cache to simulate it</strong></h3>
+        <h3 className="bold">Enter properties for the cache to simulate it</h3>
       )
     }
   }

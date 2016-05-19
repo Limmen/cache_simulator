@@ -1,0 +1,38 @@
+a
+{
+  text-decoration: inherit;
+}
+
+.navbar-component
+{
+  margin-bottom: 5%;
+  text-align: center;
+}
+.nav
+{
+  display: inline-block;
+  font-weight: bold;
+  font-size: 150%;
+  color: inherit;
+}
+.nav :hover
+{
+  color: black;
+}
+
+.nav .active
+{
+  font-weight: bolder;
+  border-style: dashed;
+  color: inherit;
+}
+
+.nav li
+{
+  margin-right: 30px;
+}
+
+.nav a
+{
+  color: inherit;
+}

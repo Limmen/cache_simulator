@@ -56,25 +56,30 @@ class CacheForm extends React.Component {
       <div className="cacheform-component row">
         <form onSubmit={handleSubmit}>
           <div className="form-group col-sm-4">
-            <label>Block count</label>
+            <label className="bold">Block count</label>
             <div>
               <input type="text" placeholder="cache size" {...blockCount} className="form-control"/>
             </div>
+            <div className="error">
             {blockCount.touched && blockCount.error && <div>{blockCount.error}</div>}
+              </div>
           </div>
           <div className="form-group col-sm-4">
-            <label>Block size (bytes)</label>
+            <label className="bold">Block size (bytes)</label>
             <div>
               <input type="text" placeholder="block size" {...blockSize} className="form-control"/>
             </div>
+            <div className="error">
             {blockSize.touched && blockSize.error && <div>{blockSize.error}</div>}
+              </div>
           </div>
           <div className="form-group col-sm-4">
-            <label>Associativity</label>
+            <label className="bold">Associativity</label>
             <div>
               <input type="text" placeholder="associativity" {...associativity} className="form-control"/>
             </div>
-            {associativity.touched && associativity.error && <div>{associativity.error}</div>}
+            <div className="error">
+            {associativity.touched && associativity.error && <div>{associativity.error}</div>}</div>
           </div>
           <div className="form-group col-sm-12">
             <button type="submit" disabled={submitting} className="btn btn-default">

@@ -10,7 +10,7 @@ import React from 'react';
 
 let NotFound = () => (
   <div className="404-component">
-    <h1>404 - PAGE NOT FOUND</h1>
+    <h3 className="bolder">404 - PAGE NOT FOUND</h3>
   </div>
 );
 

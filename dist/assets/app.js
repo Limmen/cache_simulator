@@ -31438,13 +31438,21 @@
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _Index = __webpack_require__(311);
+	var _Index = __webpack_require__(312);
 
 	var _Index2 = _interopRequireDefault(_Index);
 
-	var _ = __webpack_require__(318);
+	var _ = __webpack_require__(322);
 
 	var _2 = _interopRequireDefault(_);
+
+	var _About = __webpack_require__(323);
+
+	var _About2 = _interopRequireDefault(_About);
+
+	var _Colophon = __webpack_require__(324);
+
+	var _Colophon2 = _interopRequireDefault(_Colophon);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31463,6 +31471,9 @@
 	      _reactRouter.Route,
 	      { path: '/', component: _App2.default },
 	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _Index2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'index', component: _Index2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
 	    )
 	  );
@@ -31501,6 +31512,10 @@
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
+	var _NavBar = __webpack_require__(311);
+
+	var _NavBar2 = _interopRequireDefault(_NavBar);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31536,6 +31551,7 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'col-sm-6' },
+	            _react2.default.createElement(_NavBar2.default, null),
 	            this.props.children
 	          ),
 	          _react2.default.createElement('div', { className: 'col-sm-3' })
@@ -31653,6 +31669,94 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * NavBarComponent. A component displaying a navbar for navigating the site.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(159);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var NavBar = function (_React$Component) {
+	  _inherits(NavBar, _React$Component);
+
+	  function NavBar() {
+	    _classCallCheck(this, NavBar);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(NavBar).apply(this, arguments));
+	  }
+
+	  _createClass(NavBar, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'navbar-component center-block align_center' },
+	        _react2.default.createElement(
+	          'ul',
+	          { className: 'nav nav-pills' },
+	          _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              _reactRouter.Link,
+	              { to: '/index', activeClassName: 'active' },
+	              'Simulator'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              _reactRouter.Link,
+	              { to: '/about', activeClassName: 'active' },
+	              'What is this?'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              _reactRouter.Link,
+	              { to: '/colophon', activeClassName: 'active' },
+	              'Colophon'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return NavBar;
+	}(_react2.default.Component);
+
+	NavBar.displayName = 'NavBar';
+	exports.default = NavBar;
+
+/***/ },
+/* 312 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
 	 * Index redux-container. Container for the index-route and connects it to the redux store.
 	 */
 	'use strict';
@@ -31669,15 +31773,15 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _SettingsPanel = __webpack_require__(312);
+	var _SettingsPanel = __webpack_require__(313);
 
 	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
 
-	var _InstructionPanel = __webpack_require__(315);
+	var _InstructionPanel = __webpack_require__(316);
 
 	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
 
-	var _CacheMem = __webpack_require__(317);
+	var _CacheMem = __webpack_require__(318);
 
 	var _CacheMem2 = _interopRequireDefault(_CacheMem);
 
@@ -31719,12 +31823,8 @@
 	      } else {
 	        return _react2.default.createElement(
 	          'h3',
-	          null,
-	          _react2.default.createElement(
-	            'strong',
-	            null,
-	            'Enter properties for the cache to simulate it'
-	          )
+	          { className: 'bold' },
+	          'Enter properties for the cache to simulate it'
 	        );
 	      }
 	    }
@@ -31749,6 +31849,12 @@
 
 	Index.propTypes = {};
 
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state application state
+	 * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 */
 	function mapStateToProps(state) {
 	  return {
 	    associativity: state.cacheform.associativity,
@@ -31764,11 +31870,11 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Index);
 
 /***/ },
-/* 312 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * SettingsPanel redux-container. Connects the forms to the redux-store.
+	 * SettingsPanel redux-container. Connects the settings panel to the redux-store.
 	 *
 	 * Created by kim on 2016-05-11.
 	 */
@@ -31787,11 +31893,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(313);
+	var _CacheForm = __webpack_require__(314);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _actions = __webpack_require__(314);
+	var _actions = __webpack_require__(315);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -31846,7 +31952,7 @@
 	 * Maps the redux dispatcher to props that this container provides.
 	 *
 	 * @param dispatch redux-dispatcher
-	 * @returns {{cacheHandleSubmit: cacheHandleSubmit, fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 * @returns {{cacheHandleSubmit: cacheHandleSubmit}} - Object with action creators.
 	 */
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
@@ -31863,7 +31969,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
 
 /***/ },
-/* 313 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -31969,7 +32075,7 @@
 	            { className: 'form-group col-sm-4' },
 	            _react2.default.createElement(
 	              'label',
-	              null,
+	              { className: 'bold' },
 	              'Block count'
 	            ),
 	            _react2.default.createElement(
@@ -31977,10 +32083,14 @@
 	              null,
 	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, blockCount, { className: 'form-control' }))
 	            ),
-	            blockCount.touched && blockCount.error && _react2.default.createElement(
+	            _react2.default.createElement(
 	              'div',
-	              null,
-	              blockCount.error
+	              { className: 'error' },
+	              blockCount.touched && blockCount.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                blockCount.error
+	              )
 	            )
 	          ),
 	          _react2.default.createElement(
@@ -31988,7 +32098,7 @@
 	            { className: 'form-group col-sm-4' },
 	            _react2.default.createElement(
 	              'label',
-	              null,
+	              { className: 'bold' },
 	              'Block size (bytes)'
 	            ),
 	            _react2.default.createElement(
@@ -31996,10 +32106,14 @@
 	              null,
 	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'block size' }, blockSize, { className: 'form-control' }))
 	            ),
-	            blockSize.touched && blockSize.error && _react2.default.createElement(
+	            _react2.default.createElement(
 	              'div',
-	              null,
-	              blockSize.error
+	              { className: 'error' },
+	              blockSize.touched && blockSize.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                blockSize.error
+	              )
 	            )
 	          ),
 	          _react2.default.createElement(
@@ -32007,7 +32121,7 @@
 	            { className: 'form-group col-sm-4' },
 	            _react2.default.createElement(
 	              'label',
-	              null,
+	              { className: 'bold' },
 	              'Associativity'
 	            ),
 	            _react2.default.createElement(
@@ -32015,10 +32129,14 @@
 	              null,
 	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'associativity' }, associativity, { className: 'form-control' }))
 	            ),
-	            associativity.touched && associativity.error && _react2.default.createElement(
+	            _react2.default.createElement(
 	              'div',
-	              null,
-	              associativity.error
+	              { className: 'error' },
+	              associativity.touched && associativity.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                associativity.error
+	              )
 	            )
 	          ),
 	          _react2.default.createElement(
@@ -32059,7 +32177,7 @@
 	})(CacheForm);
 
 /***/ },
-/* 314 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32108,11 +32226,11 @@
 	}
 
 /***/ },
-/* 315 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * InstructionPanel redux-container. Connects the forms to the redux-store.
+	 * InstructionPanel redux-container. Connects the instruction panel to the redux-store.
 	 *
 	 * Created by kim on 2016-05-11.
 	 */
@@ -32133,11 +32251,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _FetchForm = __webpack_require__(316);
+	var _FetchForm = __webpack_require__(317);
 
 	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
-	var _actions = __webpack_require__(314);
+	var _actions = __webpack_require__(315);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -32211,7 +32329,7 @@
 	 * Maps the redux dispatcher to props that this container provides.
 	 *
 	 * @param dispatch redux-dispatcher
-	 * @returns {{cacheHandleSubmit: cacheHandleSubmit, fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 * @returns {{fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
 	 */
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
@@ -32228,7 +32346,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
 
 /***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32306,7 +32424,7 @@
 	            { className: 'form-group col-sm-6' },
 	            _react2.default.createElement(
 	              'label',
-	              null,
+	              { className: 'bold' },
 	              'Fetch Address'
 	            ),
 	            _react2.default.createElement(
@@ -32314,10 +32432,14 @@
 	              null,
 	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'fetch address' }, fetchAddress, { className: 'form-control' }))
 	            ),
-	            fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	            _react2.default.createElement(
 	              'div',
-	              null,
-	              fetchAddress.error
+	              { className: 'error' },
+	              fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                fetchAddress.error
+	              )
 	            )
 	          ),
 	          _react2.default.createElement(
@@ -32325,7 +32447,7 @@
 	            { className: 'form-group col-sm-6' },
 	            _react2.default.createElement(
 	              'label',
-	              null,
+	              { className: 'bold' },
 	              'Operation type'
 	            ),
 	            _react2.default.createElement(
@@ -32380,7 +32502,7 @@
 	})(FetchForm);
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32403,7 +32525,7 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _actions = __webpack_require__(314);
+	var _actions = __webpack_require__(315);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -32490,6 +32612,12 @@
 
 	CacheMem.propTypes = {};
 
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state application state
+	 * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 */
 	function mapStateToProps(state) {
 	  return {
 	    associativity: state.cacheform.associativity,
@@ -32503,43 +32631,6 @@
 	};
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
-
-/***/ },
-/* 318 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for 404s - when page is not found.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NotFound = function NotFound() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: '404-component' },
-	    _react2.default.createElement(
-	      'h1',
-	      null,
-	      '404 - PAGE NOT FOUND'
-	    )
-	  );
-	};
-
-	NotFound.displayName = 'NotFound';
-	exports.default = NotFound;
 
 /***/ },
 /* 319 */
@@ -32722,6 +32813,152 @@
 
 	TableElement.displayName = 'TableElement';
 	exports.default = TableElement;
+
+/***/ },
+/* 322 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for 404s - when page is not found.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NotFound = function NotFound() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: '404-component' },
+	    _react2.default.createElement(
+	      'h3',
+	      { className: 'bolder' },
+	      '404 - PAGE NOT FOUND'
+	    )
+	  );
+	};
+
+	NotFound.displayName = 'NotFound';
+	exports.default = NotFound;
+
+/***/ },
+/* 323 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for the about page.
+	 *
+	 * Created by kim on 2016-05-19.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var About = function About() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'about-component' },
+	    _react2.default.createElement(
+	      'h3',
+	      { className: 'bold' },
+	      'What is this?'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'This is a cache simulator ... (TODO)'
+	    )
+	  );
+	};
+
+	About.displayName = 'About';
+	exports.default = About;
+
+/***/ },
+/* 324 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for the colophon page.
+	 *
+	 * Created by kim on 2016-05-19.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Colophon = function Colophon() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'colophon-component' },
+	    _react2.default.createElement(
+	      'h3',
+	      { className: 'bold' },
+	      'Colophon'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The site is written in JavaScript and styled with Cascading Style Sheets. '
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'React is used for view rendering with redux for state management.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Twitter Bootstrap is used for styling some components on the page.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Hosted: Not Yet. '
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The site is written by ',
+	      _react2.default.createElement(
+	        'a',
+	        { href: 'https://github.com/Limmen', target: '_blank' },
+	        'Kim Hammar'
+	      )
+	    )
+	  );
+	};
+
+	Colophon.displayName = 'Colophon';
+	exports.default = Colophon;
 
 /***/ }
 /******/ ]);
