@@ -12,28 +12,55 @@ import TableRow from '../../src/client/components/TableRow';
 
 describe('TableRow', () => {
   let component;
-  let data={}
+  let data = initialContent(64, 8, 2).content[0].rows[0]
 
   beforeEach(() => {
-    component = mount(<table><tbody><TableRow data={} /></tbody></table>)
+    component = mount(<table><tbody><TableRow data={data} /></tbody></table>)
   });
 
   it('should render one tablerow', () => {
-    expect(component.find("tr").length).toEqual(1);
+    expect(component.find(".tablerow-component").length).toEqual(1);
   });
 
-  it('should have its component name as default className', () => {
-    expect(component.find("tr").hasClass("tablerow-component")).toEqual(true);
-  });
-/*
+
   it('should have props', () => {
-    expect(component.find("TableRow").props().blocksize).toEqual(4);
+    expect(component.find("TableRow").props().data).toEqual(initialContent(64, 8, 2).content[0].rows[0]);
   });
-  */
-/*
+
   it('should render tablelements', () => {
-    expect(component.find("td").length).toEqual(4);
+    expect(component.find("TableElement").length).toEqual(8);
   });
-  */
+
 
 });
+
+function initialContent(cacheSize, blockSize, associativity) {
+
+  let state =
+  {
+    content: []
+  }
+
+  for (let i = 0; i < associativity; i++) {
+    let table = {rows: []}
+    state.content.push(table)
+    for (let j = 0; j < (cacheSize/associativity) / blockSize; j++) {
+      let row = {elements: []}
+      table.rows.push(row)
+      for (let k = 0; k < blockSize; k++) {
+        let element =
+        {
+          id: "id" + i + j + k,
+          set: i,
+          index: j,
+          byte: k,
+          data: 'empty',
+          address: 'empty',
+          validbit: 'N'
+        }
+        row.elements.push(element)
+      }
+    }
+  }
+  return state;
+}

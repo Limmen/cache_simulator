@@ -19,14 +19,6 @@ class Table extends React.Component {
    */
   createRows() {
     let rows = [];
-    for (let i = 0; i < this.props.rows; i++) {
-      rows.push(<TableRow blocksize={this.props.blocksize} key={i}/>);
-    }
-    return rows;
-  }
-
-  createRows2() {
-    let rows = [];
     for (let i = 0; i < this.props.data.rows.length; i++) {
       rows.push(<TableRow data={this.props.data.rows[i]} key={i}/>);
     }
@@ -38,7 +30,7 @@ class Table extends React.Component {
       <div className="table-component col-sm-4">
         <table className="table table-bordered cache">
           <tbody>
-          {this.createRows2()}
+          {this.createRows()}
           </tbody>
         </table>
       </div>

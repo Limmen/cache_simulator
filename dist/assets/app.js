@@ -32957,15 +32957,6 @@
 	     */
 	    value: function createRows() {
 	      var rows = [];
-	      for (var i = 0; i < this.props.rows; i++) {
-	        rows.push(_react2.default.createElement(_TableRow2.default, { blocksize: this.props.blocksize, key: i }));
-	      }
-	      return rows;
-	    }
-	  }, {
-	    key: 'createRows2',
-	    value: function createRows2() {
-	      var rows = [];
 	      for (var i = 0; i < this.props.data.rows.length; i++) {
 	        rows.push(_react2.default.createElement(_TableRow2.default, { data: this.props.data.rows[i], key: i }));
 	      }
@@ -32983,7 +32974,7 @@
 	          _react2.default.createElement(
 	            'tbody',
 	            null,
-	            this.createRows2()
+	            this.createRows()
 	          )
 	        )
 	      );
@@ -33048,15 +33039,6 @@
 	    key: 'createElements',
 	    value: function createElements() {
 	      var elements = [];
-	      for (var i = 0; i < this.props.blocksize; i++) {
-	        elements.push(_react2.default.createElement(_TableElement2.default, { key: i }));
-	      }
-	      return elements;
-	    }
-	  }, {
-	    key: 'createElements2',
-	    value: function createElements2() {
-	      var elements = [];
 	      for (var i = 0; i < this.props.data.elements.length; i++) {
 	        elements.push(_react2.default.createElement(_TableElement2.default, { key: i, data: this.props.data.elements[i] }));
 	      }
@@ -33068,7 +33050,7 @@
 	      return _react2.default.createElement(
 	        'tr',
 	        { className: 'cache_row tablerow-component' },
-	        this.createElements2()
+	        this.createElements()
 	      );
 	    }
 	  }]);

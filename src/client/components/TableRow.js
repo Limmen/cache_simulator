@@ -13,14 +13,6 @@ class TableRow extends React.Component {
 
   createElements(){
     let elements = [];
-    for (let i = 0; i < this.props.blocksize; i++) {
-      elements.push(<TableElement key={i}/>);
-    }
-    return elements;
-  }
-
-  createElements2(){
-    let elements = [];
     for (let i = 0; i < this.props.data.elements.length; i++) {
       elements.push(<TableElement key={i} data={this.props.data.elements[i]}/>);
     }
@@ -30,7 +22,7 @@ class TableRow extends React.Component {
   render() {
     return (
       <tr className="cache_row tablerow-component">
-        {this.createElements2()}
+        {this.createElements()}
       </tr>
     );
   }
