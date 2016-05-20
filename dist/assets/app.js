@@ -27220,6 +27220,8 @@
 
 	var _reactRouterRedux = __webpack_require__(244);
 
+	var _reduxTooltip = __webpack_require__(330);
+
 	var _cacheform = __webpack_require__(295);
 
 	var _cacheform2 = _interopRequireDefault(_cacheform);
@@ -27228,11 +27230,17 @@
 
 	var _fetchform2 = _interopRequireDefault(_fetchform);
 
+	var _cachecontent = __webpack_require__(329);
+
+	var _cachecontent2 = _interopRequireDefault(_cachecontent);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var rootReducer = (0, _redux.combineReducers)({
 	  cacheform: _cacheform2.default,
 	  fetchform: _fetchform2.default,
+	  cachecontent: _cachecontent2.default,
+	  tooltip: _reduxTooltip.reducer,
 	  form: _reduxForm.reducer,
 	  routing: _reactRouterRedux.routerReducer
 	});
@@ -30315,6 +30323,7 @@
 	});
 	var CACHE_FORM_SUBMIT = exports.CACHE_FORM_SUBMIT = 'CACHE_FORM_SUBMIT';
 	var FETCH_FORM_SUBMIT = exports.FETCH_FORM_SUBMIT = 'FETCH_FORM_SUBMIT';
+	var CACHE_CONTENT_INIT = exports.CACHE_CONTENT_INIT = 'CACHE_CONTENT_INIT';
 
 /***/ },
 /* 297 */
@@ -32002,6 +32011,7 @@
 	     */
 	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
 	      dispatch(actions.cacheFormSubmit(fields));
+	      dispatch(actions.cacheContentInitialization(fields));
 	    }
 	  };
 	};
@@ -32268,6 +32278,7 @@
 	});
 	exports.cacheFormSubmit = cacheFormSubmit;
 	exports.fetchFormSubmit = fetchFormSubmit;
+	exports.cacheContentInitialization = cacheContentInitialization;
 
 	var _ActionTypes = __webpack_require__(296);
 
@@ -32302,6 +32313,13 @@
 	function fetchFormSubmit(fields) {
 	  return {
 	    type: types.FETCH_FORM_SUBMIT,
+	    fields: fields
+	  };
+	}
+
+	function cacheContentInitialization(fields) {
+	  return {
+	    type: types.CACHE_CONTENT_INIT,
 	    fields: fields
 	  };
 	}
@@ -32675,15 +32693,10 @@
 	    key: 'createTables',
 	    value: function createTables() {
 	      var tables = [];
-	      for (var i = 0; i < this.props.associativity; i++) {
-	        tables.push(_react2.default.createElement(_Table2.default, { key: i, rows: this.getBlockCount(), blocksize: this.props.blockSize }));
+	      for (var i = 0; i < this.props.cachecontent.length; i++) {
+	        tables.push(_react2.default.createElement(_Table2.default, { key: i, data: this.props.cachecontent[i] }));
 	      }
 	      return tables;
-	    }
-	  }, {
-	    key: 'getBlockCount',
-	    value: function getBlockCount() {
-	      return this.props.cacheSize / this.props.associativity / this.props.blockSize;
 	    }
 	  }, {
 	    key: 'bitSize',
@@ -32875,14 +32888,12 @@
 	/**
 	 * Maps application state that is used in this container to props.
 	 *
-	 * @param state application state
-	 * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 * @param state
+	 * @returns {{cachecontent: *}} object with props
 	 */
 	function mapStateToProps(state) {
 	  return {
-	    associativity: state.cacheform.associativity,
-	    cacheSize: state.cacheform.cacheSize,
-	    blockSize: state.cacheform.blockSize
+	    cachecontent: state.cachecontent.content
 	  };
 	}
 
@@ -32952,6 +32963,15 @@
 	      return rows;
 	    }
 	  }, {
+	    key: 'createRows2',
+	    value: function createRows2() {
+	      var rows = [];
+	      for (var i = 0; i < this.props.data.rows.length; i++) {
+	        rows.push(_react2.default.createElement(_TableRow2.default, { data: this.props.data.rows[i], key: i }));
+	      }
+	      return rows;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -32963,7 +32983,7 @@
 	          _react2.default.createElement(
 	            'tbody',
 	            null,
-	            this.createRows()
+	            this.createRows2()
 	          )
 	        )
 	      );
@@ -32974,10 +32994,11 @@
 	}(_react2.default.Component);
 
 	Table.displayName = 'Table';
+
 	Table.propTypes = {
-	  rows: _react2.default.PropTypes.number.isRequired,
-	  blocksize: _react2.default.PropTypes.number.isRequired
+	  data: _react2.default.PropTypes.object.isRequired
 	};
+
 	exports.default = Table;
 
 /***/ },
@@ -33033,12 +33054,21 @@
 	      return elements;
 	    }
 	  }, {
+	    key: 'createElements2',
+	    value: function createElements2() {
+	      var elements = [];
+	      for (var i = 0; i < this.props.data.elements.length; i++) {
+	        elements.push(_react2.default.createElement(_TableElement2.default, { key: i, data: this.props.data.elements[i] }));
+	      }
+	      return elements;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'tr',
 	        { className: 'cache_row tablerow-component' },
-	        this.createElements()
+	        this.createElements2()
 	      );
 	    }
 	  }]);
@@ -33048,8 +33078,9 @@
 
 	TableRow.displayName = 'TableRow';
 	TableRow.propTypes = {
-	  blocksize: _react2.default.PropTypes.number.isRequired
+	  data: _react2.default.PropTypes.object.isRequired
 	};
+
 	exports.default = TableRow;
 
 /***/ },
@@ -33068,17 +33099,154 @@
 	  value: true
 	});
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactTooltip = __webpack_require__(347);
+
+	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var TableElement = function TableElement() {
-	  return _react2.default.createElement('td', { className: 'cache_element tableelement-component' });
-	};
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var TableElement = function (_React$Component) {
+	  _inherits(TableElement, _React$Component);
+
+	  function TableElement() {
+	    _classCallCheck(this, TableElement);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TableElement).apply(this, arguments));
+	  }
+
+	  _createClass(TableElement, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'td',
+	        { 'data-tip': true, 'data-for': this.props.data.id, id: this.props.data.id, className: 'cache_element tableelement-component' },
+	        _react2.default.createElement(
+	          _reactTooltip2.default,
+	          _extends({ id: this.props.data.id }, this.props),
+	          _react2.default.createElement(
+	            'table',
+	            { className: 'table table-striped my_tooltip' },
+	            _react2.default.createElement(
+	              'tbody',
+	              null,
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Address'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  this.props.data.address
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Data'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' ',
+	                  this.props.data.data
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Set'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' ',
+	                  this.props.data.set
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Index'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' ',
+	                  this.props.data.index,
+	                  ' Bytes'
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Byte'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' ',
+	                  this.props.data.byte
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'ValidBit'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' ',
+	                  this.props.data.validbit
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return TableElement;
+	}(_react2.default.Component);
 
 	TableElement.displayName = 'TableElement';
+	TableElement.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
 	exports.default = TableElement;
 
 /***/ },
@@ -33226,6 +33394,2977 @@
 
 	Colophon.displayName = 'Colophon';
 	exports.default = Colophon;
+
+/***/ },
+/* 326 */,
+/* 327 */,
+/* 328 */,
+/* 329 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by kim on 2016-05-20.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = cachecontent;
+
+	var _ActionTypes = __webpack_require__(296);
+
+	var initialState = {
+	  content: []
+	};
+
+	function cachecontent() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _ActionTypes.CACHE_CONTENT_INIT:
+	      return initialContent(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity);
+	    default:
+	      return state;
+	  }
+	}
+
+	function initialContent(cacheSize, blockSize, associativity) {
+
+	  var state = {
+	    content: []
+	  };
+
+	  for (var i = 0; i < associativity; i++) {
+	    var table = { rows: [] };
+	    state.content.push(table);
+	    for (var j = 0; j < cacheSize / associativity / blockSize; j++) {
+	      var row = { elements: [] };
+	      table.rows.push(row);
+	      for (var k = 0; k < blockSize; k++) {
+	        var element = {
+	          id: "id" + i + j + k,
+	          set: i,
+	          index: j,
+	          byte: k,
+	          data: 'empty',
+	          address: 'empty',
+	          validbit: 'N'
+	        };
+	        row.elements.push(element);
+	      }
+	    }
+	  }
+	  return state;
+	}
+
+/***/ },
+/* 330 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.utils = exports.actions = exports.middleware = exports.reducer = exports.Origin = exports.Tooltip = undefined;
+
+	var _tooltip = __webpack_require__(331);
+
+	Object.defineProperty(exports, 'Tooltip', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_tooltip).default;
+	  }
+	});
+
+	var _origin = __webpack_require__(344);
+
+	Object.defineProperty(exports, 'Origin', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_origin).default;
+	  }
+	});
+
+	var _reducer = __webpack_require__(345);
+
+	Object.defineProperty(exports, 'reducer', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_reducer).default;
+	  }
+	});
+
+	var _middleware = __webpack_require__(346);
+
+	Object.defineProperty(exports, 'middleware', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_middleware).default;
+	  }
+	});
+
+	var _actions = __webpack_require__(335);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	var _utils = __webpack_require__(333);
+
+	var utils = _interopRequireWildcard(_utils);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.actions = actions;
+	exports.utils = utils;
+
+/***/ },
+/* 331 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(158);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _dompurify = __webpack_require__(332);
+
+	var _utils = __webpack_require__(333);
+
+	var _styles = __webpack_require__(342);
+
+	var styles = _interopRequireWildcard(_styles);
+
+	var _themes = __webpack_require__(343);
+
+	var themes = _interopRequireWildcard(_themes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Tooltip = function (_Component) {
+	  _inherits(Tooltip, _Component);
+
+	  _createClass(Tooltip, null, [{
+	    key: 'displayName',
+	    get: function get() {
+	      return 'Tooltip';
+	    }
+	  }, {
+	    key: 'propTypes',
+	    get: function get() {
+	      return {
+	        // Props from state tree
+	        show: _react.PropTypes.bool.isRequired,
+	        origin: _react.PropTypes.object,
+	        el: _react.PropTypes.object,
+	        place: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.array]).isRequired,
+	        content: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.object, _react.PropTypes.arrayOf(_react.PropTypes.object)]),
+	        auto: _react.PropTypes.bool.isRequired,
+	        within: _react.PropTypes.func,
+
+	        // Props from wrapper props
+	        name: _react.PropTypes.string,
+	        onHover: _react.PropTypes.func,
+	        onLeave: _react.PropTypes.func
+	      };
+	    }
+	  }, {
+	    key: 'defaultProps',
+	    get: function get() {
+	      return {
+	        show: false,
+	        place: 'top',
+	        auto: true
+	      };
+	    }
+	  }]);
+
+	  function Tooltip(props) {
+	    _classCallCheck(this, Tooltip);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Tooltip).call(this, props));
+
+	    _this.state = {};
+	    return _this;
+	  }
+
+	  _createClass(Tooltip, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      var place = nextProps.place;
+	      var content = nextProps.content;
+	      var children = nextProps.children;
+
+	      var origin = (0, _utils.originOrEl)(nextProps);
+	      if (origin && ((0, _utils.originOrEl)(this.props) != origin || this.props.place !== place || this.props.content !== content || this.props.children !== children)) {
+	        this.updatePosition(nextProps);
+	      }
+	    }
+	  }, {
+	    key: 'updatePosition',
+	    value: function updatePosition(props) {
+	      var _this2 = this;
+
+	      // Render content into hidden DOM element to determine size
+	      var content = this.children(props);
+	      _reactDom2.default.render(_react2.default.createElement(
+	        'div',
+	        null,
+	        content
+	      ), this.refs.shadow, function () {
+	        var state = (0, _utils.adjust)(_this2.refs.shadow, props);
+	        _this2.setState(state);
+	      });
+	    }
+	  }, {
+	    key: 'children',
+	    value: function children() {
+	      var props = arguments.length <= 0 || arguments[0] === undefined ? this.props : arguments[0];
+	      var content = props.content;
+
+	      if (typeof content === 'string') {
+	        content = _react2.default.createElement('div', { dangerouslySetInnerHTML: { __html: (0, _dompurify.sanitize)(content) } });
+	      }
+	      return content ? content : props.children;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var show = _props.show;
+	      var onHover = _props.onHover;
+	      var onLeave = _props.onLeave;
+
+	      var origin = (0, _utils.originOrEl)(this.props);
+	      var _state = this.state;
+	      var place = _state.place;
+	      var offset = _state.offset;
+
+	      var content = this.children();
+	      var visibility = origin && show ? 'visible' : 'hidden';
+	      var style = {
+	        base: _extends({}, styles.base, themes.simple.base, { visibility: visibility }, offset),
+	        content: _extends({}, styles.content, themes.simple.content),
+	        arrow: _extends({}, styles.arrow),
+	        border: _extends({}, styles.border.base, styles.border[place], themes.simple.border)
+	      };
+	      style.shadow = _extends({}, style.content, { visibility: 'hidden', position: 'absolute' });
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          {
+	            ref: 'tooltip',
+	            style: style.base,
+	            onMouseEnter: onHover,
+	            onMouseLeave: onLeave
+	          },
+	          _react2.default.createElement(
+	            'div',
+	            { ref: 'content', style: style.content },
+	            content
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { style: style.arrow, key: 'a-' + place },
+	            _react2.default.createElement('span', { ref: 'border', style: style.border, key: 'b-' + place })
+	          )
+	        ),
+	        _react2.default.createElement('div', { ref: 'shadow', style: style.shadow })
+	      );
+	    }
+	  }]);
+
+	  return Tooltip;
+	}(_react.Component);
+
+	function select(state, ownProps) {
+	  var tooltips = state.tooltip;
+
+	  var names = (0, _utils.resolve)(ownProps);
+	  if (1 < names.length) {
+	    console.error('<Tooltip> does not accept a list of names as \'name\' props: ' + names);
+	  }
+	  var name = names[0];
+	  var tooltip = tooltips[name];
+	  return _extends({}, tooltip, ownProps);
+	}
+
+	exports.default = (0, _reactRedux.connect)(select)(Tooltip);
+
+/***/ },
+/* 332 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;;(function(factory) {
+	    'use strict';
+	    /* global window: false, define: false, module: false */
+	    var root = typeof window === 'undefined' ? null : window;
+
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function(){ return factory(root); }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if (typeof module !== 'undefined') {
+	        module.exports = factory(root);
+	    } else {
+	        root.DOMPurify = factory(root);
+	    }
+	}(function factory(window) {
+	    'use strict';
+
+	    var DOMPurify = function(window) {
+	        return factory(window);
+	    };
+
+	    /**
+	     * Version label, exposed for easier checks
+	     * if DOMPurify is up to date or not
+	     */
+	    DOMPurify.version = '0.7.4';
+
+	    if (!window || !window.document || window.document.nodeType !== 9) {
+	        // not running in a browser, provide a factory function
+	        // so that you can pass your own Window
+	        DOMPurify.isSupported = false;
+	        return DOMPurify;
+	    }
+
+	    var document = window.document;
+	    var originalDocument = document;
+	    var DocumentFragment = window.DocumentFragment;
+	    var HTMLTemplateElement = window.HTMLTemplateElement;
+	    var NodeFilter = window.NodeFilter;
+	    var NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap;
+	    var Text = window.Text;
+	    var Comment = window.Comment;
+	    var DOMParser = window.DOMParser;
+
+	    // As per issue #47, the web-components registry is inherited by a
+	    // new document created via createHTMLDocument. As per the spec
+	    // (http://w3c.github.io/webcomponents/spec/custom/#creating-and-passing-registries)
+	    // a new empty registry is used when creating a template contents owner
+	    // document, so we use that as our parent document to ensure nothing
+	    // is inherited.
+	    if (typeof HTMLTemplateElement === 'function') {
+	        document = document.createElement('template').content.ownerDocument;
+	    }
+	    var implementation = document.implementation;
+	    var createNodeIterator = document.createNodeIterator;
+	    var getElementsByTagName = document.getElementsByTagName;
+	    var createDocumentFragment = document.createDocumentFragment;
+	    var importNode = originalDocument.importNode;
+
+	    var hooks = {};
+
+	    /**
+	     * Expose whether this browser supports running the full DOMPurify.
+	     */
+	    DOMPurify.isSupported =
+	        typeof implementation.createHTMLDocument !== 'undefined' &&
+	        document.documentMode !== 9;
+
+	    /* Add properties to a lookup table */
+	    var _addToSet = function(set, array) {
+	        var l = array.length;
+	        while (l--) {
+	            set[array[l]] = true;
+	        }
+	        return set;
+	    };
+
+	    /* Shallow clone an object */
+	    var _cloneObj = function(object) {
+	        var newObject = {};
+	        var property;
+	        for (property in object) {
+	            if (object.hasOwnProperty(property)) {
+	                newObject[property] = object[property];
+	            }
+	        }
+	        return newObject;
+	    };
+
+	    /**
+	     * We consider the elements and attributes below to be safe. Ideally
+	     * don't add any new ones but feel free to remove unwanted ones.
+	     */
+
+	    /* allowed element names */
+	    var ALLOWED_TAGS = null;
+	    var DEFAULT_ALLOWED_TAGS = _addToSet({}, [
+
+	        // HTML
+	        'a','abbr','acronym','address','area','article','aside','audio','b',
+	        'bdi','bdo','big','blink','blockquote','body','br','button','canvas',
+	        'caption','center','cite','code','col','colgroup','content','data',
+	        'datalist','dd','decorator','del','details','dfn','dir','div','dl','dt',
+	        'element','em','fieldset','figcaption','figure','font','footer','form',
+	        'h1','h2','h3','h4','h5','h6','head','header','hgroup','hr','html','i',
+	        'img','input','ins','kbd','label','legend','li','main','map','mark',
+	        'marquee','menu','menuitem','meter','nav','nobr','ol','optgroup',
+	        'option','output','p','pre','progress','q','rp','rt','ruby','s','samp',
+	        'section','select','shadow','small','source','spacer','span','strike',
+	        'strong','style','sub','summary','sup','table','tbody','td','template',
+	        'textarea','tfoot','th','thead','time','tr','track','tt','u','ul','var',
+	        'video','wbr',
+
+	        // SVG
+	        'svg','altglyph','altglyphdef','altglyphitem','animatecolor',
+	        'animatemotion','animatetransform','circle','clippath','defs','desc',
+	        'ellipse','font','g','glyph','glyphref','hkern','image','line',
+	        'lineargradient','marker','mask','metadata','mpath','path','pattern',
+	        'polygon','polyline','radialgradient','rect','stop','switch','symbol',
+	        'text','textpath','title','tref','tspan','view','vkern',
+
+	        // SVG Filters
+	        'feBlend','feColorMatrix','feComponentTransfer','feComposite',
+	        'feConvolveMatrix','feDiffuseLighting','feDisplacementMap',
+	        'feFlood','feFuncA','feFuncB','feFuncG','feFuncR','feGaussianBlur',
+	        'feImage','feMerge','feMergeNode','feMorphology','feOffset',
+	        'feSpecularLighting','feTile','feTurbulence',
+
+	        //MathML
+	        'math','menclose','merror','mfenced','mfrac','mglyph','mi','mlabeledtr',
+	        'mmuliscripts','mn','mo','mover','mpadded','mphantom','mroot','mrow',
+	        'ms','mpspace','msqrt','mystyle','msub','msup','msubsup','mtable','mtd',
+	        'mtext','mtr','munder','munderover',
+
+	        //Text
+	        '#text'
+	    ]);
+
+	    /* Allowed attribute names */
+	    var ALLOWED_ATTR = null;
+	    var DEFAULT_ALLOWED_ATTR = _addToSet({}, [
+
+	        // HTML
+	        'accept','action','align','alt','autocomplete','background','bgcolor',
+	        'border','cellpadding','cellspacing','checked','cite','class','clear','color',
+	        'cols','colspan','coords','datetime','default','dir','disabled',
+	        'download','enctype','face','for','headers','height','hidden','high','href',
+	        'hreflang','id','ismap','label','lang','list','loop', 'low','max',
+	        'maxlength','media','method','min','multiple','name','noshade','novalidate',
+	        'nowrap','open','optimum','pattern','placeholder','poster','preload','pubdate',
+	        'radiogroup','readonly','rel','required','rev','reversed','rows',
+	        'rowspan','spellcheck','scope','selected','shape','size','span',
+	        'srclang','start','src','step','style','summary','tabindex','title',
+	        'type','usemap','valign','value','width','xmlns',
+
+	        // SVG
+	        'accent-height','accumulate','additivive','alignment-baseline',
+	        'ascent','attributename','attributetype','azimuth','basefrequency',
+	        'baseline-shift','begin','bias','by','clip','clip-path','clip-rule',
+	        'color','color-interpolation','color-interpolation-filters','color-profile',
+	        'color-rendering','cx','cy','d','dx','dy','diffuseconstant','direction',
+	        'display','divisor','dur','edgemode','elevation','end','fill','fill-opacity',
+	        'fill-rule','filter','flood-color','flood-opacity','font-family','font-size',
+	        'font-size-adjust','font-stretch','font-style','font-variant','font-weight',
+	        'fx', 'fy','g1','g2','glyph-name','glyphref','gradientunits','gradienttransform',
+	        'image-rendering','in','in2','k','k1','k2','k3','k4','kerning','keypoints',
+	        'keysplines','keytimes','lengthadjust','letter-spacing','kernelmatrix',
+	        'kernelunitlength','lighting-color','local','marker-end','marker-mid',
+	        'marker-start','markerheight','markerunits','markerwidth','maskcontentunits',
+	        'maskunits','max','mask','mode','min','numoctaves','offset','operator',
+	        'opacity','order','orient','orientation','origin','overflow','paint-order',
+	        'path','pathlength','patterncontentunits','patterntransform','patternunits',
+	        'points','preservealpha','r','rx','ry','radius','refx','refy','repeatcount',
+	        'repeatdur','restart','rotate','scale','seed','shape-rendering','specularconstant',
+	        'specularexponent','spreadmethod','stddeviation','stitchtiles','stop-color',
+	        'stop-opacity','stroke-dasharray','stroke-dashoffset','stroke-linecap',
+	        'stroke-linejoin','stroke-miterlimit','stroke-opacity','stroke','stroke-width',
+	        'surfacescale','targetx','targety','transform','text-anchor','text-decoration',
+	        'text-rendering','textlength','u1','u2','unicode','values','viewbox',
+	        'visibility','vert-adv-y','vert-origin-x','vert-origin-y','word-spacing',
+	        'wrap','writing-mode','xchannelselector','ychannelselector','x','x1','x2',
+	        'y','y1','y2','z','zoomandpan',
+
+	        // MathML
+	        'accent','accentunder','bevelled','close','columnsalign','columnlines',
+	        'columnspan','denomalign','depth','display','displaystyle','fence',
+	        'frame','largeop','length','linethickness','lspace','lquote',
+	        'mathbackground','mathcolor','mathsize','mathvariant','maxsize',
+	        'minsize','movablelimits','notation','numalign','open','rowalign',
+	        'rowlines','rowspacing','rowspan','rspace','rquote','scriptlevel',
+	        'scriptminsize','scriptsizemultiplier','selection','separator',
+	        'separators','stretchy','subscriptshift','supscriptshift','symmetric',
+	        'voffset',
+
+	        // XML
+	        'xlink:href','xml:id','xlink:title','xml:space','xmlns:xlink'
+	    ]);
+
+	    /* Explicitly forbidden tags (overrides ALLOWED_TAGS/ADD_TAGS) */
+	    var FORBID_TAGS = null;
+
+	    /* Explicitly forbidden attributes (overrides ALLOWED_ATTR/ADD_ATTR) */
+	    var FORBID_ATTR = null;
+
+	    /* Decide if custom data attributes are okay */
+	    var ALLOW_DATA_ATTR = true;
+
+	    /* Output should be safe for jQuery's $() factory? */
+	    var SAFE_FOR_JQUERY = false;
+
+	    /* Output should be safe for common template engines.
+	     * This means, DOMPurify removes data attributes, mustaches and ERB
+	     */
+	    var SAFE_FOR_TEMPLATES = false;
+
+	    /* Specify template detection regex for SAFE_FOR_TEMPLATES mode */
+	    var MUSTACHE_EXPR = /\{\{[\s\S]*|[\s\S]*\}\}/gm;
+	    var ERB_EXPR = /<%[\s\S]*|[\s\S]*%>/gm;
+
+	    /* Decide if document with <html>... should be returned */
+	    var WHOLE_DOCUMENT = false;
+
+	    /* Decide if a DOM `HTMLBodyElement` should be returned, instead of a html string.
+	     * If `WHOLE_DOCUMENT` is enabled a `HTMLHtmlElement` will be returned instead
+	     */
+	    var RETURN_DOM = false;
+
+	    /* Decide if a DOM `DocumentFragment` should be returned, instead of a html string */
+	    var RETURN_DOM_FRAGMENT = false;
+
+	    /* If `RETURN_DOM` or `RETURN_DOM_FRAGMENT` is enabled, decide if the returned DOM
+	     * `Node` is imported into the current `Document`. If this flag is not enabled the
+	     * `Node` will belong (its ownerDocument) to a fresh `HTMLDocument`, created by
+	     * DOMPurify. */
+	    var RETURN_DOM_IMPORT = false;
+
+	    /* Output should be free from DOM clobbering attacks? */
+	    var SANITIZE_DOM = true;
+
+	    /* Keep element content when removing element? */
+	    var KEEP_CONTENT = true;
+
+	    /* Tags to ignore content of when KEEP_CONTENT is true */
+	    var FORBID_CONTENTS = _addToSet({}, [
+	        'audio', 'head', 'math', 'script', 'style', 'svg', 'video'
+	    ]);
+
+	    /* Tags that are safe for data: URIs */
+	    var DATA_URI_TAGS = _addToSet({}, [
+	        'audio', 'video', 'img', 'source'
+	    ]);
+
+	    /* Attributes safe for values like "javascript:" */
+	    var URI_SAFE_ATTRIBUTES = _addToSet({}, [
+	        'alt','class','for','id','label','name','pattern','placeholder',
+	        'summary','title','value','style','xmlns'
+	    ]);
+
+	    /* Keep a reference to config to pass to hooks */
+	    var CONFIG = null;
+
+	    /* Ideally, do not touch anything below this line */
+	    /* ______________________________________________ */
+
+	    var formElement = document.createElement('form');
+
+	    /**
+	     * _parseConfig
+	     *
+	     * @param  optional config literal
+	     */
+	    var _parseConfig = function(cfg) {
+	        /* Shield configuration object from tampering */
+	        if (typeof cfg !== 'object') {
+	            cfg = {};
+	        }
+
+	        /* Set configuration parameters */
+	        ALLOWED_TAGS = 'ALLOWED_TAGS' in cfg ?
+	            _addToSet({}, cfg.ALLOWED_TAGS) : DEFAULT_ALLOWED_TAGS;
+	        ALLOWED_ATTR = 'ALLOWED_ATTR' in cfg ?
+	            _addToSet({}, cfg.ALLOWED_ATTR) : DEFAULT_ALLOWED_ATTR;
+	        FORBID_TAGS = 'FORBID_TAGS' in cfg ?
+	            _addToSet({}, cfg.FORBID_TAGS) : {};
+	        FORBID_ATTR = 'FORBID_ATTR' in cfg ?
+	            _addToSet({}, cfg.FORBID_ATTR) : {};
+	        ALLOW_DATA_ATTR     = cfg.ALLOW_DATA_ATTR     !== false; // Default true
+	        SAFE_FOR_JQUERY     = cfg.SAFE_FOR_JQUERY     ||  false; // Default false
+	        SAFE_FOR_TEMPLATES  = cfg.SAFE_FOR_TEMPLATES  ||  false; // Default false
+	        WHOLE_DOCUMENT      = cfg.WHOLE_DOCUMENT      ||  false; // Default false
+	        RETURN_DOM          = cfg.RETURN_DOM          ||  false; // Default false
+	        RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT ||  false; // Default false
+	        RETURN_DOM_IMPORT   = cfg.RETURN_DOM_IMPORT   ||  false; // Default false
+	        SANITIZE_DOM        = cfg.SANITIZE_DOM        !== false; // Default true
+	        KEEP_CONTENT        = cfg.KEEP_CONTENT        !== false; // Default true
+
+	        if (SAFE_FOR_TEMPLATES) {
+	            ALLOW_DATA_ATTR = false;
+	        }
+
+	        if (RETURN_DOM_FRAGMENT) {
+	            RETURN_DOM = true;
+	        }
+
+	        /* Merge configuration parameters */
+	        if (cfg.ADD_TAGS) {
+	            if (ALLOWED_TAGS === DEFAULT_ALLOWED_TAGS) {
+	                ALLOWED_TAGS = _cloneObj(ALLOWED_TAGS);
+	            }
+	            _addToSet(ALLOWED_TAGS, cfg.ADD_TAGS);
+	        }
+	        if (cfg.ADD_ATTR) {
+	            if (ALLOWED_ATTR === DEFAULT_ALLOWED_ATTR) {
+	                ALLOWED_ATTR = _cloneObj(ALLOWED_ATTR);
+	            }
+	            _addToSet(ALLOWED_ATTR, cfg.ADD_ATTR);
+	        }
+
+	        /* Add #text in case KEEP_CONTENT is set to true */
+	        if (KEEP_CONTENT) { ALLOWED_TAGS['#text'] = true; }
+
+	        // Prevent further manipulation of configuration.
+	        // Not available in IE8, Safari 5, etc.
+	        if (Object && 'freeze' in Object) { Object.freeze(cfg); }
+
+	        CONFIG = cfg;
+	    };
+
+	   /**
+	     * _forceRemove
+	     *
+	     * @param  a DOM node
+	     */
+	    var _forceRemove = function(node) {
+	        try {
+	            node.parentNode.removeChild(node);
+	        } catch (e) {
+	            node.outerHTML = '';
+	        }
+	    };
+
+	   /**
+	     * _initDocument
+	     *
+	     * @param  a string of dirty markup
+	     * @return a DOM, filled with the dirty markup
+	     */
+	    var _initDocument = function(dirty) {
+	        /* Create a HTML document using DOMParser */
+	        var doc, body;
+	        try {
+	            doc = new DOMParser().parseFromString(dirty, 'text/html');
+	        } catch (e) {}
+
+	        /* Some browsers throw, some browsers return null for the code above
+	           DOMParser with text/html support is only in very recent browsers. */
+	        if (!doc) {
+	            doc = implementation.createHTMLDocument('');
+	            body = doc.body;
+	            body.parentNode.removeChild(body.parentNode.firstElementChild);
+	            body.outerHTML = dirty;
+	        }
+
+	        /* Work on whole document or just its body */
+	        if (typeof doc.getElementsByTagName === 'function') {
+	            return doc.getElementsByTagName(
+	                WHOLE_DOCUMENT ? 'html' : 'body')[0];
+	        }
+	        return getElementsByTagName.call(doc,
+	            WHOLE_DOCUMENT ? 'html' : 'body')[0];
+	    };
+
+	    /**
+	     * _createIterator
+	     *
+	     * @param  document/fragment to create iterator for
+	     * @return iterator instance
+	     */
+	    var _createIterator = function(root) {
+	        return createNodeIterator.call(root.ownerDocument || root,
+	            root,
+	            NodeFilter.SHOW_ELEMENT
+	            | NodeFilter.SHOW_COMMENT
+	            | NodeFilter.SHOW_TEXT,
+	            function() { return NodeFilter.FILTER_ACCEPT; },
+	            false
+	        );
+	    };
+
+	    /**
+	     * _isClobbered
+	     *
+	     * @param  element to check for clobbering attacks
+	     * @return true if clobbered, false if safe
+	     */
+	    var _isClobbered = function(elm) {
+	        if (elm instanceof Text || elm instanceof Comment) {
+	            return false;
+	        }
+	        if (  typeof elm.nodeName !== 'string'
+	           || typeof elm.textContent !== 'string'
+	           || typeof elm.removeChild !== 'function'
+	           || !(elm.attributes instanceof NamedNodeMap)
+	           || typeof elm.removeAttribute !== 'function'
+	           || typeof elm.setAttribute !== 'function'
+	        ) {
+	            return true;
+	        }
+	        return false;
+	    };
+
+	    /**
+	     * _sanitizeElements
+	     *
+	     * @protect nodeName
+	     * @protect textContent
+	     * @protect removeChild
+	     *
+	     * @param   node to check for permission to exist
+	     * @return  true if node was killed, false if left alive
+	     */
+	    var _sanitizeElements = function(currentNode) {
+	        var tagName, content;
+	        /* Execute a hook if present */
+	        _executeHook('beforeSanitizeElements', currentNode, null);
+
+	        /* Check if element is clobbered or can clobber */
+	        if (_isClobbered(currentNode)) {
+	            _forceRemove(currentNode);
+	            return true;
+	        }
+
+	        /* Now let's check the element's type and name */
+	        tagName = currentNode.nodeName.toLowerCase();
+
+	        /* Execute a hook if present */
+	        _executeHook('uponSanitizeElement', currentNode, {
+	            tagName: tagName
+	        });
+
+	        /* Remove element if anything forbids its presence */
+	        if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
+	            /* Keep content except for black-listed elements */
+	            if (KEEP_CONTENT && !FORBID_CONTENTS[tagName]
+	                    && typeof currentNode.insertAdjacentHTML === 'function') {
+	                try {
+	                    currentNode.insertAdjacentHTML('AfterEnd', currentNode.innerHTML);
+	                } catch (e) {}
+	            }
+	            _forceRemove(currentNode);
+	            return true;
+	        }
+
+	        /* Convert markup to cover jQuery behavior */
+	        if (SAFE_FOR_JQUERY && !currentNode.firstElementChild &&
+	                (!currentNode.content || !currentNode.content.firstElementChild)) {
+	            currentNode.innerHTML = currentNode.textContent.replace(/</g, '&lt;');
+	        }
+
+	        /* Sanitize element content to be template-safe */
+	        if (SAFE_FOR_TEMPLATES && currentNode.nodeType === 3) {
+	            /* Get the element's text content */
+	            content = currentNode.textContent;
+	            content = content.replace(MUSTACHE_EXPR, ' ');
+	            content = content.replace(ERB_EXPR, ' ');
+	            currentNode.textContent = content;
+	        }
+
+	        /* Execute a hook if present */
+	        _executeHook('afterSanitizeElements', currentNode, null);
+
+	        return false;
+	    };
+
+	    var DATA_ATTR = /^data-[\w.\u00B7-\uFFFF-]/;
+	    var IS_ALLOWED_URI = /^(?:(?:(?:f|ht)tps?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+	    /* This needs to be extensive thanks to Webkit/Blink's behavior */
+	    var ATTR_WHITESPACE = /[\x00-\x20\xA0\u1680\u180E\u2000-\u2029\u205f\u3000]/g;
+
+	    /**
+	     * _sanitizeAttributes
+	     *
+	     * @protect attributes
+	     * @protect nodeName
+	     * @protect removeAttribute
+	     * @protect setAttribute
+	     *
+	     * @param   node to sanitize
+	     * @return  void
+	     */
+	    var _sanitizeAttributes = function(currentNode) {
+	        var attr, name, value, lcName, idAttr, attributes, hookEvent, l;
+	        /* Execute a hook if present */
+	        _executeHook('beforeSanitizeAttributes', currentNode, null);
+
+	        attributes = currentNode.attributes;
+
+	        /* Check if we have attributes; if not we might have a text node */
+	        if (!attributes) { return; }
+
+	        hookEvent = {
+	            attrName: '',
+	            attrValue: '',
+	            keepAttr: true
+	        };
+	        l = attributes.length;
+
+	        /* Go backwards over all attributes; safely remove bad ones */
+	        while (l--) {
+	            attr = attributes[l];
+	            name = attr.name;
+	            value = attr.value;
+	            lcName = name.toLowerCase();
+
+	            /* Execute a hook if present */
+	            hookEvent.attrName = lcName;
+	            hookEvent.attrValue = value;
+	            hookEvent.keepAttr = true;
+	            _executeHook('uponSanitizeAttribute', currentNode, hookEvent );
+	            value = hookEvent.attrValue;
+
+	            /* Remove attribute */
+	            // Safari (iOS + Mac), last tested v8.0.5, crashes if you try to
+	            // remove a "name" attribute from an <img> tag that has an "id"
+	            // attribute at the time.
+	            if (lcName === 'name'  &&
+	                    currentNode.nodeName === 'IMG' && attributes.id) {
+	                idAttr = attributes.id;
+	                attributes = Array.prototype.slice.apply(attributes);
+	                currentNode.removeAttribute('id');
+	                currentNode.removeAttribute(name);
+	                if (attributes.indexOf(idAttr) > l) {
+	                    currentNode.setAttribute('id', idAttr.value);
+	                }
+	            } else {
+	                // This avoids a crash in Safari v9.0 with double-ids.
+	                // The trick is to first set the id to be empty and then to
+	                // remove the attriubute
+	                if (name === 'id') {
+	                    currentNode.setAttribute(name, '');
+	                }
+	                currentNode.removeAttribute(name);
+	            }
+
+	            /* Did the hooks approve of the attribute? */
+	            if (!hookEvent.keepAttr) {
+	                continue;
+	            }
+
+	            /* Make sure attribute cannot clobber */
+	            if (SANITIZE_DOM &&
+	                    (lcName === 'id' || lcName === 'name') &&
+	                    (value in window || value in document || value in formElement)) {
+	                continue;
+	            }
+
+	            /* Sanitize attribute content to be template-safe */
+	            if (SAFE_FOR_TEMPLATES) {
+	                value = value.replace(MUSTACHE_EXPR, ' ');
+	                value = value.replace(ERB_EXPR, ' ');
+	            }
+
+	            if (
+	                /* Check the name is permitted */
+	                (ALLOWED_ATTR[lcName] && !FORBID_ATTR[lcName] && (
+	                  /* Check no script, data or unknown possibly unsafe URI
+	                     unless we know URI values are safe for that attribute */
+	                  URI_SAFE_ATTRIBUTES[lcName] ||
+	                  IS_ALLOWED_URI.test(value.replace(ATTR_WHITESPACE,'')) ||
+	                  /* Keep image data URIs alive if src is allowed */
+	                  (lcName === 'src' && value.indexOf('data:') === 0 &&
+	                   DATA_URI_TAGS[currentNode.nodeName.toLowerCase()])
+	                )) ||
+	                /* Allow potentially valid data-* attributes:
+	                 * At least one character after "-" (https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes)
+	                 * XML-compatible (https://html.spec.whatwg.org/multipage/infrastructure.html#xml-compatible and http://www.w3.org/TR/xml/#d0e804)
+	                 * We don't need to check the value; it's always URI safe.
+	                 */
+	                 (ALLOW_DATA_ATTR && DATA_ATTR.test(lcName))
+	            ) {
+	                /* Handle invalid data-* attribute set by try-catching it */
+	                try {
+	                    currentNode.setAttribute(name, value);
+	                } catch (e) {}
+	            }
+	        }
+
+	        /* Execute a hook if present */
+	        _executeHook('afterSanitizeAttributes', currentNode, null);
+	    };
+
+	    /**
+	     * _sanitizeShadowDOM
+	     *
+	     * @param  fragment to iterate over recursively
+	     * @return void
+	     */
+	    var _sanitizeShadowDOM = function(fragment) {
+	        var shadowNode;
+	        var shadowIterator = _createIterator(fragment);
+
+	        /* Execute a hook if present */
+	        _executeHook('beforeSanitizeShadowDOM', fragment, null);
+
+	        while ( (shadowNode = shadowIterator.nextNode()) ) {
+	            /* Execute a hook if present */
+	            _executeHook('uponSanitizeShadowNode', shadowNode, null);
+
+	            /* Sanitize tags and elements */
+	            if (_sanitizeElements(shadowNode)) {
+	                continue;
+	            }
+
+	            /* Deep shadow DOM detected */
+	            if (shadowNode.content instanceof DocumentFragment) {
+	                _sanitizeShadowDOM(shadowNode.content);
+	            }
+
+	            /* Check attributes, sanitize if necessary */
+	            _sanitizeAttributes(shadowNode);
+	        }
+
+	        /* Execute a hook if present */
+	        _executeHook('afterSanitizeShadowDOM', fragment, null);
+	    };
+
+	    /**
+	     * _executeHook
+	     * Execute user configurable hooks
+	     *
+	     * @param  {String} entryPoint  Name of the hook's entry point
+	     * @param  {Node} currentNode
+	     */
+	    var _executeHook = function(entryPoint, currentNode, data) {
+	        if (!hooks[entryPoint]) { return; }
+
+	        hooks[entryPoint].forEach(function(hook) {
+	            hook.call(DOMPurify, currentNode, data, CONFIG);
+	        });
+	    };
+
+	    /**
+	     * sanitize
+	     * Public method providing core sanitation functionality
+	     *
+	     * @param {String} dirty string
+	     * @param {Object} configuration object
+	     */
+	    DOMPurify.sanitize = function(dirty, cfg) {
+	        var body, currentNode, oldNode, nodeIterator, returnNode;
+	        /* Make sure we have a string to sanitize.
+	           DO NOT return early, as this will return the wrong type if
+	           the user has requested a DOM object rather than a string */
+	        if (!dirty) {
+	            dirty = '';
+	        }
+
+	        /* Stringify, in case dirty is an object */
+	        if (typeof dirty !== 'string') {
+	            if (typeof dirty.toString !== 'function') {
+	                throw new TypeError('toString is not a function');
+	            } else {
+	                dirty = dirty.toString();
+	            }
+	        }
+
+	        /* Check we can run. Otherwise fall back or ignore */
+	        if (!DOMPurify.isSupported) {
+	            if (typeof window.toStaticHTML === 'object'
+	                || typeof window.toStaticHTML === 'function') {
+	                return window.toStaticHTML(dirty);
+	            }
+	            return dirty;
+	        }
+
+	        /* Assign config vars */
+	        _parseConfig(cfg);
+
+	        /* Exit directly if we have nothing to do */
+	        if (!RETURN_DOM && !WHOLE_DOCUMENT && dirty.indexOf('<') === -1) {
+	            return dirty;
+	        }
+
+	        /* Initialize the document to work on */
+	        body = _initDocument(dirty);
+
+	        /* Check we have a DOM node from the data */
+	        if (!body) {
+	            return RETURN_DOM ? null : '';
+	        }
+
+	        /* Get node iterator */
+	        nodeIterator = _createIterator(body);
+
+	        /* Now start iterating over the created document */
+	        while ( (currentNode = nodeIterator.nextNode()) ) {
+
+	            /* Fix IE's strange behavior with manipulated textNodes #89 */
+	            if (currentNode.nodeType === 3 && currentNode === oldNode) {
+	                continue;
+	            }
+
+	            /* Sanitize tags and elements */
+	            if (_sanitizeElements(currentNode)) {
+	                continue;
+	            }
+
+	            /* Shadow DOM detected, sanitize it */
+	            if (currentNode.content instanceof DocumentFragment) {
+	                _sanitizeShadowDOM(currentNode.content);
+	            }
+
+	            /* Check attributes, sanitize if necessary */
+	            _sanitizeAttributes(currentNode);
+
+	            oldNode = currentNode;
+	        }
+
+	        /* Return sanitized string or DOM */
+	        if (RETURN_DOM) {
+
+	            if (RETURN_DOM_FRAGMENT) {
+	                returnNode = createDocumentFragment.call(body.ownerDocument);
+
+	                while (body.firstChild) {
+	                    returnNode.appendChild(body.firstChild);
+	                }
+	            } else {
+	                returnNode = body;
+	            }
+
+	            if (RETURN_DOM_IMPORT) {
+	                /* adoptNode() is not used because internal state is not reset
+	                   (e.g. the past names map of a HTMLFormElement), this is safe
+	                   in theory but we would rather not risk another attack vector.
+	                   The state that is cloned by importNode() is explicitly defined
+	                   by the specs. */
+	                returnNode = importNode.call(originalDocument, returnNode, true);
+	            }
+
+	            return returnNode;
+	        }
+
+	        return WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
+	    };
+
+	    /**
+	     * addHook
+	     * Public method to add DOMPurify hooks
+	     *
+	     * @param {String} entryPoint
+	     * @param {Function} hookFunction
+	     */
+	    DOMPurify.addHook = function(entryPoint, hookFunction) {
+	        if (typeof hookFunction !== 'function') { return; }
+	        hooks[entryPoint] = hooks[entryPoint] || [];
+	        hooks[entryPoint].push(hookFunction);
+	    };
+
+	    /**
+	     * removeHook
+	     * Public method to remove a DOMPurify hook at a given entryPoint
+	     * (pops it from the stack of hooks if more are present)
+	     *
+	     * @param {String} entryPoint
+	     * @return void
+	     */
+	    DOMPurify.removeHook = function(entryPoint) {
+	        if (hooks[entryPoint]) {
+	            hooks[entryPoint].pop();
+	        }
+	    };
+
+	    /**
+	     * removeHooks
+	     * Public method to remove all DOMPurify hooks at a given entryPoint
+	     *
+	     * @param  {String} entryPoint
+	     * @return void
+	     */
+	    DOMPurify.removeHooks = function(entryPoint) {
+	        if (hooks[entryPoint]) {
+	            hooks[entryPoint] = [];
+	        }
+	    };
+
+	    /**
+	     * removeAllHooks
+	     * Public method to remove all DOMPurify hooks
+	     *
+	     * @return void
+	     */
+	    DOMPurify.removeAllHooks = function() {
+	        hooks = [];
+	    };
+
+	    return DOMPurify;
+	}));
+
+
+/***/ },
+/* 333 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.position = position;
+	exports.placement = placement;
+	exports.complete = complete;
+	exports.intersection = intersection;
+	exports.strip = strip;
+	exports.amend = amend;
+	exports.overDirs = overDirs;
+	exports.adjust = adjust;
+	exports.resolve = resolve;
+	exports.deprecatedWarning = deprecatedWarning;
+	exports.originOrEl = originOrEl;
+
+	var _isDom = __webpack_require__(334);
+
+	var _isDom2 = _interopRequireDefault(_isDom);
+
+	var _actions = __webpack_require__(335);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function dimension(el) {
+	  var rect = el.getBoundingClientRect();
+	  return { width: rect.width, height: rect.height };
+	}
+
+	/**
+	 * Returns a position of given DOM element.
+	 *
+	 * @param {Object} el - DOM element.
+	 * @return {Object}
+	 */
+	function position(el) {
+	  var pos = el.getBoundingClientRect();
+	  var _window = window;
+	  var pageYOffset = _window.pageYOffset;
+	  var pageXOffset = _window.pageXOffset;
+	  var _document$documentEle = document.documentElement;
+	  var scrollTop = _document$documentEle.scrollTop;
+	  var clientTop = _document$documentEle.clientTop;
+	  var scrollLeft = _document$documentEle.scrollLeft;
+	  var clientLeft = _document$documentEle.clientLeft;
+
+	  var winTop = (pageYOffset || scrollTop) - clientTop;
+	  var winLeft = (pageXOffset || scrollLeft) - clientLeft;
+
+	  return {
+	    top: pos.top + winTop,
+	    left: pos.left + winLeft,
+	    right: pos.right + winLeft,
+	    bottom: pos.bottom + winTop,
+	    width: pos.width,
+	    height: pos.height
+	  };
+	}
+
+	/**
+	 * Calculates a position of the tooltip.
+	 *
+	 * @param {string} place - 'top', 'right', 'bottom', or 'left'.
+	 * @param {Object} content - DOM element that contains a content.
+	 * @param {Object} origin - DOM element or position object.
+	 * @return {Object} contains 'top', 'left', and extra keys.
+	 */
+	function placement(place, content, origin) {
+	  var gap = 12;
+	  var dim = dimension(content);
+	  var pos = (0, _isDom2.default)(origin) ? position(origin) : { top: origin.y, right: origin.x, bottom: origin.y, left: origin.x, width: 0, height: 0 };
+
+	  var offset = { width: dim.width, height: dim.height };
+	  switch (place) {
+	    case 'top':case 'bottom':
+	      offset.left = pos.left + pos.width * 0.5 - dim.width * 0.5 + 'px';
+	      break;
+	    case 'left':case 'right':
+	      offset.top = pos.top + pos.height * 0.5 - dim.height * 0.5 + 'px';
+	      break;
+	  }
+
+	  switch (place) {
+	    case 'top':
+	      offset.top = pos.top - dim.height - gap + 'px';
+	      break;
+	    case 'right':
+	      offset.left = pos.right + gap + 'px';
+	      break;
+	    case 'bottom':
+	      offset.top = pos.top + pos.height + gap + 'px';
+	      break;
+	    case 'left':
+	      offset.left = pos.left - dim.width - gap + 'px';
+	      break;
+	  }
+
+	  return offset;
+	}
+
+	/**
+	 * Completes missing directions in given direction(s).
+	 *
+	 * @param {string|Array} dir - a direction or a list of directions.
+	 * @return {Array}
+	 */
+	var DIRS = ['top', 'right', 'bottom', 'left'];
+	function complete(dir) {
+	  if (typeof dir === 'string') {
+	    dir = [dir];
+	  } else {
+	    dir = [].concat(_toConsumableArray(dir));
+	  }
+
+	  var missings = DIRS.filter(function (d) {
+	    return dir.indexOf(d) === -1;
+	  });
+	  return dir.concat(missings);
+	}
+
+	/**
+	 * Calculates an intersection of two areas.
+	 *
+	 * @param {Object} area1
+	 * @param {Object} area2
+	 * @return {Object} an intersection.
+	 */
+	function intersection(area1, area2) {
+	  var area = {};
+	  area.top = Math.max(area1.top, area2.top);
+	  area.right = Math.min(area1.left + area1.width, area2.left + area2.width);
+	  area.bottom = Math.min(area1.top + area1.height, area2.top + area2.height);
+	  area.left = Math.max(area1.left, area2.left);
+	  area.height = area.bottom - area.top;
+	  area.width = area.right - area.left;
+	  return area;
+	}
+
+	function scrollOffset() {
+	  var list = [document.documentElement, document.body.parentNode, document.body];
+	  return {
+	    top: list.map(function (el) {
+	      return el.scrollTop;
+	    }).reduce(function (p, v) {
+	      return p || v;
+	    }),
+	    left: list.map(function (el) {
+	      return el.scrollLeft;
+	    }).reduce(function (p, v) {
+	      return p || v;
+	    })
+	  };
+	}
+
+	// Returns current content area
+	function contentArea() {
+	  return _extends({}, scrollOffset(), {
+	    height: window.innerHeight,
+	    width: window.innerWidth
+	  });
+	}
+
+	// Strip unit string from property values and convert to float
+	var STRIP_FOR = ['top', 'left', 'right', 'bottom', 'width', 'height'];
+	function strip(obj) {
+	  var data = _extends({}, obj);
+	  STRIP_FOR.forEach(function (prop) {
+	    if (typeof data[prop] === 'string') {
+	      data[prop] = parseFloat(data[prop].replace('px', ''));
+	    }
+	  });
+	  return data;
+	}
+
+	// Make full area data from minimum data
+	function amend(area) {
+	  var data = strip(area);
+	  if (typeof data.top !== 'number') {
+	    data.top = 0;
+	  }
+	  if (typeof data.left !== 'number') {
+	    data.left = 0;
+	  }
+	  if (typeof data.right !== 'number' && typeof data.width === 'number') {
+	    data.right = data.left + data.width;
+	  }
+	  if (typeof data.bottom !== 'number' && typeof data.height === 'number') {
+	    data.bottom = data.top + data.height;
+	  }
+	  return data;
+	}
+
+	// Returns directions which are not in target rectangle
+	function overDirs(tip, el) {
+	  tip = amend(tip);
+	  var area = amend(contentArea());
+	  if (el && (typeof el === 'undefined' ? 'undefined' : _typeof(el)) === 'object') {
+	    area = intersection(area, position(el));
+	  }
+
+	  var dirs = [];
+	  if (tip.top < area.top) {
+	    dirs.push('top');
+	  }
+	  if (area.right < tip.right) {
+	    dirs.push('right');
+	  }
+	  if (area.bottom < tip.bottom) {
+	    dirs.push('bottom');
+	  }
+	  if (tip.left < area.left) {
+	    dirs.push('left');
+	  }
+
+	  return dirs;
+	}
+
+	/**
+	 * Places and adjusts a tooltip.
+	 *
+	 * @param {Object} content - DOM element which contans a content.
+	 * @param {Object} props - props set from Tooltip component.
+	 * @return {Object} 'offset': style data to locate, 'place': final direction of the tooltip
+	 */
+	function adjust(content, props) {
+	  var auto = props.auto;
+	  var within = props.within;
+
+	  var origin = originOrEl(props);
+	  var place = props.place;
+
+	  if (typeof place === 'string') {
+	    place = place.split(',').map(function (p) {
+	      return p.trim();
+	    });
+	  }
+	  if (auto) {
+	    place = complete(place);
+	  }
+
+	  var pos = void 0,
+	      dirs = void 0,
+	      current = void 0,
+	      first = void 0;
+	  var tries = [].concat(_toConsumableArray(place));
+	  while (0 < tries.length) {
+	    current = tries.shift();
+	    pos = placement(current, content, origin);
+	    if (typeof first === 'undefined') {
+	      first = { offset: pos, place: current };
+	    }
+	    dirs = overDirs(pos, within && within());
+	    if (dirs.length === 0) {
+	      return { offset: pos, place: current };
+	    }
+	  }
+	  return first;
+	}
+
+	/**
+	 * Resolves names of target tooltip from action or props.
+	 *
+	 * @param {Object} action or props.
+	 * @return {Array} a list of tooltip names.
+	 */
+	function resolve(obj) {
+	  var names = void 0;
+	  if (obj && obj.payload && obj.payload.name) {
+	    names = obj.payload.name;
+	  } else if (obj && obj.name) {
+	    names = obj.name;
+	  } else {
+	    names = ['default'];
+	  }
+
+	  if (typeof names === 'string') {
+	    names = [names];
+	  }
+
+	  return names;
+	}
+
+	var actionTypes = Object.keys(actions).map(function (k) {
+	  return actions[k];
+	}).filter(function (e) {
+	  return typeof e === 'string';
+	});
+	function deprecatedWarning(action) {
+	  var type = action.type;
+	  var payload = action.payload;
+
+	  if (actionTypes.indexOf(action.type) === -1) {
+	    return; // Ignore non-related actions
+	  }
+	  if (payload && payload.el) {
+	    console.warn('DEPRECATED: Use \'origin\' instead of \'el\' in props for Tooltip component or \'show\' action.');
+	  }
+	  if (payload && payload.el && payload.origin) {
+	    console.warn('Do not pass both \'origin\' and \'el\' props at the same time.');
+	  }
+	}
+
+	function originOrEl(props) {
+	  return props.origin || props.el;
+	}
+
+/***/ },
+/* 334 */
+/***/ function(module, exports) {
+
+	/*global window*/
+
+	/**
+	 * Check if object is dom node.
+	 *
+	 * @param {Object} val
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	module.exports = function isNode(val){
+	  if (!val || typeof val !== 'object') return false;
+	  if (window && 'object' == typeof window.Node) return val instanceof window.Node;
+	  return 'number' == typeof val.nodeType && 'string' == typeof val.nodeName;
+	}
+
+
+/***/ },
+/* 335 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.endTimeout = exports.startTimeout = exports.END_TIMEOUT = exports.START_TIMEOUT = exports.DELAY = exports.place = exports.content = exports.keep = exports.toggle = exports.hide = exports.show = exports.PLACE = exports.CONTENT = exports.KEEP = exports.TOGGLE = exports.HIDE = exports.SHOW = undefined;
+	exports.delay = delay;
+
+	var _reduxActions = __webpack_require__(336);
+
+	var prefix = function prefix(name) {
+	  return 'redux-tooltip/' + name;
+	};
+
+	var SHOW = exports.SHOW = prefix('SHOW');
+	var HIDE = exports.HIDE = prefix('HIDE');
+	var TOGGLE = exports.TOGGLE = prefix('TOGGLE');
+	var KEEP = exports.KEEP = prefix('KEEP');
+	var CONTENT = exports.CONTENT = prefix('CONTENT');
+	var PLACE = exports.PLACE = prefix('PLACE');
+
+	var show = exports.show = (0, _reduxActions.createAction)(SHOW);
+	var hide = exports.hide = (0, _reduxActions.createAction)(HIDE);
+	var toggle = exports.toggle = (0, _reduxActions.createAction)(TOGGLE);
+	var keep = exports.keep = (0, _reduxActions.createAction)(KEEP);
+	var content = exports.content = (0, _reduxActions.createAction)(CONTENT);
+	var place = exports.place = (0, _reduxActions.createAction)(PLACE);
+
+	var DELAY = exports.DELAY = prefix('delay');
+	var DURATION = 1500;
+	function delay(action) {
+	  var _ref = arguments.length <= 1 || arguments[1] === undefined ? { duration: DURATION } : arguments[1];
+
+	  var duration = _ref.duration;
+	  var callback = _ref.callback;
+
+	  if (!action.meta) {
+	    action.meta = {};
+	  }
+	  if (typeof duration === 'undefined' || duration === true) {
+	    duration = DURATION;
+	  }
+	  action.meta[DELAY] = { duration: parseInt(duration), callback: callback };
+	  return action;
+	}
+
+	var START_TIMEOUT = exports.START_TIMEOUT = prefix('START_TIMEOUT');
+	var END_TIMEOUT = exports.END_TIMEOUT = prefix('END_TIMEOUT');
+
+	var startTimeout = exports.startTimeout = (0, _reduxActions.createAction)(START_TIMEOUT);
+	var endTimeout = exports.endTimeout = (0, _reduxActions.createAction)(END_TIMEOUT);
+
+/***/ },
+/* 336 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _createAction = __webpack_require__(337);
+
+	var _createAction2 = _interopRequireDefault(_createAction);
+
+	var _handleAction = __webpack_require__(338);
+
+	var _handleAction2 = _interopRequireDefault(_handleAction);
+
+	var _handleActions = __webpack_require__(339);
+
+	var _handleActions2 = _interopRequireDefault(_handleActions);
+
+	exports.createAction = _createAction2['default'];
+	exports.handleAction = _handleAction2['default'];
+	exports.handleActions = _handleActions2['default'];
+
+/***/ },
+/* 337 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = createAction;
+	function identity(t) {
+	  return t;
+	}
+
+	function createAction(type, actionCreator, metaCreator) {
+	  var finalActionCreator = typeof actionCreator === 'function' ? actionCreator : identity;
+
+	  return function () {
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    var action = {
+	      type: type,
+	      payload: finalActionCreator.apply(undefined, args)
+	    };
+
+	    if (args.length === 1 && args[0] instanceof Error) {
+	      // Handle FSA errors where the payload is an Error object. Set error.
+	      action.error = true;
+	    }
+
+	    if (typeof metaCreator === 'function') {
+	      action.meta = metaCreator.apply(undefined, args);
+	    }
+
+	    return action;
+	  };
+	}
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 338 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = handleAction;
+
+	var _fluxStandardAction = __webpack_require__(300);
+
+	function isFunction(val) {
+	  return typeof val === 'function';
+	}
+
+	function handleAction(type, reducers) {
+	  return function (state, action) {
+	    // If action type does not match, return previous state
+	    if (action.type !== type) return state;
+
+	    var handlerKey = _fluxStandardAction.isError(action) ? 'throw' : 'next';
+
+	    // If function is passed instead of map, use as reducer
+	    if (isFunction(reducers)) {
+	      reducers.next = reducers['throw'] = reducers;
+	    }
+
+	    // Otherwise, assume an action map was passed
+	    var reducer = reducers[handlerKey];
+
+	    return isFunction(reducer) ? reducer(state, action) : state;
+	  };
+	}
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 339 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = handleActions;
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _handleAction = __webpack_require__(338);
+
+	var _handleAction2 = _interopRequireDefault(_handleAction);
+
+	var _ownKeys = __webpack_require__(340);
+
+	var _ownKeys2 = _interopRequireDefault(_ownKeys);
+
+	var _reduceReducers = __webpack_require__(341);
+
+	var _reduceReducers2 = _interopRequireDefault(_reduceReducers);
+
+	function handleActions(handlers, defaultState) {
+	  var reducers = _ownKeys2['default'](handlers).map(function (type) {
+	    return _handleAction2['default'](type, handlers[type]);
+	  });
+
+	  return typeof defaultState !== 'undefined' ? function (state, action) {
+	    if (state === undefined) state = defaultState;
+	    return _reduceReducers2['default'].apply(undefined, reducers)(state, action);
+	  } : _reduceReducers2['default'].apply(undefined, reducers);
+	}
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 340 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports['default'] = ownKeys;
+
+	function ownKeys(object) {
+	  if (typeof Reflect !== 'undefined' && typeof Reflect.ownKeys === 'function') {
+	    return Reflect.ownKeys(object);
+	  }
+
+	  var keys = Object.getOwnPropertyNames(object);
+
+	  if (typeof Object.getOwnPropertySymbols === 'function') {
+	    keys = keys.concat(Object.getOwnPropertySymbols(object));
+	  }
+
+	  return keys;
+	}
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 341 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.__esModule = true;
+	exports["default"] = reduceReducers;
+
+	function reduceReducers() {
+	  for (var _len = arguments.length, reducers = Array(_len), _key = 0; _key < _len; _key++) {
+	    reducers[_key] = arguments[_key];
+	  }
+
+	  return function (previous, current) {
+	    return reducers.reduce(function (p, r) {
+	      return r(p, current);
+	    }, previous);
+	  };
+	}
+
+	module.exports = exports["default"];
+
+/***/ },
+/* 342 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var base = exports.base = {
+	  padding: 0,
+	  fontSize: 0,
+	  lineHeight: 0,
+	  position: 'absolute',
+	  left: 0,
+	  top: 0,
+	  zIndex: 9999,
+	  width: 'auto',
+	  overflow: 'visible'
+	};
+
+	var content = exports.content = {
+	  overflow: 'hidden'
+	};
+
+	var arrow = exports.arrow = {
+	  display: 'block',
+	  textAlign: 'center',
+	  width: '100%',
+	  height: '100%',
+	  position: 'absolute',
+	  top: 0,
+	  left: 0,
+	  zIndex: -1
+	};
+
+	var vertical = {
+	  left: 0,
+	  right: 0,
+	  margin: '0 auto'
+	};
+
+	var horizontal = {
+	  top: '50%',
+	  marginTop: '-8px'
+	};
+
+	var border = exports.border = {
+	  base: {
+	    display: 'block',
+	    width: 0,
+	    height: 0,
+	    position: 'absolute'
+	  },
+	  top: _extends({
+	    borderLeft: '9px solid transparent !important',
+	    borderRight: '9px solid transparent !important',
+	    borderTop: '9px solid',
+	    bottom: '-7px'
+	  }, vertical),
+	  right: _extends({
+	    borderTop: '9px solid transparent !important',
+	    borderBottom: '9px solid transparent !important',
+	    borderRight: '9px solid',
+	    left: '-7px'
+	  }, horizontal),
+	  bottom: _extends({
+	    borderLeft: '9px solid transparent !important',
+	    borderRight: '9px solid transparent !important',
+	    borderBottom: '9px solid',
+	    top: '-7px'
+	  }, vertical),
+	  left: _extends({
+	    borderTop: '9px solid transparent !important',
+	    borderBottom: '9px solid transparent !important',
+	    borderLeft: '9px solid',
+	    right: '-7px'
+	  }, horizontal)
+	};
+
+/***/ },
+/* 343 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var simple = exports.simple = {
+	  base: {
+	    borderRadius: '5px',
+	    background: '#fff',
+	    boxShadow: '0px 0px 14px rgba(0,0,0,0.3)',
+	    color: '#2c2c2c'
+	  },
+	  content: {
+	    fontSize: '14px',
+	    lineHeight: '16px',
+	    padding: '8px 10px'
+	  },
+	  border: {
+	    borderColor: 'white',
+	    marginBottom: '-2px'
+	  }
+	};
+
+/***/ },
+/* 344 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _actions = __webpack_require__(335);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Origin = function (_Component) {
+	  _inherits(Origin, _Component);
+
+	  function Origin() {
+	    _classCallCheck(this, Origin);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Origin).apply(this, arguments));
+	  }
+
+	  _createClass(Origin, [{
+	    key: 'createWithDelay',
+	    value: function createWithDelay(creator) {
+	      var extras = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	      var _props = this.props;
+	      var duration = _props.delay;
+	      var callback = _props.onTimeout;
+
+	      var action = creator(_extends({}, this.props, extras));
+	      if (duration || callback) {
+	        action = (0, _actions.delay)(action, { duration: duration, callback: callback });
+	      }
+	      return action;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      var props = _extends({}, this.props);
+	      delete props['dispatch'];
+
+	      if (!props.onMouseEnter) {
+	        props.onMouseEnter = function (e) {
+	          var action = ['show', 'both'].indexOf(_this2.props.delayOn) !== -1 ? _this2.createWithDelay(_actions.show, { origin: e.target }) : (0, _actions.show)(_extends({}, _this2.props, { origin: e.target }));
+	          _this2.props.dispatch(action);
+	          _this2.props.onHover && _this2.props.onHover(e);
+	        };
+	      }
+
+	      if (!props.onMouseLeave) {
+	        props.onMouseLeave = function (e) {
+	          var action = ['hide', 'both'].indexOf(_this2.props.delayOn) !== -1 ? _this2.createWithDelay(_actions.hide) : (0, _actions.hide)(_extends({}, _this2.props));
+	          _this2.props.dispatch(action);
+	          _this2.props.onLeave && _this2.props.onLeave(e);
+	        };
+	      }
+
+	      return _react2.default.createElement(this.props.tagName, _extends({}, props, { ref: 'wrapper'
+	      }));
+	    }
+	  }], [{
+	    key: 'wrapBy',
+	    value: function wrapBy(tagName) {
+	      var CustomOrigin = function (_Origin) {
+	        _inherits(CustomOrigin, _Origin);
+
+	        function CustomOrigin() {
+	          _classCallCheck(this, CustomOrigin);
+
+	          return _possibleConstructorReturn(this, Object.getPrototypeOf(CustomOrigin).apply(this, arguments));
+	        }
+
+	        _createClass(CustomOrigin, null, [{
+	          key: 'displayName',
+	          get: function get() {
+	            return Origin.displayName + '.' + tagName;
+	          }
+	        }, {
+	          key: 'defaultProps',
+	          get: function get() {
+	            return _extends({}, Origin.defaultProps, {
+	              tagName: tagName
+	            });
+	          }
+	        }]);
+
+	        return CustomOrigin;
+	      }(Origin);
+
+	      return (0, _reactRedux.connect)()(CustomOrigin);
+	    }
+	  }, {
+	    key: 'displayName',
+	    get: function get() {
+	      return 'Origin';
+	    }
+	  }, {
+	    key: 'propTypes',
+	    get: function get() {
+	      return {
+	        name: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.arrayOf(_react.PropTypes.string)]),
+	        content: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.object, _react.PropTypes.arrayOf(_react.PropTypes.object)]),
+	        place: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.arrayOf(_react.PropTypes.string)]),
+	        tagName: _react.PropTypes.string,
+	        delay: _react.PropTypes.oneOfType([_react.PropTypes.bool, _react.PropTypes.number, _react.PropTypes.string]),
+	        delayOn: _react.PropTypes.oneOf(['show', 'hide', 'both']),
+	        onTimeout: _react.PropTypes.func,
+	        onMouseEnter: _react.PropTypes.func,
+	        onMouseLeave: _react.PropTypes.func
+	      };
+	    }
+	  }, {
+	    key: 'defaultProps',
+	    get: function get() {
+	      return {
+	        delayOn: 'hide',
+	        tagName: 'span'
+	      };
+	    }
+	  }]);
+
+	  return Origin;
+	}(_react.Component);
+
+	exports.default = (0, _reactRedux.connect)()(Origin);
+
+/***/ },
+/* 345 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _handlers;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.default = reducer;
+
+	var _utils = __webpack_require__(333);
+
+	var _actions = __webpack_require__(335);
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	var initial = {
+	  show: false,
+	  place: 'top',
+	  origin: null,
+	  el: null,
+	  auto: true,
+	  content: null,
+	  timeout: null
+	};
+
+	var SHOW_PROPS = ['origin', 'el', 'place', 'content'];
+
+	var handlers = (_handlers = {}, _defineProperty(_handlers, _actions.SHOW, function (state, action) {
+	  var props = {};
+	  SHOW_PROPS.forEach(function (name) {
+	    if (action.payload[name]) {
+	      props[name] = action.payload[name];
+	    } else {
+	      props[name] = initial[name];
+	    }
+	  });
+	  return _extends({}, state, { show: true }, props);
+	}), _defineProperty(_handlers, _actions.HIDE, function (state) {
+	  return _extends({}, state, { show: false });
+	}), _defineProperty(_handlers, _actions.TOGGLE, function (state) {
+	  return _extends({}, state, { show: !state.show });
+	}), _defineProperty(_handlers, _actions.KEEP, function (state) {
+	  return _extends({}, state, { timeout: null });
+	}), _defineProperty(_handlers, _actions.CONTENT, function (state, action) {
+	  return _extends({}, state, { content: action.payload });
+	}), _defineProperty(_handlers, _actions.PLACE, function (state, action) {
+	  return _extends({}, state, { place: action.payload });
+	}), _defineProperty(_handlers, _actions.START_TIMEOUT, function (state, action) {
+	  return _extends({}, state, { timeout: action.payload.token });
+	}), _defineProperty(_handlers, _actions.END_TIMEOUT, function (state) {
+	  return _extends({}, state, { timeout: null });
+	}), _handlers);
+
+	function tooltip() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? initial : arguments[0];
+	  var action = arguments[1];
+
+	  // Check usage of deprecated props
+	  (0, _utils.deprecatedWarning)(action);
+
+	  var handler = handlers[action.type];
+	  return handler ? handler(state, action) : state;
+	}
+
+	function reducer() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var action = arguments[1];
+
+	  var newState = _extends({}, state);
+	  var names = (0, _utils.resolve)(action);
+	  names.forEach(function (name) {
+	    newState = _extends({}, newState, _defineProperty({}, name, tooltip(newState[name], action)));
+	  });
+	  return newState;
+	}
+
+/***/ },
+/* 346 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = middleware;
+
+	var _actions = __webpack_require__(335);
+
+	var _utils = __webpack_require__(333);
+
+	function getToken(state, name) {
+	  var tooltips = state.tooltip;
+
+	  var tooltip = tooltips[name];
+	  if (tooltip) {
+	    return tooltip.timeout;
+	  }
+	}
+
+	var CANCEL_TYPES = [_actions.SHOW, _actions.HIDE];
+
+	function middleware(store) {
+	  return function (next) {
+	    return function (action) {
+	      var names = (0, _utils.resolve)(action);
+	      if (CANCEL_TYPES.indexOf(action.type) !== -1) {
+	        // Clear timeout
+	        names.forEach(function (name) {
+	          var token = getToken(store.getState(), name);
+	          token && clearTimeout(token);
+	        });
+	      }
+
+	      if (!action.meta || !action.meta[_actions.DELAY]) {
+	        return next(action);
+	      }
+
+	      // Setup timeout
+	      var _action$meta$DELAY = action.meta[_actions.DELAY];
+	      var duration = _action$meta$DELAY.duration;
+	      var callback = _action$meta$DELAY.callback;
+
+	      names.forEach(function (name) {
+	        var newToken = setTimeout(function () {
+	          // Ignore if token is cleared
+	          var token = getToken(store.getState(), name);
+	          if (token !== null) {
+	            // Clear timeout token
+	            next((0, _actions.endTimeout)({ name: name }));
+
+	            // Dispatch original action
+	            delete action.meta[_actions.DELAY];
+	            next(action);
+
+	            // Notify via callback
+	            callback && callback(action.type, duration, action);
+	          }
+	        }, duration);
+
+	        // Store timeout token
+	        next((0, _actions.startTimeout)({ name: name, token: newToken }));
+	      });
+
+	      return names;
+	    };
+	  };
+	}
+
+/***/ },
+/* 347 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict'
+
+	module.exports = __webpack_require__(348)
+
+
+/***/ },
+/* 348 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(158);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _classnames = __webpack_require__(349);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _style = __webpack_require__(350);
+
+	var _style2 = _interopRequireDefault(_style);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ReactTooltip = function (_Component) {
+	  _inherits(ReactTooltip, _Component);
+
+	  _createClass(ReactTooltip, [{
+	    key: 'globalHide',
+	    value: function globalHide() {
+	      if (this.mount) {
+	        this.hideTooltip();
+	      }
+	    }
+	  }, {
+	    key: 'globalRebuild',
+	    value: function globalRebuild() {
+	      if (this.mount) {
+	        this.unbindListener();
+	        this.bindListener();
+	      }
+	    }
+	  }], [{
+	    key: 'hide',
+
+	    /**
+	     * Class method
+	     * @see ReactTooltip.hide() && ReactTooltup.rebuild()
+	     */
+	    value: function hide() {
+	      /**
+	       * Check for ie
+	       * @see http://stackoverflow.com/questions/26596123/internet-explorer-9-10-11-event-constructor-doesnt-work
+	       */
+	      if (typeof window.Event === 'function') {
+	        window.dispatchEvent(new window.Event('__react_tooltip_hide_event'));
+	      } else {
+	        var event = document.createEvent('Event');
+	        event.initEvent('__react_tooltip_hide_event', false, true);
+	        window.dispatchEvent(event);
+	      }
+	    }
+	  }, {
+	    key: 'rebuild',
+	    value: function rebuild() {
+	      if (typeof window.Event === 'function') {
+	        window.dispatchEvent(new window.Event('__react_tooltip_rebuild_event'));
+	      } else {
+	        var event = document.createEvent('Event');
+	        event.initEvent('__react_tooltip_rebuild_event', false, true);
+	        window.dispatchEvent(event);
+	      }
+	    }
+	  }]);
+
+	  function ReactTooltip(props) {
+	    _classCallCheck(this, ReactTooltip);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ReactTooltip).call(this, props));
+
+	    _this._bind('showTooltip', 'updateTooltip', 'hideTooltip', 'checkStatus', 'onWindowResize', 'bindClickListener', 'globalHide', 'globalRebuild');
+	    _this.mount = true;
+	    _this.state = {
+	      show: false,
+	      border: false,
+	      multilineCount: 0,
+	      placeholder: '',
+	      x: 'NONE',
+	      y: 'NONE',
+	      place: '',
+	      type: '',
+	      effect: '',
+	      multiline: false,
+	      offset: {},
+	      extraClass: '',
+	      html: false,
+	      delayHide: 0,
+	      delayShow: 0,
+	      event: props.event || null,
+	      isCapture: props.isCapture || false
+	    };
+	    _this.delayShowLoop = null;
+	    _this.delayHideLoop = null;
+	    return _this;
+	  }
+
+	  /* Bind this with method */
+
+
+	  _createClass(ReactTooltip, [{
+	    key: '_bind',
+	    value: function _bind() {
+	      var _this2 = this;
+
+	      for (var _len = arguments.length, handlers = Array(_len), _key = 0; _key < _len; _key++) {
+	        handlers[_key] = arguments[_key];
+	      }
+
+	      handlers.forEach(function (handler) {
+	        return _this2[handler] = _this2[handler].bind(_this2);
+	      });
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.bindListener();
+	      this.setStyleHeader();
+	      /* Add window event listener for hide and rebuild */
+	      window.removeEventListener('__react_tooltip_hide_event', this.globalHide);
+	      window.addEventListener('__react_tooltip_hide_event', this.globalHide, false);
+
+	      window.removeEventListener('__react_tooltip_rebuild_event', this.globalRebuild);
+	      window.addEventListener('__react_tooltip_rebuild_event', this.globalRebuild, false);
+	      /* Add listener on window resize  */
+	      window.removeEventListener('resize', this.onWindowResize);
+	      window.addEventListener('resize', this.onWindowResize, false);
+	    }
+	  }, {
+	    key: 'componentWillUpdate',
+	    value: function componentWillUpdate() {
+	      this.unbindListener();
+	    }
+	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      this.updatePosition();
+	      this.bindListener();
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      clearTimeout(this.delayShowLoop);
+	      clearTimeout(this.delayHideLoop);
+	      this.unbindListener();
+	      this.removeScrollListener();
+	      this.mount = false;
+	      window.removeEventListener('__react_tooltip_hide_event', this.globalHide);
+	      window.removeEventListener('__react_tooltip_rebuild_event', this.globalRebuild);
+	      window.removeEventListener('resize', this.onWindowResize);
+	    }
+
+	    /* TODO: optimize, bind has been trigger too many times */
+
+	  }, {
+	    key: 'bindListener',
+	    value: function bindListener() {
+	      var targetArray = this.getTargetArray();
+
+	      var dataEvent = void 0;
+	      for (var i = 0; i < targetArray.length; i++) {
+	        if (targetArray[i].getAttribute('currentItem') === null) {
+	          targetArray[i].setAttribute('currentItem', 'false');
+	        }
+	        dataEvent = this.state.event || targetArray[i].getAttribute('data-event');
+	        if (dataEvent) {
+	          targetArray[i].removeEventListener(dataEvent, this.checkStatus);
+	          targetArray[i].addEventListener(dataEvent, this.checkStatus, false);
+	        } else {
+	          targetArray[i].removeEventListener('mouseenter', this.showTooltip);
+	          targetArray[i].addEventListener('mouseenter', this.showTooltip, false);
+
+	          if (this.state.effect === 'float') {
+	            targetArray[i].removeEventListener('mousemove', this.updateTooltip);
+	            targetArray[i].addEventListener('mousemove', this.updateTooltip, false);
+	          }
+
+	          targetArray[i].removeEventListener('mouseleave', this.hideTooltip);
+	          targetArray[i].addEventListener('mouseleave', this.hideTooltip, false);
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'unbindListener',
+	    value: function unbindListener() {
+	      var targetArray = document.querySelectorAll('[data-tip]');
+	      var dataEvent = void 0;
+
+	      for (var i = 0; i < targetArray.length; i++) {
+	        dataEvent = this.state.event || targetArray[i].getAttribute('data-event');
+	        if (dataEvent) {
+	          targetArray[i].removeEventListener(dataEvent, this.checkStatus);
+	        } else {
+	          targetArray[i].removeEventListener('mouseenter', this.showTooltip);
+	          targetArray[i].removeEventListener('mousemove', this.updateTooltip);
+	          targetArray[i].removeEventListener('mouseleave', this.hideTooltip);
+	        }
+	      }
+	    }
+
+	    /**
+	     * Get all tooltip targets
+	     */
+
+	  }, {
+	    key: 'getTargetArray',
+	    value: function getTargetArray() {
+	      var id = this.props.id;
+
+	      var targetArray = void 0;
+
+	      if (id === undefined) {
+	        targetArray = document.querySelectorAll('[data-tip]:not([data-for])');
+	      } else {
+	        targetArray = document.querySelectorAll('[data-tip][data-for="' + id + '"]');
+	      }
+
+	      return targetArray;
+	    }
+
+	    /**
+	     * listener on window resize
+	     */
+
+	  }, {
+	    key: 'onWindowResize',
+	    value: function onWindowResize() {
+	      if (!this.mount) return;
+	      var targetArray = this.getTargetArray();
+
+	      for (var i = 0; i < targetArray.length; i++) {
+	        if (targetArray[i].getAttribute('currentItem') === 'true') {
+	          // todo: timer for performance
+
+	          var _getPosition = this.getPosition(targetArray[i]);
+
+	          var x = _getPosition.x;
+	          var y = _getPosition.y;
+
+	          _reactDom2.default.findDOMNode(this).style.left = x + 'px';
+	          _reactDom2.default.findDOMNode(this).style.top = y + 'px';
+	          /* this.setState({
+	           x,
+	           y
+	           }) */
+	        }
+	      }
+	    }
+
+	    /**
+	     * Used in customer event
+	     */
+
+	  }, {
+	    key: 'checkStatus',
+	    value: function checkStatus(e) {
+	      var show = this.state.show;
+
+	      var isCapture = void 0;
+
+	      if (e.currentTarget.getAttribute('data-iscapture')) {
+	        isCapture = e.currentTarget.getAttribute('data-iscapture') === 'true';
+	      } else {
+	        isCapture = this.state.isCapture;
+	      }
+
+	      if (!isCapture) e.stopPropagation();
+	      if (show && e.currentTarget.getAttribute('currentItem') === 'true') {
+	        this.hideTooltip(e);
+	      } else {
+	        e.currentTarget.setAttribute('currentItem', 'true');
+	        /* when click other place, the tooltip should be removed */
+	        window.removeEventListener('click', this.bindClickListener);
+	        window.addEventListener('click', this.bindClickListener, isCapture);
+
+	        this.showTooltip(e);
+	        this.setUntargetItems(e.currentTarget);
+	      }
+	    }
+	  }, {
+	    key: 'setUntargetItems',
+	    value: function setUntargetItems(currentTarget) {
+	      var targetArray = this.getTargetArray();
+	      for (var i = 0; i < targetArray.length; i++) {
+	        if (currentTarget !== targetArray[i]) {
+	          targetArray[i].setAttribute('currentItem', 'false');
+	        } else {
+	          targetArray[i].setAttribute('currentItem', 'true');
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'bindClickListener',
+	    value: function bindClickListener() {
+	      this.globalHide();
+	      window.removeEventListener('click', this.bindClickListener);
+	    }
+
+	    /**
+	     * When mouse enter, show update
+	     */
+
+	  }, {
+	    key: 'showTooltip',
+	    value: function showTooltip(e) {
+	      var originTooltip = e.currentTarget.getAttribute('data-tip');
+	      /* Detect multiline */
+	      var regexp = /<br\s*\/?>/;
+	      var multiline = e.currentTarget.getAttribute('data-multiline') ? e.currentTarget.getAttribute('data-multiline') : this.props.multiline ? this.props.multiline : false;
+	      var tooltipText = void 0;
+	      var multilineCount = 0;
+	      if (!multiline || multiline === 'false' || !regexp.test(originTooltip)) {
+	        tooltipText = originTooltip;
+	      } else {
+	        tooltipText = originTooltip.split(regexp).map(function (d, i) {
+	          multilineCount += 1;
+	          return _react2.default.createElement(
+	            'span',
+	            { key: i, className: 'multi-line' },
+	            d
+	          );
+	        });
+	      }
+	      /* Define extra class */
+	      var extraClass = e.currentTarget.getAttribute('data-class') ? e.currentTarget.getAttribute('data-class') : '';
+	      extraClass = this.props.class ? this.props.class + ' ' + extraClass : extraClass;
+	      this.setState({
+	        placeholder: tooltipText,
+	        multilineCount: multilineCount,
+	        place: e.currentTarget.getAttribute('data-place') || this.props.place || 'top',
+	        type: e.currentTarget.getAttribute('data-type') || this.props.type || 'dark',
+	        effect: e.currentTarget.getAttribute('data-effect') || this.props.effect || 'float',
+	        offset: e.currentTarget.getAttribute('data-offset') || this.props.offset || {},
+	        html: e.currentTarget.getAttribute('data-html') === 'true' || this.props.html || false,
+	        delayShow: e.currentTarget.getAttribute('data-delay-show') || this.props.delayShow || 0,
+	        delayHide: e.currentTarget.getAttribute('data-delay-hide') || this.props.delayHide || 0,
+	        border: e.currentTarget.getAttribute('data-border') === 'true' || this.props.border || false,
+	        extraClass: extraClass,
+	        multiline: multiline
+	      });
+
+	      this.addScrollListener();
+	      this.updateTooltip(e);
+	    }
+
+	    /**
+	     * When mouse hover, updatetooltip
+	     */
+
+	  }, {
+	    key: 'updateTooltip',
+	    value: function updateTooltip(e) {
+	      var _this3 = this;
+
+	      var _state = this.state;
+	      var delayShow = _state.delayShow;
+	      var show = _state.show;
+
+	      var delayTime = show ? 0 : parseInt(delayShow, 10);
+	      var eventTarget = e.currentTarget;
+
+	      clearTimeout(this.delayShowLoop);
+	      this.delayShowLoop = setTimeout(function () {
+	        if (_this3.trim(_this3.state.placeholder).length > 0) {
+	          if (_this3.state.effect === 'float') {
+	            _this3.setState({
+	              show: true,
+	              x: e.clientX,
+	              y: e.clientY
+	            });
+	          } else if (_this3.state.effect === 'solid') {
+	            var _getPosition2 = _this3.getPosition(eventTarget);
+
+	            var x = _getPosition2.x;
+	            var y = _getPosition2.y;
+
+	            _this3.setState({
+	              show: true,
+	              x: x,
+	              y: y
+	            });
+	          }
+	        }
+	      }, delayTime);
+	    }
+
+	    /**
+	     * When mouse leave, hide tooltip
+	     */
+
+	  }, {
+	    key: 'hideTooltip',
+	    value: function hideTooltip() {
+	      var _this4 = this;
+
+	      var delayHide = this.state.delayHide;
+
+	      clearTimeout(this.delayShowLoop);
+	      clearTimeout(this.delayHideLoop);
+	      this.delayHideLoop = setTimeout(function () {
+	        _this4.setState({
+	          show: false
+	        });
+	        _this4.removeScrollListener();
+	      }, parseInt(delayHide, 10));
+	    }
+
+	    /**
+	     * Add scroll eventlistener when tooltip show
+	     * or tooltip will always existed
+	     */
+
+	  }, {
+	    key: 'addScrollListener',
+	    value: function addScrollListener() {
+	      window.addEventListener('scroll', this.hideTooltip);
+	    }
+	  }, {
+	    key: 'removeScrollListener',
+	    value: function removeScrollListener() {
+	      window.removeEventListener('scroll', this.hideTooltip);
+	    }
+
+	    /**
+	     * Get tooltip poisition by current target
+	     */
+
+	  }, {
+	    key: 'getPosition',
+	    value: function getPosition(currentTarget) {
+	      var _this5 = this;
+
+	      var place = this.state.place;
+
+	      var node = _reactDom2.default.findDOMNode(this);
+	      var boundingClientRect = currentTarget.getBoundingClientRect();
+	      var targetTop = boundingClientRect.top;
+	      var targetLeft = boundingClientRect.left;
+	      var tipWidth = node.clientWidth;
+	      var tipHeight = node.clientHeight;
+	      var targetWidth = currentTarget.clientWidth;
+	      var targetHeight = currentTarget.clientHeight;
+	      var windoWidth = window.innerWidth;
+	      var windowHeight = window.innerHeight;
+	      var x = void 0;
+	      var y = void 0;
+	      var defaultTopY = targetTop - tipHeight - 8;
+	      var defaultBottomY = targetTop + targetHeight + 8;
+	      var defaultLeftX = targetLeft - tipWidth - 6;
+	      var defaultRightX = targetLeft + targetWidth + 6;
+
+	      var outsideTop = function outsideTop() {
+	        return defaultTopY - 10 < 0;
+	      };
+
+	      var outsideBottom = function outsideBottom() {
+	        return targetTop + targetHeight + tipHeight + 25 > windowHeight;
+	      };
+
+	      var outsideLeft = function outsideLeft() {
+	        return defaultLeftX - 10 < 0;
+	      };
+
+	      var outsideRight = function outsideRight() {
+	        return targetLeft + targetWidth + tipWidth + 25 > windoWidth;
+	      };
+
+	      var getTopPositionY = function getTopPositionY() {
+	        if (outsideTop(defaultTopY) && !outsideBottom()) {
+	          _this5.setState({
+	            place: 'bottom'
+	          });
+	          return defaultBottomY;
+	        }
+
+	        return defaultTopY;
+	      };
+
+	      var getBottomPositionY = function getBottomPositionY() {
+	        if (outsideBottom() && !outsideTop()) {
+	          _this5.setState({
+	            place: 'top'
+	          });
+	          return defaultTopY;
+	        }
+
+	        return defaultBottomY;
+	      };
+
+	      var getLeftPositionX = function getLeftPositionX() {
+	        if (outsideLeft() && !outsideRight()) {
+	          _this5.setState({
+	            place: 'right'
+	          });
+	          return defaultRightX;
+	        }
+
+	        return defaultLeftX;
+	      };
+
+	      var getRightPositionX = function getRightPositionX() {
+	        if (outsideRight() && !outsideLeft()) {
+	          _this5.setState({
+	            place: 'left'
+	          });
+	          return defaultLeftX;
+	        }
+
+	        return defaultRightX;
+	      };
+
+	      if (place === 'top') {
+	        x = targetLeft - tipWidth / 2 + targetWidth / 2;
+	        y = getTopPositionY();
+	      } else if (place === 'bottom') {
+	        x = targetLeft - tipWidth / 2 + targetWidth / 2;
+	        y = getBottomPositionY();
+	      } else if (place === 'left') {
+	        x = getLeftPositionX();
+	        y = targetTop + targetHeight / 2 - tipHeight / 2;
+	      } else if (place === 'right') {
+	        x = getRightPositionX();
+	        y = targetTop + targetHeight / 2 - tipHeight / 2;
+	      }
+
+	      return { x: x, y: y };
+	    }
+
+	    /**
+	     * Execute in componentDidUpdate, can't put this into render() to support server rendering
+	     */
+
+	  }, {
+	    key: 'updatePosition',
+	    value: function updatePosition() {
+	      var node = _reactDom2.default.findDOMNode(this);
+
+	      var tipWidth = node.clientWidth;
+	      var tipHeight = node.clientHeight;
+	      var _state2 = this.state;
+	      var effect = _state2.effect;
+	      var place = _state2.place;
+	      var offset = _state2.offset;
+
+	      var offsetFromEffect = {};
+
+	      /**
+	       * List all situations for different placement,
+	       * then tooltip can judge switch to which side if window space is not enough
+	       * @note only support for float at the moment
+	       */
+	      var placements = ['top', 'bottom', 'left', 'right'];
+	      placements.forEach(function (key) {
+	        offsetFromEffect[key] = { x: 0, y: 0 };
+	      });
+
+	      if (effect === 'float') {
+	        offsetFromEffect.top = {
+	          x: -(tipWidth / 2),
+	          y: -tipHeight
+	        };
+	        offsetFromEffect.bottom = {
+	          x: -(tipWidth / 2),
+	          y: 15
+	        };
+	        offsetFromEffect.left = {
+	          x: -(tipWidth + 15),
+	          y: -(tipHeight / 2)
+	        };
+	        offsetFromEffect.right = {
+	          x: 10,
+	          y: -(tipHeight / 2)
+	        };
+	      }
+
+	      var xPosition = 0;
+	      var yPosition = 0;
+
+	      /* If user set offset attribute, we have to consider it into out position calculating */
+	      if (Object.prototype.toString.apply(offset) === '[object String]') {
+	        offset = JSON.parse(offset.toString().replace(/\'/g, '\"'));
+	      }
+	      for (var key in offset) {
+	        if (key === 'top') {
+	          yPosition -= parseInt(offset[key], 10);
+	        } else if (key === 'bottom') {
+	          yPosition += parseInt(offset[key], 10);
+	        } else if (key === 'left') {
+	          xPosition -= parseInt(offset[key], 10);
+	        } else if (key === 'right') {
+	          xPosition += parseInt(offset[key], 10);
+	        }
+	      }
+
+	      /* If our tooltip goes outside the window we want to try and change its place to be inside the window */
+	      var x = this.state.x;
+	      var y = this.state.y;
+	      var windoWidth = window.innerWidth;
+	      var windowHeight = window.innerHeight;
+
+	      var getStyleLeft = function getStyleLeft(place) {
+	        var offsetEffectX = effect === 'solid' ? 0 : place ? offsetFromEffect[place].x : 0;
+	        return x + offsetEffectX + xPosition;
+	      };
+	      var getStyleTop = function getStyleTop(place) {
+	        var offsetEffectY = effect === 'solid' ? 0 : place ? offsetFromEffect[place].y : 0;
+	        return y + offsetEffectY + yPosition;
+	      };
+
+	      var outsideLeft = function outsideLeft(place) {
+	        var styleLeft = getStyleLeft(place);
+	        return styleLeft < 0 && x + offsetFromEffect['right'].x + xPosition <= windoWidth;
+	      };
+	      var outsideRight = function outsideRight(place) {
+	        var styleLeft = getStyleLeft(place);
+	        return styleLeft + tipWidth > windoWidth && x + offsetFromEffect['left'].x + xPosition >= 0;
+	      };
+	      var outsideTop = function outsideTop(place) {
+	        var styleTop = getStyleTop(place);
+	        return styleTop < 0 && y + offsetFromEffect['bottom'].y + yPosition + tipHeight < windowHeight;
+	      };
+	      var outsideBottom = function outsideBottom(place) {
+	        var styleTop = getStyleTop(place);
+	        return styleTop + tipHeight >= windowHeight && y + offsetFromEffect['top'].y + yPosition >= 0;
+	      };
+
+	      /* We want to make sure the place we switch to will not go outside either */
+	      var outside = function outside(place) {
+	        return outsideTop(place) || outsideRight(place) || outsideBottom(place) || outsideLeft(place);
+	      };
+
+	      /* We check each side and switch if the new place will be in bounds */
+	      if (outsideLeft(place)) {
+	        if (!outside('right')) {
+	          this.setState({
+	            place: 'right'
+	          });
+	          return;
+	        }
+	      } else if (outsideRight(place)) {
+	        if (!outside('left')) {
+	          this.setState({
+	            place: 'left'
+	          });
+	          return;
+	        }
+	      } else if (outsideTop(place)) {
+	        if (!outside('bottom')) {
+	          this.setState({
+	            place: 'bottom'
+	          });
+	          return;
+	        }
+	      } else if (outsideBottom(place)) {
+	        if (!outside('top')) {
+	          this.setState({
+	            place: 'top'
+	          });
+	          return;
+	        }
+	      }
+
+	      node.style.left = getStyleLeft(place) + 'px';
+	      node.style.top = getStyleTop(place) + 'px';
+	    }
+
+	    /**
+	     * Set style tag in header
+	     * Insert style by this way
+	     */
+
+	  }, {
+	    key: 'setStyleHeader',
+	    value: function setStyleHeader() {
+	      if (!document.getElementsByTagName('head')[0].querySelector('style[id="react-tooltip"]')) {
+	        var tag = document.createElement('style');
+	        tag.id = 'react-tooltip';
+	        tag.innerHTML = _style2.default;
+	        document.getElementsByTagName('head')[0].appendChild(tag);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _state3 = this.state;
+	      var placeholder = _state3.placeholder;
+	      var extraClass = _state3.extraClass;
+	      var html = _state3.html;
+
+	      var tooltipClass = (0, _classnames2.default)('__react_component_tooltip', { 'show': this.state.show }, { 'border': this.state.border }, { 'place-top': this.state.place === 'top' }, { 'place-bottom': this.state.place === 'bottom' }, { 'place-left': this.state.place === 'left' }, { 'place-right': this.state.place === 'right' }, { 'type-dark': this.state.type === 'dark' }, { 'type-success': this.state.type === 'success' }, { 'type-warning': this.state.type === 'warning' }, { 'type-error': this.state.type === 'error' }, { 'type-info': this.state.type === 'info' }, { 'type-light': this.state.type === 'light' });
+
+	      if (html) {
+	        return _react2.default.createElement('div', { className: tooltipClass + ' ' + extraClass, 'data-id': 'tooltip', dangerouslySetInnerHTML: { __html: placeholder } });
+	      } else {
+	        var content = this.props.children ? this.props.children : placeholder;
+	        return _react2.default.createElement(
+	          'div',
+	          { className: tooltipClass + ' ' + extraClass, 'data-id': 'tooltip' },
+	          content
+	        );
+	      }
+	    }
+	  }, {
+	    key: 'trim',
+	    value: function trim(string) {
+	      if (Object.prototype.toString.call(string) !== '[object String]') {
+	        return string;
+	      }
+	      var newString = string.split('');
+	      var firstCount = 0;
+	      var lastCount = 0;
+	      for (var i = 0; i < string.length; i++) {
+	        if (string[i] !== ' ') {
+	          break;
+	        }
+	        firstCount++;
+	      }
+	      for (var _i = string.length - 1; _i >= 0; _i--) {
+	        if (string[_i] !== ' ') {
+	          break;
+	        }
+	        lastCount++;
+	      }
+	      newString.splice(0, firstCount);
+	      newString.splice(-lastCount, lastCount);
+	      return newString.join('');
+	    }
+	  }]);
+
+	  return ReactTooltip;
+	}(_react.Component);
+
+	ReactTooltip.propTypes = {
+	  children: _react.PropTypes.any,
+	  place: _react.PropTypes.string,
+	  type: _react.PropTypes.string,
+	  effect: _react.PropTypes.string,
+	  offset: _react.PropTypes.object,
+	  multiline: _react.PropTypes.bool,
+	  border: _react.PropTypes.bool,
+	  class: _react.PropTypes.string,
+	  id: _react.PropTypes.string,
+	  html: _react.PropTypes.bool,
+	  delayHide: _react.PropTypes.number,
+	  delayShow: _react.PropTypes.number,
+	  event: _react.PropTypes.any,
+	  watchWindow: _react.PropTypes.bool,
+	  isCapture: _react.PropTypes.bool
+	};
+
+	/* export default not fit for standalone, it will exports {default:...} */
+	module.exports = ReactTooltip;
+
+
+/***/ },
+/* 349 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+
+	(function () {
+		'use strict';
+
+		var hasOwn = {}.hasOwnProperty;
+
+		function classNames () {
+			var classes = [];
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+
+			return classes.join(' ');
+		}
+
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ },
+/* 350 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = '.__react_component_tooltip{border-radius:3px;display:inline-block;font-size:13px;left:-999em;opacity:0;padding:8px 21px;position:fixed;pointer-events:none;transition:opacity 0.3s ease-out , margin-top 0.3s ease-out, margin-left 0.3s ease-out;top:-999em;visibility:hidden;z-index:999}.__react_component_tooltip:before,.__react_component_tooltip:after{content:"";width:0;height:0;position:absolute}.__react_component_tooltip.show{opacity:0.9;margin-top:0px;margin-left:0px;visibility:visible}.__react_component_tooltip.type-dark{color:#fff;background-color:#222}.__react_component_tooltip.type-dark.place-top:after{border-top:6px solid #222}.__react_component_tooltip.type-dark.place-bottom:after{border-bottom:6px solid #222}.__react_component_tooltip.type-dark.place-left:after{border-left:6px solid #222}.__react_component_tooltip.type-dark.place-right:after{border-right:6px solid #222}.__react_component_tooltip.type-dark.border{border:1px solid #fff}.__react_component_tooltip.type-dark.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-dark.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-dark.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-dark.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-success{color:#fff;background-color:#8DC572}.__react_component_tooltip.type-success.place-top:after{border-top:6px solid #8DC572}.__react_component_tooltip.type-success.place-bottom:after{border-bottom:6px solid #8DC572}.__react_component_tooltip.type-success.place-left:after{border-left:6px solid #8DC572}.__react_component_tooltip.type-success.place-right:after{border-right:6px solid #8DC572}.__react_component_tooltip.type-success.border{border:1px solid #fff}.__react_component_tooltip.type-success.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-success.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-success.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-success.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-warning{color:#fff;background-color:#F0AD4E}.__react_component_tooltip.type-warning.place-top:after{border-top:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-bottom:after{border-bottom:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-left:after{border-left:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-right:after{border-right:6px solid #F0AD4E}.__react_component_tooltip.type-warning.border{border:1px solid #fff}.__react_component_tooltip.type-warning.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-warning.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-warning.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-warning.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-error{color:#fff;background-color:#BE6464}.__react_component_tooltip.type-error.place-top:after{border-top:6px solid #BE6464}.__react_component_tooltip.type-error.place-bottom:after{border-bottom:6px solid #BE6464}.__react_component_tooltip.type-error.place-left:after{border-left:6px solid #BE6464}.__react_component_tooltip.type-error.place-right:after{border-right:6px solid #BE6464}.__react_component_tooltip.type-error.border{border:1px solid #fff}.__react_component_tooltip.type-error.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-error.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-error.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-error.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-info{color:#fff;background-color:#337AB7}.__react_component_tooltip.type-info.place-top:after{border-top:6px solid #337AB7}.__react_component_tooltip.type-info.place-bottom:after{border-bottom:6px solid #337AB7}.__react_component_tooltip.type-info.place-left:after{border-left:6px solid #337AB7}.__react_component_tooltip.type-info.place-right:after{border-right:6px solid #337AB7}.__react_component_tooltip.type-info.border{border:1px solid #fff}.__react_component_tooltip.type-info.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-info.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-info.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-info.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-light{color:#222;background-color:#fff}.__react_component_tooltip.type-light.place-top:after{border-top:6px solid #fff}.__react_component_tooltip.type-light.place-bottom:after{border-bottom:6px solid #fff}.__react_component_tooltip.type-light.place-left:after{border-left:6px solid #fff}.__react_component_tooltip.type-light.place-right:after{border-right:6px solid #fff}.__react_component_tooltip.type-light.border{border:1px solid #222}.__react_component_tooltip.type-light.border.place-top:before{border-top:8px solid #222}.__react_component_tooltip.type-light.border.place-bottom:before{border-bottom:8px solid #222}.__react_component_tooltip.type-light.border.place-left:before{border-left:8px solid #222}.__react_component_tooltip.type-light.border.place-right:before{border-right:8px solid #222}.__react_component_tooltip.place-top{margin-top:-10px}.__react_component_tooltip.place-top:before{border-left:10px solid transparent;border-right:10px solid transparent;bottom:-8px;left:50%;margin-left:-10px}.__react_component_tooltip.place-top:after{border-left:8px solid transparent;border-right:8px solid transparent;bottom:-6px;left:50%;margin-left:-8px}.__react_component_tooltip.place-bottom{margin-top:10px}.__react_component_tooltip.place-bottom:before{border-left:10px solid transparent;border-right:10px solid transparent;top:-8px;left:50%;margin-left:-10px}.__react_component_tooltip.place-bottom:after{border-left:8px solid transparent;border-right:8px solid transparent;top:-6px;left:50%;margin-left:-8px}.__react_component_tooltip.place-left{margin-left:-10px}.__react_component_tooltip.place-left:before{border-top:6px solid transparent;border-bottom:6px solid transparent;right:-8px;top:50%;margin-top:-5px}.__react_component_tooltip.place-left:after{border-top:5px solid transparent;border-bottom:5px solid transparent;right:-6px;top:50%;margin-top:-4px}.__react_component_tooltip.place-right{margin-left:10px}.__react_component_tooltip.place-right:before{border-top:6px solid transparent;border-bottom:6px solid transparent;left:-8px;top:50%;margin-top:-5px}.__react_component_tooltip.place-right:after{border-top:5px solid transparent;border-bottom:5px solid transparent;left:-6px;top:50%;margin-top:-4px}.__react_component_tooltip .multi-line{display:block;padding:2px 0px;text-align:center}';
+
 
 /***/ }
 /******/ ]);

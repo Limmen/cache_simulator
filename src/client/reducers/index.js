@@ -7,12 +7,16 @@
 import { combineReducers } from 'redux'
 import {reducer as formReducer} from 'redux-form';
 import { routerReducer } from 'react-router-redux'
+import { reducer as tooltip } from 'redux-tooltip';
 import cacheform from './cacheform'
 import fetchform from './fetchform'
+import cachecontent from './cachecontent'
 
 const rootReducer = combineReducers({
   cacheform,
   fetchform,
+  cachecontent,
+  tooltip,
   form: formReducer,
   routing: routerReducer
 })

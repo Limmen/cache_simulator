@@ -14,14 +14,10 @@ class CacheMem extends React.Component {
 
   createTables() {
     let tables = [];
-    for (let i = 0; i < this.props.associativity; i++) {
-      tables.push(<Table key={i} rows={this.getBlockCount()} blocksize={this.props.blockSize}/>);
+    for (let i = 0; i < this.props.cachecontent.length; i++) {
+      tables.push(<Table key={i} data={this.props.cachecontent[i]}/>);
     }
     return tables;
-  }
-
-  getBlockCount() {
-    return (this.props.cacheSize / this.props.associativity) / this.props.blockSize;
   }
 
   bitSize(num) {
@@ -100,14 +96,12 @@ CacheMem.propTypes = {}
 /**
  * Maps application state that is used in this container to props.
  *
- * @param state application state
- * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
+ * @param state
+ * @returns {{cachecontent: *}} object with props
  */
 function mapStateToProps(state) {
   return {
-    associativity: state.cacheform.associativity,
-    cacheSize: state.cacheform.cacheSize,
-    blockSize: state.cacheform.blockSize
+    cachecontent: state.cachecontent.content
   }
 }
 

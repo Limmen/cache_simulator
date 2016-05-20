@@ -31,4 +31,10 @@ export function fetchFormSubmit(fields) {
   }
 }
 
+export function cacheContentInitialization(fields) {
+  return {
+    type: types.CACHE_CONTENT_INIT,
+    fields
+  }
+}
 

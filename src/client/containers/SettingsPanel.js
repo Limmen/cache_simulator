@@ -54,7 +54,8 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields fields of the action
      */
     cacheHandleSubmit: (fields) => {
-      dispatch(actions.cacheFormSubmit(fields))
+      dispatch(actions.cacheFormSubmit(fields));
+      dispatch(actions.cacheContentInitialization(fields));
     }
   }
 }
