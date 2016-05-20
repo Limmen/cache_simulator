@@ -55,7 +55,7 @@ class CacheMem extends React.Component {
               </tr>
               <tr>
                 <td>Block Count</td>
-                <td>{this.getBlockCount()}</td>
+                <td>{this.props.cachecontent[0].rows.length}</td>
               </tr>
               <tr>
                 <td>Block Size</td>
@@ -73,7 +73,7 @@ class CacheMem extends React.Component {
                   Tag({32 - (this.bitSize(this.props.cacheSize -1))} bits)
                 </td>
                 <td>
-                  Index({this.bitSize(this.getBlockCount() - 1)} bits)
+                  Index({this.bitSize(this.props.cachecontent[0].rows.length - 1)} bits)
                 </td>
                 <td>
                   Offset({this.bitSize(this.props.blockSize - 1)} bits)

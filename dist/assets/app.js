@@ -32807,7 +32807,7 @@
 	                  _react2.default.createElement(
 	                    'td',
 	                    null,
-	                    this.getBlockCount()
+	                    this.props.cachecontent[0].rows.length
 	                  )
 	                ),
 	                _react2.default.createElement(
@@ -32856,7 +32856,7 @@
 	                    'td',
 	                    null,
 	                    'Index(',
-	                    this.bitSize(this.getBlockCount() - 1),
+	                    this.bitSize(this.props.cachecontent[0].rows.length - 1),
 	                    ' bits)'
 	                  ),
 	                  _react2.default.createElement(
