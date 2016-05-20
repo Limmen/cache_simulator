@@ -7,28 +7,21 @@
 jest.unmock('../../src/client/components/NavBar');
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import { render } from 'enzyme';
 import NavBar from '../../src/client/components/NavBar';
 
 describe('NavBar', () => {
   let component;
-  let renderedNavBar;
 
   beforeEach(() => {
-    component = TestUtils.renderIntoDocument(
-      <div><NavBar /></div>
-    );
-    renderedNavBar= ReactDOM.findDOMNode(component);
+    component = render(<NavBar />);
   });
 
   it('should have its component name as default className', () => {
-    let navbar = renderedNavBar.querySelector('.navbar-component')
-    expect(navbar.className).toEqual('navbar-component');
+    expect(component.find("div").hasClass("navbar-component")).toEqual(true)
   });
 
-  it('should render a nav', () => {
-    let nav = renderedNavBar.querySelector('.nav')
-    expect(nav).not.toEqual(null);
+  it('should render one nav', () => {
+    expect(component.find(".nav").length).toEqual(1);
   });
 });

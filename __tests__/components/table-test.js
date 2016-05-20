@@ -7,36 +7,33 @@
 jest.disableAutomock();
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import { mount } from 'enzyme';
 import Table from '../../src/client/components/Table';
 
 describe('Table', () => {
   let component;
-  let renderedTable;
   let rows = 4;
   let blocksize = 4;
 
   beforeEach(() => {
-    component = TestUtils.renderIntoDocument(
-      <div><Table rows={rows} blocksize={blocksize}/></div>
-    );
-    renderedTable= ReactDOM.findDOMNode(component);
+    component = mount(<Table rows={rows} blocksize={blocksize}/>)
   });
 
   it('should have its component name as default className', () => {
-    let table = renderedTable.querySelector('.table-component')
-    expect(table.className).toEqual('table-component col-sm-4');
+    expect(component.find("div").hasClass("table-component")).toEqual(true);
   });
 
-  it('should render a table', () => {
-    let table = renderedTable.querySelector('table')
-    expect(table).not.toEqual(null);
+  it('should render one table', () => {
+    expect(component.find("table").length).toEqual(1);
+  });
+
+  it('should have props', () => {
+    expect(component.props().rows).toEqual(4);
+    expect(component.props().blocksize).toEqual(4);
   });
 
   it('should render tablerows', () => {
-    let rows = renderedTable.querySelectorAll('.cache_row')
-    expect(rows.length).toEqual(4);
+    expect(component.find("TableRow").length).toEqual(4);
   });
 
 });

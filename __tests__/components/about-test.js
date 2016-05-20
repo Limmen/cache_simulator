@@ -7,8 +7,7 @@
 jest.unmock('../../src/client/components/About');
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
+import { render } from 'enzyme';
 import About from '../../src/client/components/About';
 
 describe('About', () => {
@@ -16,20 +15,15 @@ describe('About', () => {
   let renderedAbout;
 
   beforeEach(() => {
-    component = TestUtils.renderIntoDocument(
-      <div><About /></div>
-    );
-    renderedAbout= ReactDOM.findDOMNode(component);
+    component = render(<About />)
   });
 
   it('should render a about-title', () => {
-    let title = renderedAbout.querySelector('h3')
-    expect(title.textContent).toEqual('What is this?');
+    expect(component.find("h3").text()).toEqual('What is this?')
   });
 
   it('should have its component name as default className', () => {
-    let about = renderedAbout.querySelector('.about-component')
-    expect(about.className).toEqual('about-component');
+    expect(component.find("div").hasClass("about-component")).toEqual(true)
   });
 
 });
