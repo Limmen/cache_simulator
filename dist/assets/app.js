@@ -31781,7 +31781,7 @@
 	exports.default = _react2.default.createClass({
 	  displayName: 'NavLink',
 	  render: function render() {
-	    return _react2.default.createElement(_reactRouter.Link, _extends({}, this.props, { activeClassName: 'active' }));
+	    return _react2.default.createElement(_reactRouter.Link, _extends({}, this.props, { activeClassName: 'active', className: 'navlink-component' }));
 	  }
 	});
 
@@ -31838,7 +31838,7 @@
 	  _createClass(CacheSimulator, [{
 	    key: 'renderCache',
 	    value: function renderCache() {
-	      if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
+	      if (this.props.associativity != undefined && this.props.cacheSize != undefined && this.props.blockSize != undefined) {
 	        return _react2.default.createElement(
 	          'div',
 	          { className: 'cache_panel' },
@@ -31886,12 +31886,12 @@
 	 * Maps application state that is used in this container to props.
 	 *
 	 * @param state application state
-	 * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
 	 */
 	function mapStateToProps(state) {
 	  return {
 	    associativity: state.cacheform.associativity,
-	    blockCount: state.cacheform.blockCount,
+	    cacheSize: state.cacheform.cacheSize,
 	    blockSize: state.cacheform.blockSize
 	  };
 	}
@@ -31917,6 +31917,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -31956,10 +31958,15 @@
 	  _createClass(SettingsPanel, [{
 	    key: 'render',
 	    value: function render() {
+	      var myInitialValues = {
+	        initialValues: {
+	          replacementAlgorithm: 'LRU'
+	        }
+	      };
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_CacheForm2.default, { onSubmit: this.props.cacheHandleSubmit })
+	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
 	      );
 	    }
 	  }]);
@@ -32033,7 +32040,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var fields = exports.fields = ['blockCount', 'blockSize', 'associativity'];
+	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm'];
 
 	/**
 	 * Function to validate form input parameters.
@@ -32043,14 +32050,18 @@
 	 */
 	var validate = function validate(values) {
 	  var errors = {};
-	  if (!values.blockCount) {
-	    errors.blockCount = 'Required';
-	  } else if (isNaN(Number(values.blockCount))) {
-	    errors.blockCount = 'Must be a positive integer';
-	  } else if (!Number.isInteger(Number(values.blockCount))) {
-	    errors.blockCount = 'Must be a positive integer';
-	  } else if (Number(values.blockCount) < 0) {
-	    errors.blockCount = 'Must be a positive integer';
+	  if (!values.cacheSize) {
+	    errors.cacheSize = 'Required';
+	  } else if (isNaN(Number(values.cacheSize))) {
+	    errors.cacheSize = 'Must be a positive integer';
+	  } else if (!Number.isInteger(Number(values.cacheSize))) {
+	    errors.cacheSize = 'Must be a positive integer';
+	  } else if (Number(values.cacheSize) < 0) {
+	    errors.cacheSize = 'Must be a positive integer';
+	  } else if (!(Number(values.cacheSize) % 4 === 0)) {
+	    errors.cacheSize = 'Must be a multiple of four';
+	  } else if (!(Number(values.cacheSize) % Number(values.blockSize) === 0)) {
+	    errors.cacheSize = 'Must be a multiple of the blocksize';
 	  }
 
 	  if (!values.blockSize) {
@@ -32061,6 +32072,8 @@
 	    errors.blockSize = 'Must be a positive integer';
 	  } else if (Number(values.blockSize) < 0) {
 	    errors.blockSize = 'Must be a positive integer';
+	  } else if (!(Number(values.blockSize) % 4 === 0)) {
+	    errors.blockSize = 'Must be a multiple of four';
 	  }
 
 	  if (!values.associativity) {
@@ -32071,6 +32084,8 @@
 	    errors.associativity = 'Must be a positive integer';
 	  } else if (Number(values.associativity) < 0) {
 	    errors.associativity = 'Must be a positive integer';
+	  } else if (!(Number(values.cacheSize) / Number(values.blockSize) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
+	    errors.associativity = 'The specfied cache-size cannot contain that many sets';
 	  }
 
 	  return errors;
@@ -32090,9 +32105,10 @@
 	    value: function render() {
 	      var _props = this.props;
 	      var _props$fields = _props.fields;
-	      var blockCount = _props$fields.blockCount;
+	      var cacheSize = _props$fields.cacheSize;
 	      var blockSize = _props$fields.blockSize;
 	      var associativity = _props$fields.associativity;
+	      var replacementAlgorithm = _props$fields.replacementAlgorithm;
 	      var resetForm = _props.resetForm;
 	      var handleSubmit = _props.handleSubmit;
 	      var submitting = _props.submitting;
@@ -32109,20 +32125,20 @@
 	            _react2.default.createElement(
 	              'label',
 	              { className: 'bold' },
-	              'Block count'
+	              'Cache size (bytes)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
 	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, blockCount, { className: 'form-control' }))
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, cacheSize, { className: 'form-control' }))
 	            ),
 	            _react2.default.createElement(
 	              'div',
 	              { className: 'error' },
-	              blockCount.touched && blockCount.error && _react2.default.createElement(
+	              cacheSize.touched && cacheSize.error && _react2.default.createElement(
 	                'div',
 	                null,
-	                blockCount.error
+	                cacheSize.error
 	              )
 	            )
 	          ),
@@ -32169,6 +32185,38 @@
 	                'div',
 	                null,
 	                associativity.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Replacement Algorithm'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'select',
+	                _extends({ className: 'form-control' }, replacementAlgorithm),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'LRU'
+	                ),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'FIFO'
+	                ),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'RANDOM'
+	                )
 	              )
 	            )
 	          ),
@@ -32327,14 +32375,58 @@
 	          'div',
 	          { className: 'instruction_stats' },
 	          _react2.default.createElement(
-	            'p',
-	            { className: 'col-sm-6' },
-	            'Hit rate: '
-	          ),
-	          _react2.default.createElement(
-	            'p',
-	            { className: 'col-sm-6' },
-	            'Miss rate: '
+	            'table',
+	            { className: 'table table-striped' },
+	            _react2.default.createElement(
+	              'thead',
+	              null,
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'th',
+	                  null,
+	                  'Property'
+	                ),
+	                _react2.default.createElement(
+	                  'th',
+	                  null,
+	                  'Value'
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'tbody',
+	              null,
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Hit rate'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' '
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Miss rate'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' '
+	                )
+	              )
+	            )
 	          )
 	        )
 	      );
@@ -32349,7 +32441,7 @@
 	};
 
 	/**
-	 * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
 	 * Its result must be a plain object*, and it will be merged into the component’s props.
 	 * If you omit it, the component will not be subscribed to the Redux store.
 	 *
@@ -32584,52 +32676,193 @@
 	    value: function createTables() {
 	      var tables = [];
 	      for (var i = 0; i < this.props.associativity; i++) {
-	        tables.push(_react2.default.createElement(_Table2.default, { key: i, rows: this.props.blockCount, blocksize: this.props.blockSize }));
+	        tables.push(_react2.default.createElement(_Table2.default, { key: i, rows: this.getBlockCount(), blocksize: this.props.blockSize }));
 	      }
 	      return tables;
 	    }
 	  }, {
-	    key: 'getCacheSize',
-	    value: function getCacheSize() {
-	      return this.props.blockCount * this.props.blockSize * this.props.associativity;
+	    key: 'getBlockCount',
+	    value: function getBlockCount() {
+	      return this.props.cacheSize / this.props.associativity / this.props.blockSize;
+	    }
+	  }, {
+	    key: 'bitSize',
+	    value: function bitSize(num) {
+	      return num.toString(2).length;
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'row' },
+	        null,
 	        _react2.default.createElement(
 	          'div',
-	          { className: 'cache_info' },
+	          { className: 'row' },
 	          _react2.default.createElement(
-	            'p',
-	            { className: 'col-sm-3' },
-	            'Cache size: ',
-	            this.getCacheSize(),
-	            ' Bytes'
+	            'div',
+	            { className: 'cache_info center-block col-sm-6' },
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'table table-striped' },
+	              _react2.default.createElement(
+	                'thead',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'th',
+	                    null,
+	                    'Property'
+	                  ),
+	                  _react2.default.createElement(
+	                    'th',
+	                    null,
+	                    'Value'
+	                  )
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Address length'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    '32 bits'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Word size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    '32 bits'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Cache size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cacheSize,
+	                    ' Bytes'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Associativity'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.associativity
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Block Count'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.getBlockCount()
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Block Size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.blockSize,
+	                    ' Bytes'
+	                  )
+	                )
+	              )
+	            )
 	          ),
 	          _react2.default.createElement(
-	            'p',
-	            { className: 'col-sm-3' },
-	            'Associativity: ',
-	            this.props.associativity
-	          ),
-	          _react2.default.createElement(
-	            'p',
-	            { className: 'col-sm-3' },
-	            'Block Count: ',
-	            this.props.blockCount
-	          ),
-	          _react2.default.createElement(
-	            'p',
-	            { className: 'col-sm-3' },
-	            'Block Size: ',
-	            this.props.blockSize,
-	            ' Bytes'
+	            'div',
+	            { className: 'col-sm-6' },
+	            _react2.default.createElement(
+	              'p',
+	              { className: 'bold' },
+	              'Address Layout'
+	            ),
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'table table-bordered' },
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Tag(',
+	                    32 - this.bitSize(this.props.cacheSize - 1),
+	                    ' bits)'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Index(',
+	                    this.bitSize(this.getBlockCount() - 1),
+	                    ' bits)'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Offset(',
+	                    this.bitSize(this.props.blockSize - 1),
+	                    ' bits)'
+	                  )
+	                )
+	              )
+	            )
 	          )
 	        ),
-	        this.createTables()
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          this.createTables()
+	        )
 	      );
 	    }
 	  }]);
@@ -32643,12 +32876,12 @@
 	 * Maps application state that is used in this container to props.
 	 *
 	 * @param state application state
-	 * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
 	 */
 	function mapStateToProps(state) {
 	  return {
 	    associativity: state.cacheform.associativity,
-	    blockCount: state.cacheform.blockCount,
+	    cacheSize: state.cacheform.cacheSize,
 	    blockSize: state.cacheform.blockSize
 	  };
 	}

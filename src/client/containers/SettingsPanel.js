@@ -14,9 +14,14 @@ import * as actions from '../actions/'
 class SettingsPanel extends React.Component {
 
   render() {
+    const myInitialValues = {
+      initialValues: {
+        replacementAlgorithm: 'LRU'
+      }
+    }
     return (
       <div>
-        <CacheFormComponent onSubmit={this.props.cacheHandleSubmit}/>
+        <CacheFormComponent onSubmit={this.props.cacheHandleSubmit} {...myInitialValues}/>
       </div>
     );
   }

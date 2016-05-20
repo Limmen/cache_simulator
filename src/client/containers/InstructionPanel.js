@@ -23,8 +23,24 @@ class InstructionPanel extends React.Component {
       <div>
         <FetchFormComponent onSubmit={this.props.fetchHandleSubmit} {...myInitialValues} />
         <div className="instruction_stats">
-          <p className="col-sm-6">Hit rate: </p>
-          <p className="col-sm-6">Miss rate: </p>
+          <table className="table table-striped">
+            <thead>
+            <tr>
+              <th>Property</th>
+              <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>Hit rate</td>
+              <td> </td>
+            </tr>
+            <tr>
+              <td>Miss rate</td>
+              <td> </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     );
@@ -36,7 +52,7 @@ InstructionPanel.propTypes = {
 }
 
 /**
- * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+ * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
  * Its result must be a plain object*, and it will be merged into the component’s props.
  * If you omit it, the component will not be subscribed to the Redux store.
  *

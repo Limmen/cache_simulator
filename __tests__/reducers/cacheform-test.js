@@ -19,7 +19,8 @@ describe('cacheform-reducer', () => {
         {
           field1: "field1",
           field2: "field2",
-          field3: "field3"
+          field3: "field3",
+          field4: "field4"
         }
       }
     )

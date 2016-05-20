@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
-export const fields = ['blockCount', 'blockSize', 'associativity']
+export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm']
 
 /**
  * Function to validate form input parameters.
@@ -15,14 +15,18 @@ export const fields = ['blockCount', 'blockSize', 'associativity']
  */
 const validate = values => {
   const errors = {}
-  if (!values.blockCount) {
-    errors.blockCount = 'Required'
-  } else if (isNaN(Number(values.blockCount))) {
-    errors.blockCount = 'Must be a positive integer'
-  } else if (!Number.isInteger(Number(values.blockCount))) {
-    errors.blockCount = 'Must be a positive integer'
-  } else if (Number(values.blockCount) < 0) {
-    errors.blockCount = 'Must be a positive integer'
+  if (!values.cacheSize) {
+    errors.cacheSize = 'Required'
+  } else if (isNaN(Number(values.cacheSize))) {
+    errors.cacheSize = 'Must be a positive integer'
+  } else if (!Number.isInteger(Number(values.cacheSize))) {
+    errors.cacheSize = 'Must be a positive integer'
+  } else if (Number(values.cacheSize) < 0) {
+    errors.cacheSize = 'Must be a positive integer'
+  } else if (!(Number(values.cacheSize) % 4 === 0)) {
+    errors.cacheSize = 'Must be a multiple of four'
+  } else if (!(Number(values.cacheSize) % Number(values.blockSize) === 0)) {
+    errors.cacheSize = 'Must be a multiple of the blocksize'
   }
 
   if (!values.blockSize) {
@@ -33,6 +37,8 @@ const validate = values => {
     errors.blockSize = 'Must be a positive integer'
   } else if (Number(values.blockSize) < 0) {
     errors.blockSize = 'Must be a positive integer'
+  } else if (!(Number(values.blockSize) % 4 === 0)) {
+    errors.blockSize = 'Must be a multiple of four'
   }
 
   if (!values.associativity) {
@@ -43,6 +49,8 @@ const validate = values => {
     errors.associativity = 'Must be a positive integer'
   } else if (Number(values.associativity) < 0) {
     errors.associativity = 'Must be a positive integer'
+  } else if (!((Number(values.cacheSize)/Number(values.blockSize)) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
+    errors.associativity = 'The specfied cache-size cannot contain that many sets'
   }
 
   return errors
@@ -51,18 +59,18 @@ const validate = values => {
 
 class CacheForm extends React.Component {
   render() {
-    const { fields: { blockCount, blockSize, associativity }, resetForm, handleSubmit, submitting } = this.props
+    const { fields: { cacheSize, blockSize, associativity, replacementAlgorithm }, resetForm, handleSubmit, submitting } = this.props
     return (
       <div className="cacheform-component row">
         <form onSubmit={handleSubmit}>
           <div className="form-group col-sm-4">
-            <label className="bold">Block count</label>
+            <label className="bold">Cache size (bytes)</label>
             <div>
-              <input type="text" placeholder="cache size" {...blockCount} className="form-control"/>
+              <input type="text" placeholder="cache size" {...cacheSize} className="form-control"/>
             </div>
             <div className="error">
-            {blockCount.touched && blockCount.error && <div>{blockCount.error}</div>}
-              </div>
+              {cacheSize.touched && cacheSize.error && <div>{cacheSize.error}</div>}
+            </div>
           </div>
           <div className="form-group col-sm-4">
             <label className="bold">Block size (bytes)</label>
@@ -70,8 +78,8 @@ class CacheForm extends React.Component {
               <input type="text" placeholder="block size" {...blockSize} className="form-control"/>
             </div>
             <div className="error">
-            {blockSize.touched && blockSize.error && <div>{blockSize.error}</div>}
-              </div>
+              {blockSize.touched && blockSize.error && <div>{blockSize.error}</div>}
+            </div>
           </div>
           <div className="form-group col-sm-4">
             <label className="bold">Associativity</label>
@@ -79,7 +87,17 @@ class CacheForm extends React.Component {
               <input type="text" placeholder="associativity" {...associativity} className="form-control"/>
             </div>
             <div className="error">
-            {associativity.touched && associativity.error && <div>{associativity.error}</div>}</div>
+              {associativity.touched && associativity.error && <div>{associativity.error}</div>}</div>
+          </div>
+          <div className="form-group col-sm-4">
+            <label className="bold">Replacement Algorithm</label>
+            <div>
+              <select className="form-control" {...replacementAlgorithm}>
+                <option>LRU</option>
+                <option>FIFO</option>
+                <option>RANDOM</option>
+              </select>
+            </div>
           </div>
           <div className="form-group col-sm-12">
             <button type="submit" disabled={submitting} className="btn btn-default">

@@ -12,7 +12,7 @@ import CacheMemory from './CacheMem';
 class CacheSimulator extends React.Component {
 
   renderCache() {
-    if (this.props.associativity != undefined && this.props.blockCount != undefined && this.props.blockSize != undefined) {
+    if (this.props.associativity != undefined && this.props.cacheSize != undefined && this.props.blockSize != undefined) {
       return (
         <div className="cache_panel">
           <div className="row">
@@ -49,12 +49,12 @@ CacheSimulator.propTypes = {}
  * Maps application state that is used in this container to props.
  *
  * @param state application state
- * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+ * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
  */
 function mapStateToProps(state) {
   return {
     associativity: state.cacheform.associativity,
-    blockCount: state.cacheform.blockCount,
+    cacheSize: state.cacheform.cacheSize,
     blockSize: state.cacheform.blockSize
   }
 }

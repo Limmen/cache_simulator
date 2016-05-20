@@ -15,25 +15,81 @@ class CacheMem extends React.Component {
   createTables() {
     let tables = [];
     for (let i = 0; i < this.props.associativity; i++) {
-      tables.push(<Table key={i} rows={this.props.blockCount} blocksize={this.props.blockSize}/>);
+      tables.push(<Table key={i} rows={this.getBlockCount()} blocksize={this.props.blockSize}/>);
     }
     return tables;
   }
 
-  getCacheSize() {
-    return this.props.blockCount * this.props.blockSize * this.props.associativity;
+  getBlockCount() {
+    return (this.props.cacheSize / this.props.associativity) / this.props.blockSize;
+  }
+
+  bitSize(num) {
+    return num.toString(2).length;
   }
 
   render() {
     return (
-      <div className="row">
-        <div className="cache_info">
-          <p className="col-sm-3">Cache size: {this.getCacheSize()} Bytes</p>
-          <p className="col-sm-3">Associativity: {this.props.associativity}</p>
-          <p className= "col-sm-3">Block Count: {this.props.blockCount}</p>
-          <p className= "col-sm-3">Block Size: {this.props.blockSize} Bytes</p>
+      <div>
+        <div className="row">
+          <div className="cache_info center-block col-sm-6">
+            <table className="table table-striped">
+              <thead>
+              <tr>
+                <th>Property</th>
+                <th>Value</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>Address length</td>
+                <td>32 bits</td>
+              </tr>
+              <tr>
+                <td>Word size</td>
+                <td>32 bits</td>
+              </tr>
+              <tr>
+                <td>Cache size</td>
+                <td>{this.props.cacheSize} Bytes</td>
+              </tr>
+              <tr>
+                <td>Associativity</td>
+                <td>{this.props.associativity}</td>
+              </tr>
+              <tr>
+                <td>Block Count</td>
+                <td>{this.getBlockCount()}</td>
+              </tr>
+              <tr>
+                <td>Block Size</td>
+                <td>{this.props.blockSize} Bytes</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="col-sm-6">
+            <p className="bold">Address Layout</p>
+            <table className="table table-bordered">
+              <tbody>
+              <tr>
+                <td>
+                  Tag({32 - (this.bitSize(this.props.cacheSize -1))} bits)
+                </td>
+                <td>
+                  Index({this.bitSize(this.getBlockCount() - 1)} bits)
+                </td>
+                <td>
+                  Offset({this.bitSize(this.props.blockSize - 1)} bits)
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        {this.createTables()}
+        <div className="row">
+          {this.createTables()}
+        </div>
       </div>
     );
   }
@@ -45,12 +101,12 @@ CacheMem.propTypes = {}
  * Maps application state that is used in this container to props.
  *
  * @param state application state
- * @returns {{associativity: (*|associativity|string|string), blockCount: (*|blockCount|string|string), blockSize: (*|blockSize|string|string)}} object with props
+ * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
  */
 function mapStateToProps(state) {
   return {
     associativity: state.cacheform.associativity,
-    blockCount: state.cacheform.blockCount,
+    cacheSize: state.cacheform.cacheSize,
     blockSize: state.cacheform.blockSize
   }
 }
