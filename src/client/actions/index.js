@@ -38,3 +38,10 @@ export function cacheContentInitialization(fields) {
   }
 }
 
+export function memoryContentInitialization(fields) {
+  return {
+    type: types.MEMORY_CONTENT_INIT,
+    fields
+  }
+}
+

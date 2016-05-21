@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
-export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm']
+export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize']
 
 /**
  * Function to validate form input parameters.
@@ -53,13 +53,23 @@ const validate = values => {
     errors.associativity = 'The specfied cache-size cannot contain that many sets'
   }
 
+  if (!values.memorySize) {
+    errors.memorySize = 'Required'
+  } else if (isNaN(Number(values.memorySize))) {
+    errors.memorySize = 'Must be a positive integer'
+  } else if (!Number.isInteger(Number(values.memorySize))) {
+    errors.memorySize = 'Must be a positive integer'
+  } else if (Number(values.memorySize) < 0) {
+    errors.memorySize = 'Must be a positive integer'
+  }
+
   return errors
 }
 
 
 class CacheForm extends React.Component {
   render() {
-    const { fields: { cacheSize, blockSize, associativity, replacementAlgorithm }, resetForm, handleSubmit, submitting } = this.props
+    const { fields: { cacheSize, blockSize, associativity, replacementAlgorithm, memorySize }, resetForm, handleSubmit, submitting } = this.props
     return (
       <div className="cacheform-component row">
         <form onSubmit={handleSubmit}>
@@ -99,9 +109,18 @@ class CacheForm extends React.Component {
               </select>
             </div>
           </div>
+          <div className="form-group col-sm-4">
+            <label className="bold">Memory size (bytes)</label>
+            <div>
+              <input type="text" placeholder="memory size" {...memorySize} className="form-control"/>
+            </div>
+            <div className="error">
+              {memorySize.touched && memorySize.error && <div>{memorySize.error}</div>}
+            </div>
+          </div>
           <div className="form-group col-sm-12">
             <button type="submit" disabled={submitting} className="btn btn-default">
-              {submitting ? <i/> : <i/>} Create Cache Memory
+              {submitting ? <i/> : <i/>} Simulate
             </button>
             <button type="button" disabled={submitting} onClick={resetForm} className="btn btn-default">
               Clear Values

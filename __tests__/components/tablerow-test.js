@@ -8,8 +8,8 @@ jest.disableAutomock();
 
 import React from 'react';
 import { mount } from 'enzyme';
-import TableRow from '../../src/client/components/TableRow';
-import initialContent from '../../src/client/reducers/initialContent';
+import TableRow from '../../src/client/components/CacheTableRow';
+import initialContent from '../../src/client/reducers/initialCacheContent';
 
 describe('TableRow', () => {
   let component;

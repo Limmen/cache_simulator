@@ -59,6 +59,7 @@
     "expect": "^1.19.0",
     "express": "^4.13.4",
     "file-loader": "^0.8.5",
+    "fixed-data-table": "^0.6.0",
     "history": "^2.1.1",
     "morgan": "^1.7.0",
     "node-jsx": "^0.13.3",

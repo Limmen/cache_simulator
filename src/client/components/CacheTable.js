@@ -1,5 +1,5 @@
 /**
- * TableComponent. A component displaying a table, that illustrates a cachememory.
+ * CacheTableComponent. A component displaying a table, that illustrates a cachememory.
  *
  * Created by kim on 2016-05-12.
  */
@@ -7,10 +7,10 @@
 'use strict';
 
 import React from 'react';
-import TableRow from './TableRow'
+import CacheTableRow from './CacheTableRow'
 
 
-class Table extends React.Component {
+class CacheTable extends React.Component {
 
   /**
    * Creates table rows.
@@ -20,15 +20,15 @@ class Table extends React.Component {
   createRows() {
     let rows = [];
     for (let i = 0; i < this.props.data.rows.length; i++) {
-      rows.push(<TableRow data={this.props.data.rows[i]} key={i}/>);
+      rows.push(<CacheTableRow data={this.props.data.rows[i]} key={i}/>);
     }
     return rows;
   }
 
   render() {
     return (
-      <div className="table-component">
-        <table className="table table-bordered cache">
+      <div className="cachetable-component">
+        <table className="table table-bordered cache center-table">
           <caption>Set: {this.props.data.set}</caption>
           <thead>
           <tr>
@@ -46,10 +46,10 @@ class Table extends React.Component {
   }
 }
 
-Table.displayName = 'Table';
+CacheTable.displayName = 'CacheTable';
 
-Table.propTypes = {
+CacheTable.propTypes = {
   data: React.PropTypes.object.isRequired
 };
 
-export default Table;
+export default CacheTable;

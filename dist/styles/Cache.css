@@ -41,7 +41,13 @@
   color: black
 }
 
-.set_margin
+.center-table
 {
-  margin-right: 100px;
+  margin: 0 auto !important;
+  float: none !important;
 }
+.cachetable-component
+{
+  margin-bottom: 10%;
+}
+

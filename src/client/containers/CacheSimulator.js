@@ -8,18 +8,27 @@ import { connect } from 'react-redux'
 import SettingsPanel from './SettingsPanel';
 import InstructionPanel from './InstructionPanel';
 import CacheMemory from './CacheMem';
+import MemoryPanel from './MemoryPanel';
 
 class CacheSimulator extends React.Component {
 
   renderCache() {
     if (this.props.associativity != undefined && this.props.cacheSize != undefined && this.props.blockSize != undefined) {
       return (
-        <div className="cache_panel">
-          <div className="row">
-            <CacheMemory />
+        <div>
+          <div className="row cache_panel">
+            <h3 className="bold center_text">Cache Memory</h3>
+            <div className="row">
+              <CacheMemory />
+            </div>
+            <div className="row">
+              <InstructionPanel />
+            </div>
           </div>
-          <div className="row">
-            <InstructionPanel />
+          <hr></hr>
+          <div className="row memory_panel">
+            <h3 className="bold center_text">Main Memory</h3>
+            <MemoryPanel />
           </div>
         </div>
       )
@@ -53,9 +62,9 @@ CacheSimulator.propTypes = {}
  */
 function mapStateToProps(state) {
   return {
-    associativity: state.cacheform.associativity,
-    cacheSize: state.cacheform.cacheSize,
-    blockSize: state.cacheform.blockSize
+    associativity: state.cachecontent.associativity,
+    cacheSize: state.cachecontent.cacheSize,
+    blockSize: state.cachecontent.blockSize
   }
 }
 

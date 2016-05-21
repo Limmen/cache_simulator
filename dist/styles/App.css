@@ -19,9 +19,10 @@ body
 {
   text-align: center;
 }
-
-.test
+.centering-block
 {
-  table-layout: fixed;
-  word-wrap: break-word;
+  display: block;
+  float:none;
+  margin:0 auto
 }
+

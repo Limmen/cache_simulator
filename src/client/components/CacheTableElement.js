@@ -1,5 +1,5 @@
 /**
- * TableElementComponent. Functional stateless component that constitutes as a element in a table.
+ * CacheTableElementComponent. Functional stateless component that constitutes as a element in a table.
  *
  * Created by kim on 2016-05-12.
  */
@@ -10,11 +10,11 @@ import React from 'react';
 import ReactTooltip from 'react-tooltip'
 
 
-class TableElement extends React.Component {
+class CacheTableElement extends React.Component {
 
   render() {
     return (
-      <td data-tip data-for={this.props.data.id} id={this.props.data.id} className="cache_element tableelement-component">
+      <td data-tip data-for={this.props.data.id} id={this.props.data.id} className="cache_element cachetableelement-component">
         {this.props.data.data}
         <ReactTooltip id={this.props.data.id} {...this.props}>
           <table className="table table-striped my_tooltip">
@@ -36,8 +36,8 @@ class TableElement extends React.Component {
 }
 
 
-TableElement.displayName = 'TableElement';
-TableElement.propTypes = {
+CacheTableElement.displayName = 'CacheTableElement';
+CacheTableElement.propTypes = {
   data: React.PropTypes.object.isRequired
 };
-export default TableElement;
+export default CacheTableElement;

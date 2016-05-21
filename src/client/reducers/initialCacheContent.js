@@ -2,7 +2,7 @@
  * Created by kim on 2016-05-21.
  */
 
-export default function initialContent(cacheSize, blockSize, associativity) {
+export default function initialCacheContent(cacheSize, blockSize, associativity) {
   let blockCount = (cacheSize / associativity) / blockSize;
 
   let state =
@@ -27,7 +27,7 @@ export default function initialContent(cacheSize, blockSize, associativity) {
       {
         id: "row_id" + i + j,
         tag: "empty",
-        validbit: "N",
+        validbit: 0,
         elements: []
       }
       table.rows.push(row)
