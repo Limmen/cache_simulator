@@ -28,8 +28,9 @@ class CacheMem extends React.Component {
     return (
       <div>
         <div className="row">
-          <div className="cache_info center-block col-sm-4">
-            <table className="table table-striped">
+          <h3 className="bold center_text">Cache Information</h3>
+          <div className="col-sm-4">
+            <table className="table table-striped center-table">
               <caption>Cache properties</caption>
               <tbody>
               <tr>
@@ -60,7 +61,7 @@ class CacheMem extends React.Component {
             </table>
           </div>
           <div className="col-sm-4">
-            <table className="table table-bordered">
+            <table className="table table-bordered center-table">
               <caption>Address Layout</caption>
               <tbody>
               <tr>
@@ -78,7 +79,7 @@ class CacheMem extends React.Component {
             </table>
           </div>
           <div className="col-sm-4">
-            <table className="table table-striped">
+            <table className="table table-striped center-table">
               <caption>Cache performance and locality</caption>
               <tbody>
               <tr>
@@ -92,12 +93,11 @@ class CacheMem extends React.Component {
               </tbody>
             </table>
           </div>
+          <hr></hr>
         </div>
         <div className="row">
+          <h3 className="bold center_text">Cache Memory</h3>
           {this.createTables()}
-        </div>
-        <div className="row">
-
         </div>
       </div>
     );

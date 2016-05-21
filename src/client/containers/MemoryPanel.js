@@ -9,7 +9,6 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import MemoryTableComponent from './../components/MemoryTable';
-import * as actions from '../actions/'
 
 class MemoryPanel extends React.Component {
 
@@ -39,7 +38,7 @@ function mapStateToProps(state) {
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = () => {
   return {
 
   }

@@ -15,27 +15,20 @@ class CacheSimulator extends React.Component {
   renderCache() {
     if (this.props.associativity != undefined && this.props.cacheSize != undefined && this.props.blockSize != undefined) {
       return (
-        <div>
-          <div className="row cache_panel">
-            <h3 className="bold center_text">Cache Memory</h3>
-            <div className="row">
-              <CacheMemory />
-            </div>
-            <div className="row">
-              <InstructionPanel />
-            </div>
-          </div>
+        <div className="row">
+          <CacheMemory />
           <hr></hr>
-          <div className="row memory_panel">
-            <h3 className="bold center_text">Main Memory</h3>
-            <MemoryPanel />
-          </div>
+          <h3 className="bold center_text">Simulate Intructions</h3>
+          <InstructionPanel />
+          <hr></hr>
+          <h3 className="bold center_text">Main Memory</h3>
+          <MemoryPanel />
         </div>
       )
     }
     else {
       return (
-        <h3 className="bold">Enter properties for the cache to simulate it</h3>
+        <h3 className="bold center_text">Enter properties for the cache to simulate it</h3>
       )
     }
   }
@@ -44,9 +37,11 @@ class CacheSimulator extends React.Component {
     return (
       <div className="index container-fluid">
         <div className="row">
+          <h3 className="bold center_text">Configurations</h3>
           <SettingsPanel />
-          {this.renderCache()}
+          <hr></hr>
         </div>
+        {this.renderCache()}
       </div>
     );
   }

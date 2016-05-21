@@ -8,27 +8,27 @@ jest.disableAutomock();
 
 import React from 'react';
 import { mount } from 'enzyme';
-import Table from '../../src/client/components/CacheTable';
-import initialContent from '../../src/client/reducers/initialCacheContent';
+import CacheTable from '../../src/client/components/CacheTable';
+import initialCacheContent from '../../src/client/reducers/initialCacheContent';
 
 describe('Table', () => {
   let component;
-  let data = initialContent(64, 8, 2)
+  let data = initialCacheContent(64, 8, 2)
 
   beforeEach(() => {
-    component = mount(<Table data={data.sets[0]}/>)
+    component = mount(<CacheTable data={data.sets[0]}/>)
   });
 
   it('should render one table', () => {
-    expect(component.find(".table-component").length).toEqual(1);
+    expect(component.find(".cachetable-component").length).toEqual(1);
   });
 
   it('should have props', () => {
-    expect(component.props().data).toEqual(initialContent(64, 8, 2).sets[0]);
+    expect(component.props().data).toEqual(initialCacheContent(64, 8, 2).sets[0]);
   });
 
   it('should render tablerows', () => {
-    expect(component.find("TableRow").length).toEqual(4);
+    expect(component.find("CacheTableRow").length).toEqual(4);
   });
 
 

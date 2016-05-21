@@ -26,7 +26,7 @@ class FetchForm extends React.Component {
   render() {
     const { fields: { fetchAddress, operationType }, handleSubmit, submitting } = this.props
     return (
-      <div className="cacheform-component row">
+      <div className="fetchform-component row">
         <form onSubmit={handleSubmit}>
           <div className="form-group col-sm-6">
             <label className="bold">Fetch Address</label>

@@ -8,18 +8,18 @@
 
 import React from 'react';
 import {Table, Column, Cell} from 'fixed-data-table';
+import Dimensions from 'react-dimensions'
 
 class MemoryTable extends React.Component {
 
   render() {
     return (
-      <div className="memorytable-component center-block centering-block" col-sm-8>
+      <div className="memorytable-component">
         <Table
-          className="center-block centering-block"
           rowsCount={this.props.data.length}
           rowHeight={50}
           headerHeight={50}
-          width={500}
+          width={this.props.containerWidth}
           height={500}>
           <Column
             header={<Cell>Address</Cell>}
@@ -32,7 +32,7 @@ class MemoryTable extends React.Component {
             flexGrow={1}
           />
           <Column
-            header={<Cell>Data</Cell>}
+            header={<Cell>Data (randomized)</Cell>}
             cell={props => (
            <Cell {...props}>
          {this.props.data[props.rowIndex].data}
@@ -53,4 +53,4 @@ MemoryTable.propTypes = {
   data: React.PropTypes.object.isRequired
 };
 */
-export default MemoryTable;
+export default Dimensions()(MemoryTable);
