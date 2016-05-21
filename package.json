@@ -8,7 +8,6 @@
     "build": "webpack --watch",
     "lint": "eslint ./src",
     "posttest": "npm run lint",
-    "serve": "node src/server/util/startup.js --env=dist --history-api-fallback",
     "start": "node src/server/util/startup.js --env=dev --history-api-fallback",
     "test": "jest --coverage"
   },
