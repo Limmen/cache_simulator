@@ -32,9 +32,9 @@ class CacheTable extends React.Component {
           <caption>Set: {this.props.data.set}</caption>
           <thead>
           <tr>
-            <td className="bold center_text">Valid Bit</td>
-            <td className="bold center_text">Tag</td>
-            <td className="bold center_text" colSpan={this.props.data.nr_elements}>Data</td>
+            <td className="bold center_text cache_element">Valid Bit</td>
+            <td className="bold center_text cache_element">Tag</td>
+            <td className="bold center_text cache_element" colSpan={this.props.data.nr_elements}>Data</td>
           </tr>
           </thead>
           <tbody>

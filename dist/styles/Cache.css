@@ -2,14 +2,13 @@
 {
   height: 40px;
   width: 40px;
-  overflow:hidden;
+  /*overflow:hidden; */
 }
 
 .cache
 {
-/*  overflow:hidden;
+  /*overflow:hidden; */
   table-layout:fixed;
-  */
 }
 .table
 {

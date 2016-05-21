@@ -32005,6 +32005,11 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
+	        _react2.default.createElement(
+	          'p',
+	          null,
+	          ' Large cache-sizes (e.g 1024 bytes) will take a few seconds to render '
+	        ),
 	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
 	      );
 	    }
@@ -33042,17 +33047,17 @@
 	              null,
 	              _react2.default.createElement(
 	                'td',
-	                { className: 'bold center_text' },
+	                { className: 'bold center_text cache_element' },
 	                'Valid Bit'
 	              ),
 	              _react2.default.createElement(
 	                'td',
-	                { className: 'bold center_text' },
+	                { className: 'bold center_text cache_element' },
 	                'Tag'
 	              ),
 	              _react2.default.createElement(
 	                'td',
-	                { className: 'bold center_text', colSpan: this.props.data.nr_elements },
+	                { className: 'bold center_text cache_element', colSpan: this.props.data.nr_elements },
 	                'Data'
 	              )
 	            )
@@ -40994,7 +40999,47 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'This is a cache simulator ... (TODO)'
+	      'This is a cache simulator that can be used for educational purposes.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The simulator works under the assumption of address length and word size of 32 bits. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
+	    ),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold' },
+	      'Future developments'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Possibilites to simulate cache behaviour by specifying a program in assembly, and possibly using both I and D-caches for the simulation.'
+	    ),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold' },
+	      'Can i use this for teaching?'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Yes. It is distributed under the MIT license and you can use it however you like as long as you don\'t violate the license or copyright.'
+	    ),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold' },
+	      'Contributing'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Bug reports and ideas for development extensions are welcome on the',
+	      _react2.default.createElement(
+	        'a',
+	        { href: 'https://github.com/Limmen/cache_simulator', target: '_blank' },
+	        ' GitHub Repo'
+	      )
 	    )
 	  );
 	};
