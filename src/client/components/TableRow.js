@@ -8,7 +8,6 @@
 
 import React from 'react';
 import TableElement from './TableElement'
-
 class TableRow extends React.Component {
 
   createElements(){
@@ -22,6 +21,12 @@ class TableRow extends React.Component {
   render() {
     return (
       <tr className="cache_row tablerow-component">
+        <td>
+          {this.props.data.validbit}
+        </td>
+        <td>
+          {this.props.data.tag}
+        </td>
         {this.createElements()}
       </tr>
     );

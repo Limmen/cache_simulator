@@ -15,3 +15,13 @@ body
 {
   text-align: center;
 }
+.center_text
+{
+  text-align: center;
+}
+
+.test
+{
+  table-layout: fixed;
+  word-wrap: break-word;
+}

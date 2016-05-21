@@ -24,12 +24,7 @@ class InstructionPanel extends React.Component {
         <FetchFormComponent onSubmit={this.props.fetchHandleSubmit} {...myInitialValues} />
         <div className="instruction_stats">
           <table className="table table-striped">
-            <thead>
-            <tr>
-              <th>Property</th>
-              <th>Value</th>
-            </tr>
-            </thead>
+            <caption>Cache performance and locality</caption>
             <tbody>
             <tr>
               <td>Hit rate</td>

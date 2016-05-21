@@ -15,32 +15,17 @@ class TableElement extends React.Component {
   render() {
     return (
       <td data-tip data-for={this.props.data.id} id={this.props.data.id} className="cache_element tableelement-component">
+        {this.props.data.data}
         <ReactTooltip id={this.props.data.id} {...this.props}>
           <table className="table table-striped my_tooltip">
             <tbody>
             <tr>
-              <td>Address</td>
-              <td>{this.props.data.address}</td>
-            </tr>
-            <tr>
-              <td>Data</td>
-              <td> {this.props.data.data}</td>
-            </tr>
-            <tr>
-              <td>Set</td>
-              <td> {this.props.data.set}</td>
-            </tr>
-            <tr>
               <td>Index</td>
-              <td> {this.props.data.index} Bytes</td>
+              <td>{this.props.data.index}</td>
             </tr>
             <tr>
               <td>Byte</td>
-              <td> {this.props.data.byte}</td>
-            </tr>
-            <tr>
-              <td>ValidBit</td>
-              <td> {this.props.data.validbit}</td>
+              <td>{this.props.data.byte}</td>
             </tr>
             </tbody>
           </table>

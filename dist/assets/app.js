@@ -64,7 +64,7 @@
 
 	var _configureStore2 = _interopRequireDefault(_configureStore);
 
-	var _index = __webpack_require__(307);
+	var _index = __webpack_require__(325);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -27169,15 +27169,15 @@
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxThunk = __webpack_require__(298);
+	var _reduxThunk = __webpack_require__(322);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _reduxPromise = __webpack_require__(299);
+	var _reduxPromise = __webpack_require__(323);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxLogger = __webpack_require__(306);
+	var _reduxLogger = __webpack_require__(324);
 
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 
@@ -27220,17 +27220,17 @@
 
 	var _reactRouterRedux = __webpack_require__(244);
 
-	var _reduxTooltip = __webpack_require__(330);
+	var _reduxTooltip = __webpack_require__(295);
 
-	var _cacheform = __webpack_require__(295);
+	var _cacheform = __webpack_require__(318);
 
 	var _cacheform2 = _interopRequireDefault(_cacheform);
 
-	var _fetchform = __webpack_require__(297);
+	var _fetchform = __webpack_require__(320);
 
 	var _fetchform2 = _interopRequireDefault(_fetchform);
 
-	var _cachecontent = __webpack_require__(329);
+	var _cachecontent = __webpack_require__(321);
 
 	var _cachecontent2 = _interopRequireDefault(_cachecontent);
 
@@ -30274,3178 +30274,6 @@
 /* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * Reducer for the cache form.
-	 *
-	 * Created by kim on 2016-05-06.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = cacheform;
-
-	var _ActionTypes = __webpack_require__(296);
-
-	/**
-	 * Takes a state and an action and produces a new state. Will update the fields.
-	 *
-	 * @param state current state
-	 * @param action action that triggered the state change
-	 * @returns {*} new state
-	 */
-	function cacheform() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case _ActionTypes.CACHE_FORM_SUBMIT:
-	      return action.fields;
-	    default:
-	      return state;
-	  }
-	}
-
-/***/ },
-/* 296 */
-/***/ function(module, exports) {
-
-	/**
-	 * ActionTypes for the actions.
-	 *
-	 * Created by kim on 2016-05-05.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var CACHE_FORM_SUBMIT = exports.CACHE_FORM_SUBMIT = 'CACHE_FORM_SUBMIT';
-	var FETCH_FORM_SUBMIT = exports.FETCH_FORM_SUBMIT = 'FETCH_FORM_SUBMIT';
-	var CACHE_CONTENT_INIT = exports.CACHE_CONTENT_INIT = 'CACHE_CONTENT_INIT';
-
-/***/ },
-/* 297 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Reducer for the fetch form.
-	 *
-	 * Created by kim on 2016-05-06.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = fetchform;
-
-	var _ActionTypes = __webpack_require__(296);
-
-	/**
-	 * Takes a state and an action and produces a new state. Will update the fetchform fields.
-	 *
-	 * @param state current state
-	 * @param action action that triggered the state update
-	 * @returns {*} new state
-	 */
-	function fetchform() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case _ActionTypes.FETCH_FORM_SUBMIT:
-	      return action.fields;
-	    default:
-	      return state;
-	  }
-	}
-
-/***/ },
-/* 298 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	function createThunkMiddleware(extraArgument) {
-	  return function (_ref) {
-	    var dispatch = _ref.dispatch;
-	    var getState = _ref.getState;
-	    return function (next) {
-	      return function (action) {
-	        if (typeof action === 'function') {
-	          return action(dispatch, getState, extraArgument);
-	        }
-
-	        return next(action);
-	      };
-	    };
-	  };
-	}
-
-	var thunk = createThunkMiddleware();
-	thunk.withExtraArgument = createThunkMiddleware;
-
-	exports['default'] = thunk;
-
-/***/ },
-/* 299 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports['default'] = promiseMiddleware;
-
-	var _fluxStandardAction = __webpack_require__(300);
-
-	function isPromise(val) {
-	  return val && typeof val.then === 'function';
-	}
-
-	function promiseMiddleware(_ref) {
-	  var dispatch = _ref.dispatch;
-
-	  return function (next) {
-	    return function (action) {
-	      if (!_fluxStandardAction.isFSA(action)) {
-	        return isPromise(action) ? action.then(dispatch) : next(action);
-	      }
-
-	      return isPromise(action.payload) ? action.payload.then(function (result) {
-	        return dispatch(_extends({}, action, { payload: result }));
-	      }, function (error) {
-	        return dispatch(_extends({}, action, { payload: error, error: true }));
-	      }) : next(action);
-	    };
-	  };
-	}
-
-	module.exports = exports['default'];
-
-/***/ },
-/* 300 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-	exports.isFSA = isFSA;
-	exports.isError = isError;
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _lodashIsplainobject = __webpack_require__(301);
-
-	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
-
-	var validKeys = ['type', 'payload', 'error', 'meta'];
-
-	function isValidKey(key) {
-	  return validKeys.indexOf(key) > -1;
-	}
-
-	function isFSA(action) {
-	  return _lodashIsplainobject2['default'](action) && typeof action.type !== 'undefined' && Object.keys(action).every(isValidKey);
-	}
-
-	function isError(action) {
-	  return action.error === true;
-	}
-
-/***/ },
-/* 301 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * lodash 3.2.0 (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modern modularize exports="npm" -o ./`
-	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <https://lodash.com/license>
-	 */
-	var baseFor = __webpack_require__(302),
-	    isArguments = __webpack_require__(303),
-	    keysIn = __webpack_require__(304);
-
-	/** `Object#toString` result references. */
-	var objectTag = '[object Object]';
-
-	/**
-	 * Checks if `value` is object-like.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	/** Used for native method references. */
-	var objectProto = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objToString = objectProto.toString;
-
-	/**
-	 * The base implementation of `_.forIn` without support for callback
-	 * shorthands and `this` binding.
-	 *
-	 * @private
-	 * @param {Object} object The object to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Object} Returns `object`.
-	 */
-	function baseForIn(object, iteratee) {
-	  return baseFor(object, iteratee, keysIn);
-	}
-
-	/**
-	 * Checks if `value` is a plain object, that is, an object created by the
-	 * `Object` constructor or one with a `[[Prototype]]` of `null`.
-	 *
-	 * **Note:** This method assumes objects created by the `Object` constructor
-	 * have no inherited enumerable properties.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 * }
-	 *
-	 * _.isPlainObject(new Foo);
-	 * // => false
-	 *
-	 * _.isPlainObject([1, 2, 3]);
-	 * // => false
-	 *
-	 * _.isPlainObject({ 'x': 0, 'y': 0 });
-	 * // => true
-	 *
-	 * _.isPlainObject(Object.create(null));
-	 * // => true
-	 */
-	function isPlainObject(value) {
-	  var Ctor;
-
-	  // Exit early for non `Object` objects.
-	  if (!(isObjectLike(value) && objToString.call(value) == objectTag && !isArguments(value)) ||
-	      (!hasOwnProperty.call(value, 'constructor') && (Ctor = value.constructor, typeof Ctor == 'function' && !(Ctor instanceof Ctor)))) {
-	    return false;
-	  }
-	  // IE < 9 iterates inherited properties before own properties. If the first
-	  // iterated property is an object's own property then there are no inherited
-	  // enumerable properties.
-	  var result;
-	  // In most environments an object's own properties are iterated before
-	  // its inherited properties. If the last iterated property is an object's
-	  // own property then there are no inherited enumerable properties.
-	  baseForIn(value, function(subValue, key) {
-	    result = key;
-	  });
-	  return result === undefined || hasOwnProperty.call(value, result);
-	}
-
-	module.exports = isPlainObject;
-
-
-/***/ },
-/* 302 */
-/***/ function(module, exports) {
-
-	/**
-	 * lodash 3.0.3 (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <https://lodash.com/license>
-	 */
-
-	/**
-	 * The base implementation of `baseForIn` and `baseForOwn` which iterates
-	 * over `object` properties returned by `keysFunc` invoking `iteratee` for
-	 * each property. Iteratee functions may exit iteration early by explicitly
-	 * returning `false`.
-	 *
-	 * @private
-	 * @param {Object} object The object to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @param {Function} keysFunc The function to get the keys of `object`.
-	 * @returns {Object} Returns `object`.
-	 */
-	var baseFor = createBaseFor();
-
-	/**
-	 * Creates a base function for methods like `_.forIn`.
-	 *
-	 * @private
-	 * @param {boolean} [fromRight] Specify iterating from right to left.
-	 * @returns {Function} Returns the new base function.
-	 */
-	function createBaseFor(fromRight) {
-	  return function(object, iteratee, keysFunc) {
-	    var index = -1,
-	        iterable = Object(object),
-	        props = keysFunc(object),
-	        length = props.length;
-
-	    while (length--) {
-	      var key = props[fromRight ? length : ++index];
-	      if (iteratee(iterable[key], key, iterable) === false) {
-	        break;
-	      }
-	    }
-	    return object;
-	  };
-	}
-
-	module.exports = baseFor;
-
-
-/***/ },
-/* 303 */
-/***/ function(module, exports) {
-
-	/**
-	 * lodash 3.0.8 (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <https://lodash.com/license>
-	 */
-
-	/** Used as references for various `Number` constants. */
-	var MAX_SAFE_INTEGER = 9007199254740991;
-
-	/** `Object#toString` result references. */
-	var argsTag = '[object Arguments]',
-	    funcTag = '[object Function]',
-	    genTag = '[object GeneratorFunction]';
-
-	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-
-	/** Built-in value references. */
-	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-
-	/**
-	 * The base implementation of `_.property` without support for deep paths.
-	 *
-	 * @private
-	 * @param {string} key The key of the property to get.
-	 * @returns {Function} Returns the new function.
-	 */
-	function baseProperty(key) {
-	  return function(object) {
-	    return object == null ? undefined : object[key];
-	  };
-	}
-
-	/**
-	 * Gets the "length" property value of `object`.
-	 *
-	 * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
-	 * that affects Safari on at least iOS 8.1-8.3 ARM64.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {*} Returns the "length" value.
-	 */
-	var getLength = baseProperty('length');
-
-	/**
-	 * Checks if `value` is likely an `arguments` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isArguments(function() { return arguments; }());
-	 * // => true
-	 *
-	 * _.isArguments([1, 2, 3]);
-	 * // => false
-	 */
-	function isArguments(value) {
-	  // Safari 8.1 incorrectly makes `arguments.callee` enumerable in strict mode.
-	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
-	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
-	}
-
-	/**
-	 * Checks if `value` is array-like. A value is considered array-like if it's
-	 * not a function and has a `value.length` that's an integer greater than or
-	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
-	 * @example
-	 *
-	 * _.isArrayLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLike(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLike('abc');
-	 * // => true
-	 *
-	 * _.isArrayLike(_.noop);
-	 * // => false
-	 */
-	function isArrayLike(value) {
-	  return value != null && isLength(getLength(value)) && !isFunction(value);
-	}
-
-	/**
-	 * This method is like `_.isArrayLike` except that it also checks if `value`
-	 * is an object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array-like object, else `false`.
-	 * @example
-	 *
-	 * _.isArrayLikeObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject('abc');
-	 * // => false
-	 *
-	 * _.isArrayLikeObject(_.noop);
-	 * // => false
-	 */
-	function isArrayLikeObject(value) {
-	  return isObjectLike(value) && isArrayLike(value);
-	}
-
-	/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */
-	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 8 which returns 'object' for typed array and weak map constructors,
-	  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
-	  var tag = isObject(value) ? objectToString.call(value) : '';
-	  return tag == funcTag || tag == genTag;
-	}
-
-	/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 * @example
-	 *
-	 * _.isLength(3);
-	 * // => true
-	 *
-	 * _.isLength(Number.MIN_VALUE);
-	 * // => false
-	 *
-	 * _.isLength(Infinity);
-	 * // => false
-	 *
-	 * _.isLength('3');
-	 * // => false
-	 */
-	function isLength(value) {
-	  return typeof value == 'number' &&
-	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-	}
-
-	/**
-	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	module.exports = isArguments;
-
-
-/***/ },
-/* 304 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * lodash 3.0.8 (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modern modularize exports="npm" -o ./`
-	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <https://lodash.com/license>
-	 */
-	var isArguments = __webpack_require__(303),
-	    isArray = __webpack_require__(305);
-
-	/** Used to detect unsigned integer values. */
-	var reIsUint = /^\d+$/;
-
-	/** Used for native method references. */
-	var objectProto = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
-	 * of an array-like value.
-	 */
-	var MAX_SAFE_INTEGER = 9007199254740991;
-
-	/**
-	 * Checks if `value` is a valid array-like index.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
-	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
-	 */
-	function isIndex(value, length) {
-	  value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
-	  length = length == null ? MAX_SAFE_INTEGER : length;
-	  return value > -1 && value % 1 == 0 && value < length;
-	}
-
-	/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 */
-	function isLength(value) {
-	  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-	}
-
-	/**
-	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(1);
-	 * // => false
-	 */
-	function isObject(value) {
-	  // Avoid a V8 JIT bug in Chrome 19-20.
-	  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Creates an array of the own and inherited enumerable property names of `object`.
-	 *
-	 * **Note:** Non-object values are coerced to objects.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Object
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 *   this.b = 2;
-	 * }
-	 *
-	 * Foo.prototype.c = 3;
-	 *
-	 * _.keysIn(new Foo);
-	 * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
-	 */
-	function keysIn(object) {
-	  if (object == null) {
-	    return [];
-	  }
-	  if (!isObject(object)) {
-	    object = Object(object);
-	  }
-	  var length = object.length;
-	  length = (length && isLength(length) &&
-	    (isArray(object) || isArguments(object)) && length) || 0;
-
-	  var Ctor = object.constructor,
-	      index = -1,
-	      isProto = typeof Ctor == 'function' && Ctor.prototype === object,
-	      result = Array(length),
-	      skipIndexes = length > 0;
-
-	  while (++index < length) {
-	    result[index] = (index + '');
-	  }
-	  for (var key in object) {
-	    if (!(skipIndexes && isIndex(key, length)) &&
-	        !(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
-	      result.push(key);
-	    }
-	  }
-	  return result;
-	}
-
-	module.exports = keysIn;
-
-
-/***/ },
-/* 305 */
-/***/ function(module, exports) {
-
-	/**
-	 * lodash 3.0.4 (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modern modularize exports="npm" -o ./`
-	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <https://lodash.com/license>
-	 */
-
-	/** `Object#toString` result references. */
-	var arrayTag = '[object Array]',
-	    funcTag = '[object Function]';
-
-	/** Used to detect host constructors (Safari > 5). */
-	var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-	/**
-	 * Checks if `value` is object-like.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	/** Used for native method references. */
-	var objectProto = Object.prototype;
-
-	/** Used to resolve the decompiled source of functions. */
-	var fnToString = Function.prototype.toString;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objToString = objectProto.toString;
-
-	/** Used to detect if a method is native. */
-	var reIsNative = RegExp('^' +
-	  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
-	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-	);
-
-	/* Native method references for those with the same name as other `lodash` methods. */
-	var nativeIsArray = getNative(Array, 'isArray');
-
-	/**
-	 * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
-	 * of an array-like value.
-	 */
-	var MAX_SAFE_INTEGER = 9007199254740991;
-
-	/**
-	 * Gets the native function at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the method to get.
-	 * @returns {*} Returns the function if it's native, else `undefined`.
-	 */
-	function getNative(object, key) {
-	  var value = object == null ? undefined : object[key];
-	  return isNative(value) ? value : undefined;
-	}
-
-	/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 */
-	function isLength(value) {
-	  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-	}
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(function() { return arguments; }());
-	 * // => false
-	 */
-	var isArray = nativeIsArray || function(value) {
-	  return isObjectLike(value) && isLength(value.length) && objToString.call(value) == arrayTag;
-	};
-
-	/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */
-	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in older versions of Chrome and Safari which return 'function' for regexes
-	  // and Safari 8 equivalents which return 'object' for typed array constructors.
-	  return isObject(value) && objToString.call(value) == funcTag;
-	}
-
-	/**
-	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(1);
-	 * // => false
-	 */
-	function isObject(value) {
-	  // Avoid a V8 JIT bug in Chrome 19-20.
-	  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Checks if `value` is a native function.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a native function, else `false`.
-	 * @example
-	 *
-	 * _.isNative(Array.prototype.push);
-	 * // => true
-	 *
-	 * _.isNative(_);
-	 * // => false
-	 */
-	function isNative(value) {
-	  if (value == null) {
-	    return false;
-	  }
-	  if (isFunction(value)) {
-	    return reIsNative.test(fnToString.call(value));
-	  }
-	  return isObjectLike(value) && reIsHostCtor.test(value);
-	}
-
-	module.exports = isArray;
-
-
-/***/ },
-/* 306 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
-
-	var repeat = function repeat(str, times) {
-	  return new Array(times + 1).join(str);
-	};
-	var pad = function pad(num, maxLength) {
-	  return repeat("0", maxLength - num.toString().length) + num;
-	};
-	var formatTime = function formatTime(time) {
-	  return "@ " + pad(time.getHours(), 2) + ":" + pad(time.getMinutes(), 2) + ":" + pad(time.getSeconds(), 2) + "." + pad(time.getMilliseconds(), 3);
-	};
-
-	// Use the new performance api to get better precision if available
-	var timer = typeof performance !== "undefined" && typeof performance.now === "function" ? performance : Date;
-
-	/**
-	 * parse the level option of createLogger
-	 *
-	 * @property {string | function | object} level - console[level]
-	 * @property {object} action
-	 * @property {array} payload
-	 * @property {string} type
-	 */
-
-	function getLogLevel(level, action, payload, type) {
-	  switch (typeof level === "undefined" ? "undefined" : _typeof(level)) {
-	    case "object":
-	      return typeof level[type] === "function" ? level[type].apply(level, _toConsumableArray(payload)) : level[type];
-	    case "function":
-	      return level(action);
-	    default:
-	      return level;
-	  }
-	}
-
-	/**
-	 * Creates logger with followed options
-	 *
-	 * @namespace
-	 * @property {object} options - options for logger
-	 * @property {string | function | object} options.level - console[level]
-	 * @property {boolean} options.duration - print duration of each action?
-	 * @property {boolean} options.timestamp - print timestamp with each action?
-	 * @property {object} options.colors - custom colors
-	 * @property {object} options.logger - implementation of the `console` API
-	 * @property {boolean} options.logErrors - should errors in action execution be caught, logged, and re-thrown?
-	 * @property {boolean} options.collapsed - is group collapsed?
-	 * @property {boolean} options.predicate - condition which resolves logger behavior
-	 * @property {function} options.stateTransformer - transform state before print
-	 * @property {function} options.actionTransformer - transform action before print
-	 * @property {function} options.errorTransformer - transform error before print
-	 */
-
-	function createLogger() {
-	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var _options$level = options.level;
-	  var level = _options$level === undefined ? "log" : _options$level;
-	  var _options$logger = options.logger;
-	  var logger = _options$logger === undefined ? console : _options$logger;
-	  var _options$logErrors = options.logErrors;
-	  var logErrors = _options$logErrors === undefined ? true : _options$logErrors;
-	  var collapsed = options.collapsed;
-	  var predicate = options.predicate;
-	  var _options$duration = options.duration;
-	  var duration = _options$duration === undefined ? false : _options$duration;
-	  var _options$timestamp = options.timestamp;
-	  var timestamp = _options$timestamp === undefined ? true : _options$timestamp;
-	  var transformer = options.transformer;
-	  var _options$stateTransfo = options.stateTransformer;
-	  var // deprecated
-	  stateTransformer = _options$stateTransfo === undefined ? function (state) {
-	    return state;
-	  } : _options$stateTransfo;
-	  var _options$actionTransf = options.actionTransformer;
-	  var actionTransformer = _options$actionTransf === undefined ? function (actn) {
-	    return actn;
-	  } : _options$actionTransf;
-	  var _options$errorTransfo = options.errorTransformer;
-	  var errorTransformer = _options$errorTransfo === undefined ? function (error) {
-	    return error;
-	  } : _options$errorTransfo;
-	  var _options$colors = options.colors;
-	  var colors = _options$colors === undefined ? {
-	    title: function title() {
-	      return "#000000";
-	    },
-	    prevState: function prevState() {
-	      return "#9E9E9E";
-	    },
-	    action: function action() {
-	      return "#03A9F4";
-	    },
-	    nextState: function nextState() {
-	      return "#4CAF50";
-	    },
-	    error: function error() {
-	      return "#F20404";
-	    }
-	  } : _options$colors;
-
-	  // exit if console undefined
-
-	  if (typeof logger === "undefined") {
-	    return function () {
-	      return function (next) {
-	        return function (action) {
-	          return next(action);
-	        };
-	      };
-	    };
-	  }
-
-	  if (transformer) {
-	    console.error("Option 'transformer' is deprecated, use stateTransformer instead");
-	  }
-
-	  var logBuffer = [];
-	  function printBuffer() {
-	    logBuffer.forEach(function (logEntry, key) {
-	      var started = logEntry.started;
-	      var startedTime = logEntry.startedTime;
-	      var action = logEntry.action;
-	      var prevState = logEntry.prevState;
-	      var error = logEntry.error;
-	      var took = logEntry.took;
-	      var nextState = logEntry.nextState;
-
-	      var nextEntry = logBuffer[key + 1];
-	      if (nextEntry) {
-	        nextState = nextEntry.prevState;
-	        took = nextEntry.started - started;
-	      }
-	      // message
-	      var formattedAction = actionTransformer(action);
-	      var isCollapsed = typeof collapsed === "function" ? collapsed(function () {
-	        return nextState;
-	      }, action) : collapsed;
-
-	      var formattedTime = formatTime(startedTime);
-	      var titleCSS = colors.title ? "color: " + colors.title(formattedAction) + ";" : null;
-	      var title = "action " + (timestamp ? formattedTime : "") + " " + formattedAction.type + " " + (duration ? "(in " + took.toFixed(2) + " ms)" : "");
-
-	      // render
-	      try {
-	        if (isCollapsed) {
-	          if (colors.title) logger.groupCollapsed("%c " + title, titleCSS);else logger.groupCollapsed(title);
-	        } else {
-	          if (colors.title) logger.group("%c " + title, titleCSS);else logger.group(title);
-	        }
-	      } catch (e) {
-	        logger.log(title);
-	      }
-
-	      var prevStateLevel = getLogLevel(level, formattedAction, [prevState], "prevState");
-	      var actionLevel = getLogLevel(level, formattedAction, [formattedAction], "action");
-	      var errorLevel = getLogLevel(level, formattedAction, [error, prevState], "error");
-	      var nextStateLevel = getLogLevel(level, formattedAction, [nextState], "nextState");
-
-	      if (prevStateLevel) {
-	        if (colors.prevState) logger[prevStateLevel]("%c prev state", "color: " + colors.prevState(prevState) + "; font-weight: bold", prevState);else logger[prevStateLevel]("prev state", prevState);
-	      }
-
-	      if (actionLevel) {
-	        if (colors.action) logger[actionLevel]("%c action", "color: " + colors.action(formattedAction) + "; font-weight: bold", formattedAction);else logger[actionLevel]("action", formattedAction);
-	      }
-
-	      if (error && errorLevel) {
-	        if (colors.error) logger[errorLevel]("%c error", "color: " + colors.error(error, prevState) + "; font-weight: bold", error);else logger[errorLevel]("error", error);
-	      }
-
-	      if (nextStateLevel) {
-	        if (colors.nextState) logger[nextStateLevel]("%c next state", "color: " + colors.nextState(nextState) + "; font-weight: bold", nextState);else logger[nextStateLevel]("next state", nextState);
-	      }
-
-	      try {
-	        logger.groupEnd();
-	      } catch (e) {
-	        logger.log("—— log end ——");
-	      }
-	    });
-	    logBuffer.length = 0;
-	  }
-
-	  return function (_ref) {
-	    var getState = _ref.getState;
-	    return function (next) {
-	      return function (action) {
-	        // exit early if predicate function returns false
-	        if (typeof predicate === "function" && !predicate(getState, action)) {
-	          return next(action);
-	        }
-
-	        var logEntry = {};
-	        logBuffer.push(logEntry);
-
-	        logEntry.started = timer.now();
-	        logEntry.startedTime = new Date();
-	        logEntry.prevState = stateTransformer(getState());
-	        logEntry.action = action;
-
-	        var returnedValue = undefined;
-	        if (logErrors) {
-	          try {
-	            returnedValue = next(action);
-	          } catch (e) {
-	            logEntry.error = errorTransformer(e);
-	          }
-	        } else {
-	          returnedValue = next(action);
-	        }
-
-	        logEntry.took = timer.now() - logEntry.started;
-	        logEntry.nextState = stateTransformer(getState());
-
-	        printBuffer();
-
-	        if (logEntry.error) throw logEntry.error;
-	        return returnedValue;
-	      };
-	    };
-	  };
-	}
-
-	module.exports = createLogger;
-
-/***/ },
-/* 307 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRouter = __webpack_require__(159);
-
-	var _App = __webpack_require__(308);
-
-	var _App2 = _interopRequireDefault(_App);
-
-	var _CacheSimulator = __webpack_require__(313);
-
-	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
-
-	var _ = __webpack_require__(323);
-
-	var _2 = _interopRequireDefault(_);
-
-	var _About = __webpack_require__(324);
-
-	var _About2 = _interopRequireDefault(_About);
-
-	var _Colophon = __webpack_require__(325);
-
-	var _Colophon2 = _interopRequireDefault(_Colophon);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/**
-	 * Creates the react-router given a history
-	 *
-	 * @param history
-	 * @returns {XML}
-	 */
-
-	exports.default = function (history) {
-	  return _react2.default.createElement(
-	    _reactRouter.Router,
-	    { history: history },
-	    _react2.default.createElement(
-	      _reactRouter.Route,
-	      { path: '/', component: _App2.default },
-	      _react2.default.createElement(_reactRouter.IndexRedirect, { from: '', to: 'simulator' }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'simulator', component: _CacheSimulator2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
-	    )
-	  );
-	}; /**
-	    * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
-	    *
-	    * Created by kim on 2016-05-11.
-	    */
-
-/***/ },
-/* 308 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Main app redux-container that bootstraps header, footer and main content depending on the active route.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _Header = __webpack_require__(309);
-
-	var _Header2 = _interopRequireDefault(_Header);
-
-	var _Footer = __webpack_require__(310);
-
-	var _Footer2 = _interopRequireDefault(_Footer);
-
-	var _NavBar = __webpack_require__(311);
-
-	var _NavBar2 = _interopRequireDefault(_NavBar);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var App = function (_React$Component) {
-	  _inherits(App, _React$Component);
-
-	  function App() {
-	    _classCallCheck(this, App);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(App).apply(this, arguments));
-	  }
-
-	  _createClass(App, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'index container-fluid' },
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_Header2.default, null)
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement('div', { className: 'col-sm-3' }),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'col-sm-6' },
-	            _react2.default.createElement(_NavBar2.default, null),
-	            this.props.children
-	          ),
-	          _react2.default.createElement('div', { className: 'col-sm-3' })
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_Footer2.default, null)
-	        )
-	      );
-	    }
-	  }]);
-
-	  return App;
-	}(_react2.default.Component);
-
-	App.propTypes = {};
-
-	function mapStateToProps() {
-	  return {};
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
-
-/***/ },
-/* 309 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Header component.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var Header = function Header() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'header-component' },
-	    _react2.default.createElement(
-	      'div',
-	      { className: 'jumbotron' },
-	      _react2.default.createElement(
-	        'h1',
-	        { className: 'display-2 text-center' },
-	        _react2.default.createElement(
-	          'strong',
-	          null,
-	          'Cache-Simulator'
-	        )
-	      )
-	    )
-	  );
-	};
-
-	Header.displayName = 'Header';
-	exports.default = Header;
-
-/***/ },
-/* 310 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Footer component.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var Footer = function Footer() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'footer-component' },
-	    _react2.default.createElement(
-	      'footer',
-	      { className: 'footer' },
-	      _react2.default.createElement(
-	        'div',
-	        { className: 'container' },
-	        _react2.default.createElement(
-	          'p',
-	          { className: 'text-muted' },
-	          'Copyright 2016@Kim Hammar'
-	        )
-	      )
-	    )
-	  );
-	};
-
-	Footer.displayName = 'Footer';
-	exports.default = Footer;
-
-/***/ },
-/* 311 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * NavBarComponent. A component displaying a navbar for navigating the site.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _NavLink = __webpack_require__(312);
-
-	var _NavLink2 = _interopRequireDefault(_NavLink);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var NavBar = function (_React$Component) {
-	  _inherits(NavBar, _React$Component);
-
-	  function NavBar() {
-	    _classCallCheck(this, NavBar);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(NavBar).apply(this, arguments));
-	  }
-
-	  _createClass(NavBar, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'navbar-component' },
-	        _react2.default.createElement(
-	          'ul',
-	          { className: 'nav nav-pills' },
-	          _react2.default.createElement(
-	            'li',
-	            null,
-	            _react2.default.createElement(
-	              _NavLink2.default,
-	              { to: '/simulator' },
-	              'Simulator'
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            null,
-	            _react2.default.createElement(
-	              _NavLink2.default,
-	              { to: '/about' },
-	              'What is this?'
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            null,
-	            _react2.default.createElement(
-	              _NavLink2.default,
-	              { to: '/colophon' },
-	              'Colophon'
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return NavBar;
-	}(_react2.default.Component);
-
-	NavBar.displayName = 'NavBar';
-	exports.default = NavBar;
-
-/***/ },
-/* 312 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
-	                                                                                                                                                                                                                                                                   * Navlink component
-	                                                                                                                                                                                                                                                                   *
-	                                                                                                                                                                                                                                                                   * Created by kim on 2016-05-19.
-	                                                                                                                                                                                                                                                                   */
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRouter = __webpack_require__(159);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _react2.default.createClass({
-	  displayName: 'NavLink',
-	  render: function render() {
-	    return _react2.default.createElement(_reactRouter.Link, _extends({}, this.props, { activeClassName: 'active', className: 'navlink-component' }));
-	  }
-	});
-
-/***/ },
-/* 313 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheSimulator redux-container. Container for the index-route and connects it to the redux store.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _SettingsPanel = __webpack_require__(314);
-
-	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
-
-	var _InstructionPanel = __webpack_require__(317);
-
-	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
-
-	var _CacheMem = __webpack_require__(319);
-
-	var _CacheMem2 = _interopRequireDefault(_CacheMem);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CacheSimulator = function (_React$Component) {
-	  _inherits(CacheSimulator, _React$Component);
-
-	  function CacheSimulator() {
-	    _classCallCheck(this, CacheSimulator);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheSimulator).apply(this, arguments));
-	  }
-
-	  _createClass(CacheSimulator, [{
-	    key: 'renderCache',
-	    value: function renderCache() {
-	      if (this.props.associativity != undefined && this.props.cacheSize != undefined && this.props.blockSize != undefined) {
-	        return _react2.default.createElement(
-	          'div',
-	          { className: 'cache_panel' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row' },
-	            _react2.default.createElement(_CacheMem2.default, null)
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row' },
-	            _react2.default.createElement(_InstructionPanel2.default, null)
-	          )
-	        );
-	      } else {
-	        return _react2.default.createElement(
-	          'h3',
-	          { className: 'bold' },
-	          'Enter properties for the cache to simulate it'
-	        );
-	      }
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'index container-fluid' },
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(_SettingsPanel2.default, null),
-	          this.renderCache()
-	        )
-	      );
-	    }
-	  }]);
-
-	  return CacheSimulator;
-	}(_react2.default.Component);
-
-	CacheSimulator.propTypes = {};
-
-	/**
-	 * Maps application state that is used in this container to props.
-	 *
-	 * @param state application state
-	 * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    associativity: state.cacheform.associativity,
-	    cacheSize: state.cacheform.cacheSize,
-	    blockSize: state.cacheform.blockSize
-	  };
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheSimulator);
-
-/***/ },
-/* 314 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * SettingsPanel redux-container. Connects the settings panel to the redux-store.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _CacheForm = __webpack_require__(315);
-
-	var _CacheForm2 = _interopRequireDefault(_CacheForm);
-
-	var _actions = __webpack_require__(316);
-
-	var actions = _interopRequireWildcard(_actions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var SettingsPanel = function (_React$Component) {
-	  _inherits(SettingsPanel, _React$Component);
-
-	  function SettingsPanel() {
-	    _classCallCheck(this, SettingsPanel);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsPanel).apply(this, arguments));
-	  }
-
-	  _createClass(SettingsPanel, [{
-	    key: 'render',
-	    value: function render() {
-	      var myInitialValues = {
-	        initialValues: {
-	          replacementAlgorithm: 'LRU'
-	        }
-	      };
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
-	      );
-	    }
-	  }]);
-
-	  return SettingsPanel;
-	}(_react2.default.Component);
-
-	SettingsPanel.propTypes = {
-	  cacheHandleSubmit: _react2.default.PropTypes.func.isRequired
-	};
-
-	/**
-	 * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
-	 * Its result must be a plain object*, and it will be merged into the component’s props.
-	 * If you omit it, the component will not be subscribed to the Redux store.
-	 *
-	 * @returns {{}}
-	 */
-	function mapStateToProps() {
-	  return {};
-	}
-	/**
-	 * Maps the redux dispatcher to props that this container provides.
-	 *
-	 * @param dispatch redux-dispatcher
-	 * @returns {{cacheHandleSubmit: cacheHandleSubmit}} - Object with action creators.
-	 */
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    /**
-	     * Function to handle submission of the cacheform. Dispatches a action
-	     * @param fields fields of the action
-	     */
-	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
-	      dispatch(actions.cacheFormSubmit(fields));
-	      dispatch(actions.cacheContentInitialization(fields));
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
-
-/***/ },
-/* 315 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheForm component. A component that contains a form for filling in information about the cache.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.fields = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reduxForm = __webpack_require__(251);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm'];
-
-	/**
-	 * Function to validate form input parameters.
-	 *
-	 * @param values values to validate
-	 * @returns {{}} - object that contains errors if the exists.
-	 */
-	var validate = function validate(values) {
-	  var errors = {};
-	  if (!values.cacheSize) {
-	    errors.cacheSize = 'Required';
-	  } else if (isNaN(Number(values.cacheSize))) {
-	    errors.cacheSize = 'Must be a positive integer';
-	  } else if (!Number.isInteger(Number(values.cacheSize))) {
-	    errors.cacheSize = 'Must be a positive integer';
-	  } else if (Number(values.cacheSize) < 0) {
-	    errors.cacheSize = 'Must be a positive integer';
-	  } else if (!(Number(values.cacheSize) % 4 === 0)) {
-	    errors.cacheSize = 'Must be a multiple of four';
-	  } else if (!(Number(values.cacheSize) % Number(values.blockSize) === 0)) {
-	    errors.cacheSize = 'Must be a multiple of the blocksize';
-	  }
-
-	  if (!values.blockSize) {
-	    errors.blockSize = 'Required';
-	  } else if (isNaN(Number(values.blockSize))) {
-	    errors.blockSize = 'Must be a positive integer';
-	  } else if (!Number.isInteger(Number(values.blockSize))) {
-	    errors.blockSize = 'Must be a positive integer';
-	  } else if (Number(values.blockSize) < 0) {
-	    errors.blockSize = 'Must be a positive integer';
-	  } else if (!(Number(values.blockSize) % 4 === 0)) {
-	    errors.blockSize = 'Must be a multiple of four';
-	  }
-
-	  if (!values.associativity) {
-	    errors.associativity = 'Required';
-	  } else if (isNaN(Number(values.associativity))) {
-	    errors.associativity = 'Must be a positive integer';
-	  } else if (!Number.isInteger(Number(values.associativity))) {
-	    errors.associativity = 'Must be a positive integer';
-	  } else if (Number(values.associativity) < 0) {
-	    errors.associativity = 'Must be a positive integer';
-	  } else if (!(Number(values.cacheSize) / Number(values.blockSize) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
-	    errors.associativity = 'The specfied cache-size cannot contain that many sets';
-	  }
-
-	  return errors;
-	};
-
-	var CacheForm = function (_React$Component) {
-	  _inherits(CacheForm, _React$Component);
-
-	  function CacheForm() {
-	    _classCallCheck(this, CacheForm);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheForm).apply(this, arguments));
-	  }
-
-	  _createClass(CacheForm, [{
-	    key: 'render',
-	    value: function render() {
-	      var _props = this.props;
-	      var _props$fields = _props.fields;
-	      var cacheSize = _props$fields.cacheSize;
-	      var blockSize = _props$fields.blockSize;
-	      var associativity = _props$fields.associativity;
-	      var replacementAlgorithm = _props$fields.replacementAlgorithm;
-	      var resetForm = _props.resetForm;
-	      var handleSubmit = _props.handleSubmit;
-	      var submitting = _props.submitting;
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'cacheform-component row' },
-	        _react2.default.createElement(
-	          'form',
-	          { onSubmit: handleSubmit },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Cache size (bytes)'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, cacheSize, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              cacheSize.touched && cacheSize.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                cacheSize.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Block size (bytes)'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'block size' }, blockSize, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              blockSize.touched && blockSize.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                blockSize.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Associativity'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'associativity' }, associativity, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              associativity.touched && associativity.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                associativity.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Replacement Algorithm'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'select',
-	                _extends({ className: 'form-control' }, replacementAlgorithm),
-	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'LRU'
-	                ),
-	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'FIFO'
-	                ),
-	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'RANDOM'
-	                )
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-12' },
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
-	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Create Cache Memory'
-	            ),
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'button', disabled: submitting, onClick: resetForm, className: 'btn btn-default' },
-	              'Clear Values'
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return CacheForm;
-	}(_react2.default.Component);
-
-	CacheForm.displayName = 'CacheForm';
-	CacheForm.propTypes = {
-	  fields: _react2.default.PropTypes.object.isRequired,
-	  handleSubmit: _react2.default.PropTypes.func.isRequired,
-	  resetForm: _react2.default.PropTypes.func.isRequired,
-	  submitting: _react2.default.PropTypes.bool.isRequired
-	};
-
-	exports.default = (0, _reduxForm.reduxForm)({
-	  form: 'synchronousValidation',
-	  fields: fields,
-	  validate: validate
-	})(CacheForm);
-
-/***/ },
-/* 316 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.cacheFormSubmit = cacheFormSubmit;
-	exports.fetchFormSubmit = fetchFormSubmit;
-	exports.cacheContentInitialization = cacheContentInitialization;
-
-	var _ActionTypes = __webpack_require__(296);
-
-	var types = _interopRequireWildcard(_ActionTypes);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	/**
-	 * Creates the cacheform action.
-	 *
-	 * @param fields fields of the form
-	 * @returns {{type, fields: *}}
-	 */
-	function cacheFormSubmit(fields) {
-	  return {
-	    type: types.CACHE_FORM_SUBMIT,
-	    fields: fields
-	  };
-	}
-
-	/**
-	 * Creates the fetchform action.
-	 *
-	 * @param fields
-	 * @returns {{type, fields: *}}
-	 */
-	/**
-	 * ActionCreator, returns action objects of different types.
-	 *
-	 * Created by kim on 2016-05-05.
-	 */
-	function fetchFormSubmit(fields) {
-	  return {
-	    type: types.FETCH_FORM_SUBMIT,
-	    fields: fields
-	  };
-	}
-
-	function cacheContentInitialization(fields) {
-	  return {
-	    type: types.CACHE_CONTENT_INIT,
-	    fields: fields
-	  };
-	}
-
-/***/ },
-/* 317 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * InstructionPanel redux-container. Connects the instruction panel to the redux-store.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _FetchForm = __webpack_require__(318);
-
-	var _FetchForm2 = _interopRequireDefault(_FetchForm);
-
-	var _actions = __webpack_require__(316);
-
-	var actions = _interopRequireWildcard(_actions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var InstructionPanel = function (_React$Component) {
-	  _inherits(InstructionPanel, _React$Component);
-
-	  function InstructionPanel() {
-	    _classCallCheck(this, InstructionPanel);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(InstructionPanel).apply(this, arguments));
-	  }
-
-	  _createClass(InstructionPanel, [{
-	    key: 'render',
-	    value: function render() {
-	      var myInitialValues = {
-	        initialValues: {
-	          operationType: 'LOAD'
-	        }
-	      };
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues)),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'instruction_stats' },
-	          _react2.default.createElement(
-	            'table',
-	            { className: 'table table-striped' },
-	            _react2.default.createElement(
-	              'thead',
-	              null,
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'th',
-	                  null,
-	                  'Property'
-	                ),
-	                _react2.default.createElement(
-	                  'th',
-	                  null,
-	                  'Value'
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'tbody',
-	              null,
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Hit rate'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' '
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Miss rate'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' '
-	                )
-	              )
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return InstructionPanel;
-	}(_react2.default.Component);
-
-	InstructionPanel.propTypes = {
-	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
-	};
-
-	/**
-	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
-	 * Its result must be a plain object*, and it will be merged into the component’s props.
-	 * If you omit it, the component will not be subscribed to the Redux store.
-	 *
-	 * @returns {{}}
-	 */
-	function mapStateToProps() {
-	  return {};
-	}
-	/**
-	 * Maps the redux dispatcher to props that this container provides.
-	 *
-	 * @param dispatch redux-dispatcher
-	 * @returns {{fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
-	 */
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    /**
-	     * Function to handle submission of the fetchform. Dispatches a action.
-	     * @param fields of the action
-	     */
-	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
-	      dispatch(actions.fetchFormSubmit(fields));
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
-
-/***/ },
-/* 318 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * FetchForm Component. A component containing a form for attempting to load from the cache.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.fields = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reduxForm = __webpack_require__(251);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var fields = exports.fields = ['fetchAddress', 'operationType'];
-
-	/**
-	 * Function to validate form input parameters.
-	 *
-	 * @param values to validate
-	 * @returns {{}} - object that contains errors if the exists.
-	 */
-	var validate = function validate(values) {
-	  var errors = {};
-
-	  if (!values.fetchAddress) {
-	    errors.fetchAddress = 'Required';
-	  }
-	  return errors;
-	};
-
-	var FetchForm = function (_React$Component) {
-	  _inherits(FetchForm, _React$Component);
-
-	  function FetchForm() {
-	    _classCallCheck(this, FetchForm);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(FetchForm).apply(this, arguments));
-	  }
-
-	  _createClass(FetchForm, [{
-	    key: 'render',
-	    value: function render() {
-	      var _props = this.props;
-	      var _props$fields = _props.fields;
-	      var fetchAddress = _props$fields.fetchAddress;
-	      var operationType = _props$fields.operationType;
-	      var handleSubmit = _props.handleSubmit;
-	      var submitting = _props.submitting;
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'cacheform-component row' },
-	        _react2.default.createElement(
-	          'form',
-	          { onSubmit: handleSubmit },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-6' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Fetch Address'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'fetch address' }, fetchAddress, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                fetchAddress.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-6' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Operation type'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement(
-	                'select',
-	                _extends({ className: 'form-control' }, operationType),
-	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'LOAD'
-	                ),
-	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'STORE'
-	                )
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-12' },
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
-	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Fetch'
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return FetchForm;
-	}(_react2.default.Component);
-
-	FetchForm.displayName = 'FetchForm';
-
-	FetchForm.propTypes = {
-	  fields: _react2.default.PropTypes.object.isRequired,
-	  handleSubmit: _react2.default.PropTypes.func.isRequired,
-	  submitting: _react2.default.PropTypes.bool.isRequired
-	};
-
-	exports.default = (0, _reduxForm.reduxForm)({
-	  form: 'synchronousValidation',
-	  fields: fields,
-	  validate: validate
-	})(FetchForm);
-
-/***/ },
-/* 319 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheMemory redux-container. Connects the cachememory layout with the redux store.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _Table = __webpack_require__(320);
-
-	var _Table2 = _interopRequireDefault(_Table);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CacheMem = function (_React$Component) {
-	  _inherits(CacheMem, _React$Component);
-
-	  function CacheMem() {
-	    _classCallCheck(this, CacheMem);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheMem).apply(this, arguments));
-	  }
-
-	  _createClass(CacheMem, [{
-	    key: 'createTables',
-	    value: function createTables() {
-	      var tables = [];
-	      for (var i = 0; i < this.props.cachecontent.length; i++) {
-	        tables.push(_react2.default.createElement(_Table2.default, { key: i, data: this.props.cachecontent[i] }));
-	      }
-	      return tables;
-	    }
-	  }, {
-	    key: 'bitSize',
-	    value: function bitSize(num) {
-	      return num.toString(2).length;
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'cache_info center-block col-sm-6' },
-	            _react2.default.createElement(
-	              'table',
-	              { className: 'table table-striped' },
-	              _react2.default.createElement(
-	                'thead',
-	                null,
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'th',
-	                    null,
-	                    'Property'
-	                  ),
-	                  _react2.default.createElement(
-	                    'th',
-	                    null,
-	                    'Value'
-	                  )
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tbody',
-	                null,
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Address length'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    '32 bits'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Word size'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    '32 bits'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Cache size'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cacheSize,
-	                    ' Bytes'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Associativity'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.associativity
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Block Count'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cachecontent[0].rows.length
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Block Size'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.blockSize,
-	                    ' Bytes'
-	                  )
-	                )
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'col-sm-6' },
-	            _react2.default.createElement(
-	              'p',
-	              { className: 'bold' },
-	              'Address Layout'
-	            ),
-	            _react2.default.createElement(
-	              'table',
-	              { className: 'table table-bordered' },
-	              _react2.default.createElement(
-	                'tbody',
-	                null,
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Tag(',
-	                    32 - this.bitSize(this.props.cacheSize - 1),
-	                    ' bits)'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Index(',
-	                    this.bitSize(this.props.cachecontent[0].rows.length - 1),
-	                    ' bits)'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Offset(',
-	                    this.bitSize(this.props.blockSize - 1),
-	                    ' bits)'
-	                  )
-	                )
-	              )
-	            )
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          this.createTables()
-	        )
-	      );
-	    }
-	  }]);
-
-	  return CacheMem;
-	}(_react2.default.Component);
-
-	CacheMem.propTypes = {};
-
-	/**
-	 * Maps application state that is used in this container to props.
-	 *
-	 * @param state
-	 * @returns {{cachecontent: *}} object with props
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    cachecontent: state.cachecontent.content
-	  };
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
-
-/***/ },
-/* 320 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * TableComponent. A component displaying a table, that illustrates a cachememory.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _TableRow = __webpack_require__(321);
-
-	var _TableRow2 = _interopRequireDefault(_TableRow);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Table = function (_React$Component) {
-	  _inherits(Table, _React$Component);
-
-	  function Table() {
-	    _classCallCheck(this, Table);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Table).apply(this, arguments));
-	  }
-
-	  _createClass(Table, [{
-	    key: 'createRows',
-
-
-	    /**
-	     * Creates table rows.
-	     *
-	     * @returns {Array} array of rows.
-	     */
-	    value: function createRows() {
-	      var rows = [];
-	      for (var i = 0; i < this.props.data.rows.length; i++) {
-	        rows.push(_react2.default.createElement(_TableRow2.default, { data: this.props.data.rows[i], key: i }));
-	      }
-	      return rows;
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'table-component col-sm-4' },
-	        _react2.default.createElement(
-	          'table',
-	          { className: 'table table-bordered cache' },
-	          _react2.default.createElement(
-	            'tbody',
-	            null,
-	            this.createRows()
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Table;
-	}(_react2.default.Component);
-
-	Table.displayName = 'Table';
-
-	Table.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-
-	exports.default = Table;
-
-/***/ },
-/* 321 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * TableRow component. Constitutes as a row in a table.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _TableElement = __webpack_require__(322);
-
-	var _TableElement2 = _interopRequireDefault(_TableElement);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var TableRow = function (_React$Component) {
-	  _inherits(TableRow, _React$Component);
-
-	  function TableRow() {
-	    _classCallCheck(this, TableRow);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TableRow).apply(this, arguments));
-	  }
-
-	  _createClass(TableRow, [{
-	    key: 'createElements',
-	    value: function createElements() {
-	      var elements = [];
-	      for (var i = 0; i < this.props.data.elements.length; i++) {
-	        elements.push(_react2.default.createElement(_TableElement2.default, { key: i, data: this.props.data.elements[i] }));
-	      }
-	      return elements;
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'tr',
-	        { className: 'cache_row tablerow-component' },
-	        this.createElements()
-	      );
-	    }
-	  }]);
-
-	  return TableRow;
-	}(_react2.default.Component);
-
-	TableRow.displayName = 'TableRow';
-	TableRow.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-
-	exports.default = TableRow;
-
-/***/ },
-/* 322 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * TableElementComponent. Functional stateless component that constitutes as a element in a table.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactTooltip = __webpack_require__(347);
-
-	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var TableElement = function (_React$Component) {
-	  _inherits(TableElement, _React$Component);
-
-	  function TableElement() {
-	    _classCallCheck(this, TableElement);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TableElement).apply(this, arguments));
-	  }
-
-	  _createClass(TableElement, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'td',
-	        { 'data-tip': true, 'data-for': this.props.data.id, id: this.props.data.id, className: 'cache_element tableelement-component' },
-	        _react2.default.createElement(
-	          _reactTooltip2.default,
-	          _extends({ id: this.props.data.id }, this.props),
-	          _react2.default.createElement(
-	            'table',
-	            { className: 'table table-striped my_tooltip' },
-	            _react2.default.createElement(
-	              'tbody',
-	              null,
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Address'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  this.props.data.address
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Data'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' ',
-	                  this.props.data.data
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Set'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' ',
-	                  this.props.data.set
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Index'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' ',
-	                  this.props.data.index,
-	                  ' Bytes'
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'Byte'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' ',
-	                  this.props.data.byte
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'tr',
-	                null,
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  'ValidBit'
-	                ),
-	                _react2.default.createElement(
-	                  'td',
-	                  null,
-	                  ' ',
-	                  this.props.data.validbit
-	                )
-	              )
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return TableElement;
-	}(_react2.default.Component);
-
-	TableElement.displayName = 'TableElement';
-	TableElement.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-	exports.default = TableElement;
-
-/***/ },
-/* 323 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for 404s - when page is not found.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NotFound = function NotFound() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: '404-component' },
-	    _react2.default.createElement(
-	      'h3',
-	      { className: 'bolder' },
-	      '404 - PAGE NOT FOUND'
-	    )
-	  );
-	};
-
-	NotFound.displayName = 'NotFound';
-	exports.default = NotFound;
-
-/***/ },
-/* 324 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for the about page.
-	 *
-	 * Created by kim on 2016-05-19.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var About = function About() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'about-component' },
-	    _react2.default.createElement(
-	      'h3',
-	      { className: 'bold' },
-	      'What is this?'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'This is a cache simulator ... (TODO)'
-	    )
-	  );
-	};
-
-	About.displayName = 'About';
-	exports.default = About;
-
-/***/ },
-/* 325 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for the colophon page.
-	 *
-	 * Created by kim on 2016-05-19.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var Colophon = function Colophon() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'colophon-component' },
-	    _react2.default.createElement(
-	      'h3',
-	      { className: 'bold' },
-	      'Colophon'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'The site is written in JavaScript and styled with Cascading Style Sheets. '
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'React is used for view rendering with redux for state management.'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'Twitter Bootstrap is used for styling some components on the page.'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'Hosted: Not Yet. '
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'The site is written by ',
-	      _react2.default.createElement(
-	        'a',
-	        { href: 'https://github.com/Limmen', target: '_blank' },
-	        'Kim Hammar'
-	      )
-	    )
-	  );
-	};
-
-	Colophon.displayName = 'Colophon';
-	exports.default = Colophon;
-
-/***/ },
-/* 326 */,
-/* 327 */,
-/* 328 */,
-/* 329 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Created by kim on 2016-05-20.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = cachecontent;
-
-	var _ActionTypes = __webpack_require__(296);
-
-	var initialState = {
-	  content: []
-	};
-
-	function cachecontent() {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var action = arguments[1];
-
-	  switch (action.type) {
-	    case _ActionTypes.CACHE_CONTENT_INIT:
-	      return initialContent(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity);
-	    default:
-	      return state;
-	  }
-	}
-
-	function initialContent(cacheSize, blockSize, associativity) {
-
-	  var state = {
-	    content: []
-	  };
-
-	  for (var i = 0; i < associativity; i++) {
-	    var table = { rows: [] };
-	    state.content.push(table);
-	    for (var j = 0; j < cacheSize / associativity / blockSize; j++) {
-	      var row = { elements: [] };
-	      table.rows.push(row);
-	      for (var k = 0; k < blockSize; k++) {
-	        var element = {
-	          id: "id" + i + j + k,
-	          set: i,
-	          index: j,
-	          byte: k,
-	          data: 'empty',
-	          address: 'empty',
-	          validbit: 'N'
-	        };
-	        row.elements.push(element);
-	      }
-	    }
-	  }
-	  return state;
-	}
-
-/***/ },
-/* 330 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -33453,7 +30281,7 @@
 	});
 	exports.utils = exports.actions = exports.middleware = exports.reducer = exports.Origin = exports.Tooltip = undefined;
 
-	var _tooltip = __webpack_require__(331);
+	var _tooltip = __webpack_require__(296);
 
 	Object.defineProperty(exports, 'Tooltip', {
 	  enumerable: true,
@@ -33462,7 +30290,7 @@
 	  }
 	});
 
-	var _origin = __webpack_require__(344);
+	var _origin = __webpack_require__(315);
 
 	Object.defineProperty(exports, 'Origin', {
 	  enumerable: true,
@@ -33471,7 +30299,7 @@
 	  }
 	});
 
-	var _reducer = __webpack_require__(345);
+	var _reducer = __webpack_require__(316);
 
 	Object.defineProperty(exports, 'reducer', {
 	  enumerable: true,
@@ -33480,7 +30308,7 @@
 	  }
 	});
 
-	var _middleware = __webpack_require__(346);
+	var _middleware = __webpack_require__(317);
 
 	Object.defineProperty(exports, 'middleware', {
 	  enumerable: true,
@@ -33489,11 +30317,11 @@
 	  }
 	});
 
-	var _actions = __webpack_require__(335);
+	var _actions = __webpack_require__(300);
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _utils = __webpack_require__(333);
+	var _utils = __webpack_require__(298);
 
 	var utils = _interopRequireWildcard(_utils);
 
@@ -33505,7 +30333,7 @@
 	exports.utils = utils;
 
 /***/ },
-/* 331 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33528,15 +30356,15 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _dompurify = __webpack_require__(332);
+	var _dompurify = __webpack_require__(297);
 
-	var _utils = __webpack_require__(333);
+	var _utils = __webpack_require__(298);
 
-	var _styles = __webpack_require__(342);
+	var _styles = __webpack_require__(313);
 
 	var styles = _interopRequireWildcard(_styles);
 
-	var _themes = __webpack_require__(343);
+	var _themes = __webpack_require__(314);
 
 	var themes = _interopRequireWildcard(_themes);
 
@@ -33704,7 +30532,7 @@
 	exports.default = (0, _reactRedux.connect)(select)(Tooltip);
 
 /***/ },
-/* 332 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;;(function(factory) {
@@ -34506,7 +31334,7 @@
 
 
 /***/ },
-/* 333 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34531,11 +31359,11 @@
 	exports.deprecatedWarning = deprecatedWarning;
 	exports.originOrEl = originOrEl;
 
-	var _isDom = __webpack_require__(334);
+	var _isDom = __webpack_require__(299);
 
 	var _isDom2 = _interopRequireDefault(_isDom);
 
-	var _actions = __webpack_require__(335);
+	var _actions = __webpack_require__(300);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -34828,7 +31656,7 @@
 	}
 
 /***/ },
-/* 334 */
+/* 299 */
 /***/ function(module, exports) {
 
 	/*global window*/
@@ -34849,7 +31677,7 @@
 
 
 /***/ },
-/* 335 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34860,7 +31688,7 @@
 	exports.endTimeout = exports.startTimeout = exports.END_TIMEOUT = exports.START_TIMEOUT = exports.DELAY = exports.place = exports.content = exports.keep = exports.toggle = exports.hide = exports.show = exports.PLACE = exports.CONTENT = exports.KEEP = exports.TOGGLE = exports.HIDE = exports.SHOW = undefined;
 	exports.delay = delay;
 
-	var _reduxActions = __webpack_require__(336);
+	var _reduxActions = __webpack_require__(301);
 
 	var prefix = function prefix(name) {
 	  return 'redux-tooltip/' + name;
@@ -34905,7 +31733,7 @@
 	var endTimeout = exports.endTimeout = (0, _reduxActions.createAction)(END_TIMEOUT);
 
 /***/ },
-/* 336 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34914,15 +31742,15 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _createAction = __webpack_require__(337);
+	var _createAction = __webpack_require__(302);
 
 	var _createAction2 = _interopRequireDefault(_createAction);
 
-	var _handleAction = __webpack_require__(338);
+	var _handleAction = __webpack_require__(303);
 
 	var _handleAction2 = _interopRequireDefault(_handleAction);
 
-	var _handleActions = __webpack_require__(339);
+	var _handleActions = __webpack_require__(310);
 
 	var _handleActions2 = _interopRequireDefault(_handleActions);
 
@@ -34931,7 +31759,7 @@
 	exports.handleActions = _handleActions2['default'];
 
 /***/ },
-/* 337 */
+/* 302 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -34971,7 +31799,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 338 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34979,7 +31807,7 @@
 	exports.__esModule = true;
 	exports['default'] = handleAction;
 
-	var _fluxStandardAction = __webpack_require__(300);
+	var _fluxStandardAction = __webpack_require__(304);
 
 	function isFunction(val) {
 	  return typeof val === 'function';
@@ -35007,7 +31835,773 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 339 */
+/* 304 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	exports.isFSA = isFSA;
+	exports.isError = isError;
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _lodashIsplainobject = __webpack_require__(305);
+
+	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
+
+	var validKeys = ['type', 'payload', 'error', 'meta'];
+
+	function isValidKey(key) {
+	  return validKeys.indexOf(key) > -1;
+	}
+
+	function isFSA(action) {
+	  return _lodashIsplainobject2['default'](action) && typeof action.type !== 'undefined' && Object.keys(action).every(isValidKey);
+	}
+
+	function isError(action) {
+	  return action.error === true;
+	}
+
+/***/ },
+/* 305 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * lodash 3.2.0 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modern modularize exports="npm" -o ./`
+	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+	var baseFor = __webpack_require__(306),
+	    isArguments = __webpack_require__(307),
+	    keysIn = __webpack_require__(308);
+
+	/** `Object#toString` result references. */
+	var objectTag = '[object Object]';
+
+	/**
+	 * Checks if `value` is object-like.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	/** Used for native method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objToString = objectProto.toString;
+
+	/**
+	 * The base implementation of `_.forIn` without support for callback
+	 * shorthands and `this` binding.
+	 *
+	 * @private
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Object} Returns `object`.
+	 */
+	function baseForIn(object, iteratee) {
+	  return baseFor(object, iteratee, keysIn);
+	}
+
+	/**
+	 * Checks if `value` is a plain object, that is, an object created by the
+	 * `Object` constructor or one with a `[[Prototype]]` of `null`.
+	 *
+	 * **Note:** This method assumes objects created by the `Object` constructor
+	 * have no inherited enumerable properties.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 * }
+	 *
+	 * _.isPlainObject(new Foo);
+	 * // => false
+	 *
+	 * _.isPlainObject([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isPlainObject({ 'x': 0, 'y': 0 });
+	 * // => true
+	 *
+	 * _.isPlainObject(Object.create(null));
+	 * // => true
+	 */
+	function isPlainObject(value) {
+	  var Ctor;
+
+	  // Exit early for non `Object` objects.
+	  if (!(isObjectLike(value) && objToString.call(value) == objectTag && !isArguments(value)) ||
+	      (!hasOwnProperty.call(value, 'constructor') && (Ctor = value.constructor, typeof Ctor == 'function' && !(Ctor instanceof Ctor)))) {
+	    return false;
+	  }
+	  // IE < 9 iterates inherited properties before own properties. If the first
+	  // iterated property is an object's own property then there are no inherited
+	  // enumerable properties.
+	  var result;
+	  // In most environments an object's own properties are iterated before
+	  // its inherited properties. If the last iterated property is an object's
+	  // own property then there are no inherited enumerable properties.
+	  baseForIn(value, function(subValue, key) {
+	    result = key;
+	  });
+	  return result === undefined || hasOwnProperty.call(value, result);
+	}
+
+	module.exports = isPlainObject;
+
+
+/***/ },
+/* 306 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modularize exports="npm" -o ./`
+	 * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+
+	/**
+	 * The base implementation of `baseForIn` and `baseForOwn` which iterates
+	 * over `object` properties returned by `keysFunc` invoking `iteratee` for
+	 * each property. Iteratee functions may exit iteration early by explicitly
+	 * returning `false`.
+	 *
+	 * @private
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @param {Function} keysFunc The function to get the keys of `object`.
+	 * @returns {Object} Returns `object`.
+	 */
+	var baseFor = createBaseFor();
+
+	/**
+	 * Creates a base function for methods like `_.forIn`.
+	 *
+	 * @private
+	 * @param {boolean} [fromRight] Specify iterating from right to left.
+	 * @returns {Function} Returns the new base function.
+	 */
+	function createBaseFor(fromRight) {
+	  return function(object, iteratee, keysFunc) {
+	    var index = -1,
+	        iterable = Object(object),
+	        props = keysFunc(object),
+	        length = props.length;
+
+	    while (length--) {
+	      var key = props[fromRight ? length : ++index];
+	      if (iteratee(iterable[key], key, iterable) === false) {
+	        break;
+	      }
+	    }
+	    return object;
+	  };
+	}
+
+	module.exports = baseFor;
+
+
+/***/ },
+/* 307 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash 3.0.8 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modularize exports="npm" -o ./`
+	 * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+
+	/** Used as references for various `Number` constants. */
+	var MAX_SAFE_INTEGER = 9007199254740991;
+
+	/** `Object#toString` result references. */
+	var argsTag = '[object Arguments]',
+	    funcTag = '[object Function]',
+	    genTag = '[object GeneratorFunction]';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+
+	/** Built-in value references. */
+	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+	/**
+	 * The base implementation of `_.property` without support for deep paths.
+	 *
+	 * @private
+	 * @param {string} key The key of the property to get.
+	 * @returns {Function} Returns the new function.
+	 */
+	function baseProperty(key) {
+	  return function(object) {
+	    return object == null ? undefined : object[key];
+	  };
+	}
+
+	/**
+	 * Gets the "length" property value of `object`.
+	 *
+	 * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
+	 * that affects Safari on at least iOS 8.1-8.3 ARM64.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @returns {*} Returns the "length" value.
+	 */
+	var getLength = baseProperty('length');
+
+	/**
+	 * Checks if `value` is likely an `arguments` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isArguments(function() { return arguments; }());
+	 * // => true
+	 *
+	 * _.isArguments([1, 2, 3]);
+	 * // => false
+	 */
+	function isArguments(value) {
+	  // Safari 8.1 incorrectly makes `arguments.callee` enumerable in strict mode.
+	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+	}
+
+	/**
+	 * Checks if `value` is array-like. A value is considered array-like if it's
+	 * not a function and has a `value.length` that's an integer greater than or
+	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+	 * @example
+	 *
+	 * _.isArrayLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArrayLike(document.body.children);
+	 * // => true
+	 *
+	 * _.isArrayLike('abc');
+	 * // => true
+	 *
+	 * _.isArrayLike(_.noop);
+	 * // => false
+	 */
+	function isArrayLike(value) {
+	  return value != null && isLength(getLength(value)) && !isFunction(value);
+	}
+
+	/**
+	 * This method is like `_.isArrayLike` except that it also checks if `value`
+	 * is an object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an array-like object, else `false`.
+	 * @example
+	 *
+	 * _.isArrayLikeObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArrayLikeObject(document.body.children);
+	 * // => true
+	 *
+	 * _.isArrayLikeObject('abc');
+	 * // => false
+	 *
+	 * _.isArrayLikeObject(_.noop);
+	 * // => false
+	 */
+	function isArrayLikeObject(value) {
+	  return isObjectLike(value) && isArrayLike(value);
+	}
+
+	/**
+	 * Checks if `value` is classified as a `Function` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isFunction(_);
+	 * // => true
+	 *
+	 * _.isFunction(/abc/);
+	 * // => false
+	 */
+	function isFunction(value) {
+	  // The use of `Object#toString` avoids issues with the `typeof` operator
+	  // in Safari 8 which returns 'object' for typed array and weak map constructors,
+	  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+	  var tag = isObject(value) ? objectToString.call(value) : '';
+	  return tag == funcTag || tag == genTag;
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like length.
+	 *
+	 * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+	 * @example
+	 *
+	 * _.isLength(3);
+	 * // => true
+	 *
+	 * _.isLength(Number.MIN_VALUE);
+	 * // => false
+	 *
+	 * _.isLength(Infinity);
+	 * // => false
+	 *
+	 * _.isLength('3');
+	 * // => false
+	 */
+	function isLength(value) {
+	  return typeof value == 'number' &&
+	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+	}
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	module.exports = isArguments;
+
+
+/***/ },
+/* 308 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * lodash 3.0.8 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modern modularize exports="npm" -o ./`
+	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+	var isArguments = __webpack_require__(307),
+	    isArray = __webpack_require__(309);
+
+	/** Used to detect unsigned integer values. */
+	var reIsUint = /^\d+$/;
+
+	/** Used for native method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+	 * of an array-like value.
+	 */
+	var MAX_SAFE_INTEGER = 9007199254740991;
+
+	/**
+	 * Checks if `value` is a valid array-like index.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+	 */
+	function isIndex(value, length) {
+	  value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
+	  length = length == null ? MAX_SAFE_INTEGER : length;
+	  return value > -1 && value % 1 == 0 && value < length;
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like length.
+	 *
+	 * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+	 */
+	function isLength(value) {
+	  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+	}
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(1);
+	 * // => false
+	 */
+	function isObject(value) {
+	  // Avoid a V8 JIT bug in Chrome 19-20.
+	  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	/**
+	 * Creates an array of the own and inherited enumerable property names of `object`.
+	 *
+	 * **Note:** Non-object values are coerced to objects.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Object
+	 * @param {Object} object The object to query.
+	 * @returns {Array} Returns the array of property names.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 *   this.b = 2;
+	 * }
+	 *
+	 * Foo.prototype.c = 3;
+	 *
+	 * _.keysIn(new Foo);
+	 * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
+	 */
+	function keysIn(object) {
+	  if (object == null) {
+	    return [];
+	  }
+	  if (!isObject(object)) {
+	    object = Object(object);
+	  }
+	  var length = object.length;
+	  length = (length && isLength(length) &&
+	    (isArray(object) || isArguments(object)) && length) || 0;
+
+	  var Ctor = object.constructor,
+	      index = -1,
+	      isProto = typeof Ctor == 'function' && Ctor.prototype === object,
+	      result = Array(length),
+	      skipIndexes = length > 0;
+
+	  while (++index < length) {
+	    result[index] = (index + '');
+	  }
+	  for (var key in object) {
+	    if (!(skipIndexes && isIndex(key, length)) &&
+	        !(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
+	      result.push(key);
+	    }
+	  }
+	  return result;
+	}
+
+	module.exports = keysIn;
+
+
+/***/ },
+/* 309 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash 3.0.4 (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modern modularize exports="npm" -o ./`
+	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <https://lodash.com/license>
+	 */
+
+	/** `Object#toString` result references. */
+	var arrayTag = '[object Array]',
+	    funcTag = '[object Function]';
+
+	/** Used to detect host constructors (Safari > 5). */
+	var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+	/**
+	 * Checks if `value` is object-like.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	/** Used for native method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to resolve the decompiled source of functions. */
+	var fnToString = Function.prototype.toString;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objToString = objectProto.toString;
+
+	/** Used to detect if a method is native. */
+	var reIsNative = RegExp('^' +
+	  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+	);
+
+	/* Native method references for those with the same name as other `lodash` methods. */
+	var nativeIsArray = getNative(Array, 'isArray');
+
+	/**
+	 * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
+	 * of an array-like value.
+	 */
+	var MAX_SAFE_INTEGER = 9007199254740991;
+
+	/**
+	 * Gets the native function at `key` of `object`.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @param {string} key The key of the method to get.
+	 * @returns {*} Returns the function if it's native, else `undefined`.
+	 */
+	function getNative(object, key) {
+	  var value = object == null ? undefined : object[key];
+	  return isNative(value) ? value : undefined;
+	}
+
+	/**
+	 * Checks if `value` is a valid array-like length.
+	 *
+	 * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+	 */
+	function isLength(value) {
+	  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+	}
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(function() { return arguments; }());
+	 * // => false
+	 */
+	var isArray = nativeIsArray || function(value) {
+	  return isObjectLike(value) && isLength(value.length) && objToString.call(value) == arrayTag;
+	};
+
+	/**
+	 * Checks if `value` is classified as a `Function` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isFunction(_);
+	 * // => true
+	 *
+	 * _.isFunction(/abc/);
+	 * // => false
+	 */
+	function isFunction(value) {
+	  // The use of `Object#toString` avoids issues with the `typeof` operator
+	  // in older versions of Chrome and Safari which return 'function' for regexes
+	  // and Safari 8 equivalents which return 'object' for typed array constructors.
+	  return isObject(value) && objToString.call(value) == funcTag;
+	}
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(1);
+	 * // => false
+	 */
+	function isObject(value) {
+	  // Avoid a V8 JIT bug in Chrome 19-20.
+	  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	/**
+	 * Checks if `value` is a native function.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a native function, else `false`.
+	 * @example
+	 *
+	 * _.isNative(Array.prototype.push);
+	 * // => true
+	 *
+	 * _.isNative(_);
+	 * // => false
+	 */
+	function isNative(value) {
+	  if (value == null) {
+	    return false;
+	  }
+	  if (isFunction(value)) {
+	    return reIsNative.test(fnToString.call(value));
+	  }
+	  return isObjectLike(value) && reIsHostCtor.test(value);
+	}
+
+	module.exports = isArray;
+
+
+/***/ },
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35017,15 +32611,15 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _handleAction = __webpack_require__(338);
+	var _handleAction = __webpack_require__(303);
 
 	var _handleAction2 = _interopRequireDefault(_handleAction);
 
-	var _ownKeys = __webpack_require__(340);
+	var _ownKeys = __webpack_require__(311);
 
 	var _ownKeys2 = _interopRequireDefault(_ownKeys);
 
-	var _reduceReducers = __webpack_require__(341);
+	var _reduceReducers = __webpack_require__(312);
 
 	var _reduceReducers2 = _interopRequireDefault(_reduceReducers);
 
@@ -35043,7 +32637,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 340 */
+/* 311 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35068,7 +32662,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 341 */
+/* 312 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -35091,7 +32685,7 @@
 	module.exports = exports["default"];
 
 /***/ },
-/* 342 */
+/* 313 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35174,7 +32768,7 @@
 	};
 
 /***/ },
-/* 343 */
+/* 314 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35201,7 +32795,7 @@
 	};
 
 /***/ },
-/* 344 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35220,7 +32814,7 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _actions = __webpack_require__(335);
+	var _actions = __webpack_require__(300);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -35347,7 +32941,7 @@
 	exports.default = (0, _reactRedux.connect)()(Origin);
 
 /***/ },
-/* 345 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35362,9 +32956,9 @@
 
 	exports.default = reducer;
 
-	var _utils = __webpack_require__(333);
+	var _utils = __webpack_require__(298);
 
-	var _actions = __webpack_require__(335);
+	var _actions = __webpack_require__(300);
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -35430,7 +33024,7 @@
 	}
 
 /***/ },
-/* 346 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35440,9 +33034,9 @@
 	});
 	exports.default = middleware;
 
-	var _actions = __webpack_require__(335);
+	var _actions = __webpack_require__(300);
 
-	var _utils = __webpack_require__(333);
+	var _utils = __webpack_require__(298);
 
 	function getToken(state, name) {
 	  var tooltips = state.tooltip;
@@ -35503,16 +33097,2198 @@
 	}
 
 /***/ },
-/* 347 */
+/* 318 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Reducer for the cache form.
+	 *
+	 * Created by kim on 2016-05-06.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = cacheform;
+
+	var _ActionTypes = __webpack_require__(319);
+
+	/**
+	 * Takes a state and an action and produces a new state. Will update the fields.
+	 *
+	 * @param state current state
+	 * @param action action that triggered the state change
+	 * @returns {*} new state
+	 */
+	function cacheform() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _ActionTypes.CACHE_FORM_SUBMIT:
+	      return action.fields;
+	    default:
+	      return state;
+	  }
+	}
+
+/***/ },
+/* 319 */
+/***/ function(module, exports) {
+
+	/**
+	 * ActionTypes for the actions.
+	 *
+	 * Created by kim on 2016-05-05.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var CACHE_FORM_SUBMIT = exports.CACHE_FORM_SUBMIT = 'CACHE_FORM_SUBMIT';
+	var FETCH_FORM_SUBMIT = exports.FETCH_FORM_SUBMIT = 'FETCH_FORM_SUBMIT';
+	var CACHE_CONTENT_INIT = exports.CACHE_CONTENT_INIT = 'CACHE_CONTENT_INIT';
+
+/***/ },
+/* 320 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Reducer for the fetch form.
+	 *
+	 * Created by kim on 2016-05-06.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = fetchform;
+
+	var _ActionTypes = __webpack_require__(319);
+
+	/**
+	 * Takes a state and an action and produces a new state. Will update the fetchform fields.
+	 *
+	 * @param state current state
+	 * @param action action that triggered the state update
+	 * @returns {*} new state
+	 */
+	function fetchform() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _ActionTypes.FETCH_FORM_SUBMIT:
+	      return action.fields;
+	    default:
+	      return state;
+	  }
+	}
+
+/***/ },
+/* 321 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by kim on 2016-05-20.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = cachecontent;
+
+	var _ActionTypes = __webpack_require__(319);
+
+	var _initialContent = __webpack_require__(348);
+
+	var _initialContent2 = _interopRequireDefault(_initialContent);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function cachecontent() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case _ActionTypes.CACHE_CONTENT_INIT:
+	      return (0, _initialContent2.default)(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity);
+	    default:
+	      return state;
+	  }
+	}
+
+/***/ },
+/* 322 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	function createThunkMiddleware(extraArgument) {
+	  return function (_ref) {
+	    var dispatch = _ref.dispatch;
+	    var getState = _ref.getState;
+	    return function (next) {
+	      return function (action) {
+	        if (typeof action === 'function') {
+	          return action(dispatch, getState, extraArgument);
+	        }
+
+	        return next(action);
+	      };
+	    };
+	  };
+	}
+
+	var thunk = createThunkMiddleware();
+	thunk.withExtraArgument = createThunkMiddleware;
+
+	exports['default'] = thunk;
+
+/***/ },
+/* 323 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports['default'] = promiseMiddleware;
+
+	var _fluxStandardAction = __webpack_require__(304);
+
+	function isPromise(val) {
+	  return val && typeof val.then === 'function';
+	}
+
+	function promiseMiddleware(_ref) {
+	  var dispatch = _ref.dispatch;
+
+	  return function (next) {
+	    return function (action) {
+	      if (!_fluxStandardAction.isFSA(action)) {
+	        return isPromise(action) ? action.then(dispatch) : next(action);
+	      }
+
+	      return isPromise(action.payload) ? action.payload.then(function (result) {
+	        return dispatch(_extends({}, action, { payload: result }));
+	      }, function (error) {
+	        return dispatch(_extends({}, action, { payload: error, error: true }));
+	      }) : next(action);
+	    };
+	  };
+	}
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 324 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+
+	var repeat = function repeat(str, times) {
+	  return new Array(times + 1).join(str);
+	};
+	var pad = function pad(num, maxLength) {
+	  return repeat("0", maxLength - num.toString().length) + num;
+	};
+	var formatTime = function formatTime(time) {
+	  return "@ " + pad(time.getHours(), 2) + ":" + pad(time.getMinutes(), 2) + ":" + pad(time.getSeconds(), 2) + "." + pad(time.getMilliseconds(), 3);
+	};
+
+	// Use the new performance api to get better precision if available
+	var timer = typeof performance !== "undefined" && typeof performance.now === "function" ? performance : Date;
+
+	/**
+	 * parse the level option of createLogger
+	 *
+	 * @property {string | function | object} level - console[level]
+	 * @property {object} action
+	 * @property {array} payload
+	 * @property {string} type
+	 */
+
+	function getLogLevel(level, action, payload, type) {
+	  switch (typeof level === "undefined" ? "undefined" : _typeof(level)) {
+	    case "object":
+	      return typeof level[type] === "function" ? level[type].apply(level, _toConsumableArray(payload)) : level[type];
+	    case "function":
+	      return level(action);
+	    default:
+	      return level;
+	  }
+	}
+
+	/**
+	 * Creates logger with followed options
+	 *
+	 * @namespace
+	 * @property {object} options - options for logger
+	 * @property {string | function | object} options.level - console[level]
+	 * @property {boolean} options.duration - print duration of each action?
+	 * @property {boolean} options.timestamp - print timestamp with each action?
+	 * @property {object} options.colors - custom colors
+	 * @property {object} options.logger - implementation of the `console` API
+	 * @property {boolean} options.logErrors - should errors in action execution be caught, logged, and re-thrown?
+	 * @property {boolean} options.collapsed - is group collapsed?
+	 * @property {boolean} options.predicate - condition which resolves logger behavior
+	 * @property {function} options.stateTransformer - transform state before print
+	 * @property {function} options.actionTransformer - transform action before print
+	 * @property {function} options.errorTransformer - transform error before print
+	 */
+
+	function createLogger() {
+	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var _options$level = options.level;
+	  var level = _options$level === undefined ? "log" : _options$level;
+	  var _options$logger = options.logger;
+	  var logger = _options$logger === undefined ? console : _options$logger;
+	  var _options$logErrors = options.logErrors;
+	  var logErrors = _options$logErrors === undefined ? true : _options$logErrors;
+	  var collapsed = options.collapsed;
+	  var predicate = options.predicate;
+	  var _options$duration = options.duration;
+	  var duration = _options$duration === undefined ? false : _options$duration;
+	  var _options$timestamp = options.timestamp;
+	  var timestamp = _options$timestamp === undefined ? true : _options$timestamp;
+	  var transformer = options.transformer;
+	  var _options$stateTransfo = options.stateTransformer;
+	  var // deprecated
+	  stateTransformer = _options$stateTransfo === undefined ? function (state) {
+	    return state;
+	  } : _options$stateTransfo;
+	  var _options$actionTransf = options.actionTransformer;
+	  var actionTransformer = _options$actionTransf === undefined ? function (actn) {
+	    return actn;
+	  } : _options$actionTransf;
+	  var _options$errorTransfo = options.errorTransformer;
+	  var errorTransformer = _options$errorTransfo === undefined ? function (error) {
+	    return error;
+	  } : _options$errorTransfo;
+	  var _options$colors = options.colors;
+	  var colors = _options$colors === undefined ? {
+	    title: function title() {
+	      return "#000000";
+	    },
+	    prevState: function prevState() {
+	      return "#9E9E9E";
+	    },
+	    action: function action() {
+	      return "#03A9F4";
+	    },
+	    nextState: function nextState() {
+	      return "#4CAF50";
+	    },
+	    error: function error() {
+	      return "#F20404";
+	    }
+	  } : _options$colors;
+
+	  // exit if console undefined
+
+	  if (typeof logger === "undefined") {
+	    return function () {
+	      return function (next) {
+	        return function (action) {
+	          return next(action);
+	        };
+	      };
+	    };
+	  }
+
+	  if (transformer) {
+	    console.error("Option 'transformer' is deprecated, use stateTransformer instead");
+	  }
+
+	  var logBuffer = [];
+	  function printBuffer() {
+	    logBuffer.forEach(function (logEntry, key) {
+	      var started = logEntry.started;
+	      var startedTime = logEntry.startedTime;
+	      var action = logEntry.action;
+	      var prevState = logEntry.prevState;
+	      var error = logEntry.error;
+	      var took = logEntry.took;
+	      var nextState = logEntry.nextState;
+
+	      var nextEntry = logBuffer[key + 1];
+	      if (nextEntry) {
+	        nextState = nextEntry.prevState;
+	        took = nextEntry.started - started;
+	      }
+	      // message
+	      var formattedAction = actionTransformer(action);
+	      var isCollapsed = typeof collapsed === "function" ? collapsed(function () {
+	        return nextState;
+	      }, action) : collapsed;
+
+	      var formattedTime = formatTime(startedTime);
+	      var titleCSS = colors.title ? "color: " + colors.title(formattedAction) + ";" : null;
+	      var title = "action " + (timestamp ? formattedTime : "") + " " + formattedAction.type + " " + (duration ? "(in " + took.toFixed(2) + " ms)" : "");
+
+	      // render
+	      try {
+	        if (isCollapsed) {
+	          if (colors.title) logger.groupCollapsed("%c " + title, titleCSS);else logger.groupCollapsed(title);
+	        } else {
+	          if (colors.title) logger.group("%c " + title, titleCSS);else logger.group(title);
+	        }
+	      } catch (e) {
+	        logger.log(title);
+	      }
+
+	      var prevStateLevel = getLogLevel(level, formattedAction, [prevState], "prevState");
+	      var actionLevel = getLogLevel(level, formattedAction, [formattedAction], "action");
+	      var errorLevel = getLogLevel(level, formattedAction, [error, prevState], "error");
+	      var nextStateLevel = getLogLevel(level, formattedAction, [nextState], "nextState");
+
+	      if (prevStateLevel) {
+	        if (colors.prevState) logger[prevStateLevel]("%c prev state", "color: " + colors.prevState(prevState) + "; font-weight: bold", prevState);else logger[prevStateLevel]("prev state", prevState);
+	      }
+
+	      if (actionLevel) {
+	        if (colors.action) logger[actionLevel]("%c action", "color: " + colors.action(formattedAction) + "; font-weight: bold", formattedAction);else logger[actionLevel]("action", formattedAction);
+	      }
+
+	      if (error && errorLevel) {
+	        if (colors.error) logger[errorLevel]("%c error", "color: " + colors.error(error, prevState) + "; font-weight: bold", error);else logger[errorLevel]("error", error);
+	      }
+
+	      if (nextStateLevel) {
+	        if (colors.nextState) logger[nextStateLevel]("%c next state", "color: " + colors.nextState(nextState) + "; font-weight: bold", nextState);else logger[nextStateLevel]("next state", nextState);
+	      }
+
+	      try {
+	        logger.groupEnd();
+	      } catch (e) {
+	        logger.log("—— log end ——");
+	      }
+	    });
+	    logBuffer.length = 0;
+	  }
+
+	  return function (_ref) {
+	    var getState = _ref.getState;
+	    return function (next) {
+	      return function (action) {
+	        // exit early if predicate function returns false
+	        if (typeof predicate === "function" && !predicate(getState, action)) {
+	          return next(action);
+	        }
+
+	        var logEntry = {};
+	        logBuffer.push(logEntry);
+
+	        logEntry.started = timer.now();
+	        logEntry.startedTime = new Date();
+	        logEntry.prevState = stateTransformer(getState());
+	        logEntry.action = action;
+
+	        var returnedValue = undefined;
+	        if (logErrors) {
+	          try {
+	            returnedValue = next(action);
+	          } catch (e) {
+	            logEntry.error = errorTransformer(e);
+	          }
+	        } else {
+	          returnedValue = next(action);
+	        }
+
+	        logEntry.took = timer.now() - logEntry.started;
+	        logEntry.nextState = stateTransformer(getState());
+
+	        printBuffer();
+
+	        if (logEntry.error) throw logEntry.error;
+	        return returnedValue;
+	      };
+	    };
+	  };
+	}
+
+	module.exports = createLogger;
+
+/***/ },
+/* 325 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(159);
+
+	var _App = __webpack_require__(326);
+
+	var _App2 = _interopRequireDefault(_App);
+
+	var _CacheSimulator = __webpack_require__(331);
+
+	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
+
+	var _ = __webpack_require__(345);
+
+	var _2 = _interopRequireDefault(_);
+
+	var _About = __webpack_require__(346);
+
+	var _About2 = _interopRequireDefault(_About);
+
+	var _Colophon = __webpack_require__(347);
+
+	var _Colophon2 = _interopRequireDefault(_Colophon);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * Creates the react-router given a history
+	 *
+	 * @param history
+	 * @returns {XML}
+	 */
+
+	exports.default = function (history) {
+	  return _react2.default.createElement(
+	    _reactRouter.Router,
+	    { history: history },
+	    _react2.default.createElement(
+	      _reactRouter.Route,
+	      { path: '/', component: _App2.default },
+	      _react2.default.createElement(_reactRouter.IndexRedirect, { from: '', to: 'simulator' }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'simulator', component: _CacheSimulator2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
+	    )
+	  );
+	}; /**
+	    * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
+	    *
+	    * Created by kim on 2016-05-11.
+	    */
+
+/***/ },
+/* 326 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Main app redux-container that bootstraps header, footer and main content depending on the active route.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _Header = __webpack_require__(327);
+
+	var _Header2 = _interopRequireDefault(_Header);
+
+	var _Footer = __webpack_require__(328);
+
+	var _Footer2 = _interopRequireDefault(_Footer);
+
+	var _NavBar = __webpack_require__(329);
+
+	var _NavBar2 = _interopRequireDefault(_NavBar);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var App = function (_React$Component) {
+	  _inherits(App, _React$Component);
+
+	  function App() {
+	    _classCallCheck(this, App);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(App).apply(this, arguments));
+	  }
+
+	  _createClass(App, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'index container-fluid' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(_Header2.default, null)
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement('div', { className: 'col-sm-3' }),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col-sm-6' },
+	            _react2.default.createElement(_NavBar2.default, null),
+	            this.props.children
+	          ),
+	          _react2.default.createElement('div', { className: 'col-sm-3' })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(_Footer2.default, null)
+	        )
+	      );
+	    }
+	  }]);
+
+	  return App;
+	}(_react2.default.Component);
+
+	App.propTypes = {};
+
+	function mapStateToProps() {
+	  return {};
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
+
+/***/ },
+/* 327 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Header component.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Header = function Header() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'header-component' },
+	    _react2.default.createElement(
+	      'div',
+	      { className: 'jumbotron' },
+	      _react2.default.createElement(
+	        'h1',
+	        { className: 'display-2 text-center' },
+	        _react2.default.createElement(
+	          'strong',
+	          null,
+	          'Cache-Simulator'
+	        )
+	      )
+	    )
+	  );
+	};
+
+	Header.displayName = 'Header';
+	exports.default = Header;
+
+/***/ },
+/* 328 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Footer component.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Footer = function Footer() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'footer-component' },
+	    _react2.default.createElement(
+	      'footer',
+	      { className: 'footer' },
+	      _react2.default.createElement(
+	        'div',
+	        { className: 'container' },
+	        _react2.default.createElement(
+	          'p',
+	          { className: 'text-muted' },
+	          'Copyright 2016@Kim Hammar'
+	        )
+	      )
+	    )
+	  );
+	};
+
+	Footer.displayName = 'Footer';
+	exports.default = Footer;
+
+/***/ },
+/* 329 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * NavBarComponent. A component displaying a navbar for navigating the site.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _NavLink = __webpack_require__(330);
+
+	var _NavLink2 = _interopRequireDefault(_NavLink);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var NavBar = function (_React$Component) {
+	  _inherits(NavBar, _React$Component);
+
+	  function NavBar() {
+	    _classCallCheck(this, NavBar);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(NavBar).apply(this, arguments));
+	  }
+
+	  _createClass(NavBar, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'navbar-component' },
+	        _react2.default.createElement(
+	          'ul',
+	          { className: 'nav nav-pills' },
+	          _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              _NavLink2.default,
+	              { to: '/simulator' },
+	              'Simulator'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              _NavLink2.default,
+	              { to: '/about' },
+	              'What is this?'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'li',
+	            null,
+	            _react2.default.createElement(
+	              _NavLink2.default,
+	              { to: '/colophon' },
+	              'Colophon'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return NavBar;
+	}(_react2.default.Component);
+
+	NavBar.displayName = 'NavBar';
+	exports.default = NavBar;
+
+/***/ },
+/* 330 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
+	                                                                                                                                                                                                                                                                   * Navlink component
+	                                                                                                                                                                                                                                                                   *
+	                                                                                                                                                                                                                                                                   * Created by kim on 2016-05-19.
+	                                                                                                                                                                                                                                                                   */
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(159);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _react2.default.createClass({
+	  displayName: 'NavLink',
+	  render: function render() {
+	    return _react2.default.createElement(_reactRouter.Link, _extends({}, this.props, { activeClassName: 'active', className: 'navlink-component' }));
+	  }
+	});
+
+/***/ },
+/* 331 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheSimulator redux-container. Container for the index-route and connects it to the redux store.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _SettingsPanel = __webpack_require__(332);
+
+	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
+
+	var _InstructionPanel = __webpack_require__(335);
+
+	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
+
+	var _CacheMem = __webpack_require__(337);
+
+	var _CacheMem2 = _interopRequireDefault(_CacheMem);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheSimulator = function (_React$Component) {
+	  _inherits(CacheSimulator, _React$Component);
+
+	  function CacheSimulator() {
+	    _classCallCheck(this, CacheSimulator);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheSimulator).apply(this, arguments));
+	  }
+
+	  _createClass(CacheSimulator, [{
+	    key: 'renderCache',
+	    value: function renderCache() {
+	      if (this.props.associativity != undefined && this.props.cacheSize != undefined && this.props.blockSize != undefined) {
+	        return _react2.default.createElement(
+	          'div',
+	          { className: 'cache_panel' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(_CacheMem2.default, null)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(_InstructionPanel2.default, null)
+	          )
+	        );
+	      } else {
+	        return _react2.default.createElement(
+	          'h3',
+	          { className: 'bold' },
+	          'Enter properties for the cache to simulate it'
+	        );
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'index container-fluid' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(_SettingsPanel2.default, null),
+	          this.renderCache()
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheSimulator;
+	}(_react2.default.Component);
+
+	CacheSimulator.propTypes = {};
+
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state application state
+	 * @returns {{associativity: (*|associativity|string|string), cacheSize: (*|cacheSize|string|string), blockSize: (*|blockSize|string|string)}} object with props
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    associativity: state.cacheform.associativity,
+	    cacheSize: state.cacheform.cacheSize,
+	    blockSize: state.cacheform.blockSize
+	  };
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheSimulator);
+
+/***/ },
+/* 332 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * SettingsPanel redux-container. Connects the settings panel to the redux-store.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _CacheForm = __webpack_require__(333);
+
+	var _CacheForm2 = _interopRequireDefault(_CacheForm);
+
+	var _actions = __webpack_require__(334);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SettingsPanel = function (_React$Component) {
+	  _inherits(SettingsPanel, _React$Component);
+
+	  function SettingsPanel() {
+	    _classCallCheck(this, SettingsPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsPanel).apply(this, arguments));
+	  }
+
+	  _createClass(SettingsPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      var myInitialValues = {
+	        initialValues: {
+	          replacementAlgorithm: 'LRU'
+	        }
+	      };
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
+	      );
+	    }
+	  }]);
+
+	  return SettingsPanel;
+	}(_react2.default.Component);
+
+	SettingsPanel.propTypes = {
+	  cacheHandleSubmit: _react2.default.PropTypes.func.isRequired
+	};
+
+	/**
+	 * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
+	function mapStateToProps() {
+	  return {};
+	}
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{cacheHandleSubmit: cacheHandleSubmit}} - Object with action creators.
+	 */
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    /**
+	     * Function to handle submission of the cacheform. Dispatches a action
+	     * @param fields fields of the action
+	     */
+	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
+	      dispatch(actions.cacheFormSubmit(fields));
+	      dispatch(actions.cacheContentInitialization(fields));
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
+
+/***/ },
+/* 333 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheForm component. A component that contains a form for filling in information about the cache.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.fields = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reduxForm = __webpack_require__(251);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm'];
+
+	/**
+	 * Function to validate form input parameters.
+	 *
+	 * @param values values to validate
+	 * @returns {{}} - object that contains errors if the exists.
+	 */
+	var validate = function validate(values) {
+	  var errors = {};
+	  if (!values.cacheSize) {
+	    errors.cacheSize = 'Required';
+	  } else if (isNaN(Number(values.cacheSize))) {
+	    errors.cacheSize = 'Must be a positive integer';
+	  } else if (!Number.isInteger(Number(values.cacheSize))) {
+	    errors.cacheSize = 'Must be a positive integer';
+	  } else if (Number(values.cacheSize) < 0) {
+	    errors.cacheSize = 'Must be a positive integer';
+	  } else if (!(Number(values.cacheSize) % 4 === 0)) {
+	    errors.cacheSize = 'Must be a multiple of four';
+	  } else if (!(Number(values.cacheSize) % Number(values.blockSize) === 0)) {
+	    errors.cacheSize = 'Must be a multiple of the blocksize';
+	  }
+
+	  if (!values.blockSize) {
+	    errors.blockSize = 'Required';
+	  } else if (isNaN(Number(values.blockSize))) {
+	    errors.blockSize = 'Must be a positive integer';
+	  } else if (!Number.isInteger(Number(values.blockSize))) {
+	    errors.blockSize = 'Must be a positive integer';
+	  } else if (Number(values.blockSize) < 0) {
+	    errors.blockSize = 'Must be a positive integer';
+	  } else if (!(Number(values.blockSize) % 4 === 0)) {
+	    errors.blockSize = 'Must be a multiple of four';
+	  }
+
+	  if (!values.associativity) {
+	    errors.associativity = 'Required';
+	  } else if (isNaN(Number(values.associativity))) {
+	    errors.associativity = 'Must be a positive integer';
+	  } else if (!Number.isInteger(Number(values.associativity))) {
+	    errors.associativity = 'Must be a positive integer';
+	  } else if (Number(values.associativity) < 0) {
+	    errors.associativity = 'Must be a positive integer';
+	  } else if (!(Number(values.cacheSize) / Number(values.blockSize) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
+	    errors.associativity = 'The specfied cache-size cannot contain that many sets';
+	  }
+
+	  return errors;
+	};
+
+	var CacheForm = function (_React$Component) {
+	  _inherits(CacheForm, _React$Component);
+
+	  function CacheForm() {
+	    _classCallCheck(this, CacheForm);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheForm).apply(this, arguments));
+	  }
+
+	  _createClass(CacheForm, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var _props$fields = _props.fields;
+	      var cacheSize = _props$fields.cacheSize;
+	      var blockSize = _props$fields.blockSize;
+	      var associativity = _props$fields.associativity;
+	      var replacementAlgorithm = _props$fields.replacementAlgorithm;
+	      var resetForm = _props.resetForm;
+	      var handleSubmit = _props.handleSubmit;
+	      var submitting = _props.submitting;
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'cacheform-component row' },
+	        _react2.default.createElement(
+	          'form',
+	          { onSubmit: handleSubmit },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Cache size (bytes)'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, cacheSize, { className: 'form-control' }))
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              cacheSize.touched && cacheSize.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                cacheSize.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Block size (bytes)'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'block size' }, blockSize, { className: 'form-control' }))
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              blockSize.touched && blockSize.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                blockSize.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Associativity'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'associativity' }, associativity, { className: 'form-control' }))
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              associativity.touched && associativity.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                associativity.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Replacement Algorithm'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'select',
+	                _extends({ className: 'form-control' }, replacementAlgorithm),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'LRU'
+	                ),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'FIFO'
+	                ),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'RANDOM'
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-12' },
+	            _react2.default.createElement(
+	              'button',
+	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
+	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
+	              ' Create Cache Memory'
+	            ),
+	            _react2.default.createElement(
+	              'button',
+	              { type: 'button', disabled: submitting, onClick: resetForm, className: 'btn btn-default' },
+	              'Clear Values'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheForm;
+	}(_react2.default.Component);
+
+	CacheForm.displayName = 'CacheForm';
+	CacheForm.propTypes = {
+	  fields: _react2.default.PropTypes.object.isRequired,
+	  handleSubmit: _react2.default.PropTypes.func.isRequired,
+	  resetForm: _react2.default.PropTypes.func.isRequired,
+	  submitting: _react2.default.PropTypes.bool.isRequired
+	};
+
+	exports.default = (0, _reduxForm.reduxForm)({
+	  form: 'synchronousValidation',
+	  fields: fields,
+	  validate: validate
+	})(CacheForm);
+
+/***/ },
+/* 334 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.cacheFormSubmit = cacheFormSubmit;
+	exports.fetchFormSubmit = fetchFormSubmit;
+	exports.cacheContentInitialization = cacheContentInitialization;
+
+	var _ActionTypes = __webpack_require__(319);
+
+	var types = _interopRequireWildcard(_ActionTypes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	/**
+	 * Creates the cacheform action.
+	 *
+	 * @param fields fields of the form
+	 * @returns {{type, fields: *}}
+	 */
+	function cacheFormSubmit(fields) {
+	  return {
+	    type: types.CACHE_FORM_SUBMIT,
+	    fields: fields
+	  };
+	}
+
+	/**
+	 * Creates the fetchform action.
+	 *
+	 * @param fields
+	 * @returns {{type, fields: *}}
+	 */
+	/**
+	 * ActionCreator, returns action objects of different types.
+	 *
+	 * Created by kim on 2016-05-05.
+	 */
+	function fetchFormSubmit(fields) {
+	  return {
+	    type: types.FETCH_FORM_SUBMIT,
+	    fields: fields
+	  };
+	}
+
+	function cacheContentInitialization(fields) {
+	  return {
+	    type: types.CACHE_CONTENT_INIT,
+	    fields: fields
+	  };
+	}
+
+/***/ },
+/* 335 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * InstructionPanel redux-container. Connects the instruction panel to the redux-store.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _FetchForm = __webpack_require__(336);
+
+	var _FetchForm2 = _interopRequireDefault(_FetchForm);
+
+	var _actions = __webpack_require__(334);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var InstructionPanel = function (_React$Component) {
+	  _inherits(InstructionPanel, _React$Component);
+
+	  function InstructionPanel() {
+	    _classCallCheck(this, InstructionPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(InstructionPanel).apply(this, arguments));
+	  }
+
+	  _createClass(InstructionPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      var myInitialValues = {
+	        initialValues: {
+	          operationType: 'LOAD'
+	        }
+	      };
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues)),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'instruction_stats' },
+	          _react2.default.createElement(
+	            'table',
+	            { className: 'table table-striped' },
+	            _react2.default.createElement(
+	              'caption',
+	              null,
+	              'Cache performance and locality'
+	            ),
+	            _react2.default.createElement(
+	              'tbody',
+	              null,
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Hit rate'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' '
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Miss rate'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  ' '
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return InstructionPanel;
+	}(_react2.default.Component);
+
+	InstructionPanel.propTypes = {
+	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
+	};
+
+	/**
+	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
+	function mapStateToProps() {
+	  return {};
+	}
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 */
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    /**
+	     * Function to handle submission of the fetchform. Dispatches a action.
+	     * @param fields of the action
+	     */
+	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	      dispatch(actions.fetchFormSubmit(fields));
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
+
+/***/ },
+/* 336 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * FetchForm Component. A component containing a form for attempting to load from the cache.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.fields = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reduxForm = __webpack_require__(251);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var fields = exports.fields = ['fetchAddress', 'operationType'];
+
+	/**
+	 * Function to validate form input parameters.
+	 *
+	 * @param values to validate
+	 * @returns {{}} - object that contains errors if the exists.
+	 */
+	var validate = function validate(values) {
+	  var errors = {};
+
+	  if (!values.fetchAddress) {
+	    errors.fetchAddress = 'Required';
+	  }
+	  return errors;
+	};
+
+	var FetchForm = function (_React$Component) {
+	  _inherits(FetchForm, _React$Component);
+
+	  function FetchForm() {
+	    _classCallCheck(this, FetchForm);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(FetchForm).apply(this, arguments));
+	  }
+
+	  _createClass(FetchForm, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var _props$fields = _props.fields;
+	      var fetchAddress = _props$fields.fetchAddress;
+	      var operationType = _props$fields.operationType;
+	      var handleSubmit = _props.handleSubmit;
+	      var submitting = _props.submitting;
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'cacheform-component row' },
+	        _react2.default.createElement(
+	          'form',
+	          { onSubmit: handleSubmit },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-6' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Fetch Address'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'fetch address' }, fetchAddress, { className: 'form-control' }))
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                fetchAddress.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-6' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Operation type'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement(
+	                'select',
+	                _extends({ className: 'form-control' }, operationType),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'LOAD'
+	                ),
+	                _react2.default.createElement(
+	                  'option',
+	                  null,
+	                  'STORE'
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-12' },
+	            _react2.default.createElement(
+	              'button',
+	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
+	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
+	              ' Fetch'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return FetchForm;
+	}(_react2.default.Component);
+
+	FetchForm.displayName = 'FetchForm';
+
+	FetchForm.propTypes = {
+	  fields: _react2.default.PropTypes.object.isRequired,
+	  handleSubmit: _react2.default.PropTypes.func.isRequired,
+	  submitting: _react2.default.PropTypes.bool.isRequired
+	};
+
+	exports.default = (0, _reduxForm.reduxForm)({
+	  form: 'synchronousValidation',
+	  fields: fields,
+	  validate: validate
+	})(FetchForm);
+
+/***/ },
+/* 337 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheMemory redux-container. Connects the cachememory layout with the redux store.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _Table = __webpack_require__(338);
+
+	var _Table2 = _interopRequireDefault(_Table);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheMem = function (_React$Component) {
+	  _inherits(CacheMem, _React$Component);
+
+	  function CacheMem() {
+	    _classCallCheck(this, CacheMem);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheMem).apply(this, arguments));
+	  }
+
+	  _createClass(CacheMem, [{
+	    key: 'createTables',
+	    value: function createTables() {
+	      var tables = [];
+	      for (var i = 0; i < this.props.cachecontent.sets.length; i++) {
+	        tables.push(_react2.default.createElement(_Table2.default, { className: 'set_margin', key: i, data: this.props.cachecontent.sets[i] }));
+	      }
+	      return tables;
+	    }
+	  }, {
+	    key: 'bitSize',
+	    value: function bitSize(num) {
+	      return num.toString(2).length;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'cache_info center-block col-sm-6' },
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'table table-striped' },
+	              _react2.default.createElement(
+	                'caption',
+	                null,
+	                'Cache properties'
+	              ),
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Address length'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    '32 bits'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Word size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    '32 bits'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Cache size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.cacheSize,
+	                    ' Bytes'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Associativity'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.associativity
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Block Count'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.blockCount
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Block Size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.blockSize,
+	                    ' Bytes'
+	                  )
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col-sm-6' },
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'table table-bordered' },
+	              _react2.default.createElement(
+	                'caption',
+	                null,
+	                'Address Layout'
+	              ),
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Tag(',
+	                    32 - (this.bitSize(this.props.cachecontent.blockCount - 1) + this.bitSize(this.props.cachecontent.blockSize - 1)),
+	                    ' bits)'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Index(',
+	                    this.bitSize(this.props.cachecontent.blockCount - 1),
+	                    ' bits)'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Offset(',
+	                    this.bitSize(this.props.cachecontent.blockSize - 1),
+	                    ' bits)'
+	                  )
+	                )
+	              )
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          this.createTables()
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheMem;
+	}(_react2.default.Component);
+
+	CacheMem.propTypes = {};
+
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state
+	 * @returns {{cachecontent: *}} object with props
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    cachecontent: state.cachecontent
+	  };
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
+
+/***/ },
+/* 338 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * TableComponent. A component displaying a table, that illustrates a cachememory.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _TableRow = __webpack_require__(339);
+
+	var _TableRow2 = _interopRequireDefault(_TableRow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Table = function (_React$Component) {
+	  _inherits(Table, _React$Component);
+
+	  function Table() {
+	    _classCallCheck(this, Table);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Table).apply(this, arguments));
+	  }
+
+	  _createClass(Table, [{
+	    key: 'createRows',
+
+
+	    /**
+	     * Creates table rows.
+	     *
+	     * @returns {Array} array of rows.
+	     */
+	    value: function createRows() {
+	      var rows = [];
+	      for (var i = 0; i < this.props.data.rows.length; i++) {
+	        rows.push(_react2.default.createElement(_TableRow2.default, { data: this.props.data.rows[i], key: i }));
+	      }
+	      return rows;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'table-component' },
+	        _react2.default.createElement(
+	          'table',
+	          { className: 'table table-bordered cache' },
+	          _react2.default.createElement(
+	            'caption',
+	            null,
+	            'Set: ',
+	            this.props.data.set
+	          ),
+	          _react2.default.createElement(
+	            'thead',
+	            null,
+	            _react2.default.createElement(
+	              'tr',
+	              null,
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text' },
+	                'Valid Bit'
+	              ),
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text' },
+	                'Tag'
+	              ),
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text', colSpan: this.props.data.nr_elements },
+	                'Data'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'tbody',
+	            null,
+	            this.createRows()
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Table;
+	}(_react2.default.Component);
+
+	Table.displayName = 'Table';
+
+	Table.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = Table;
+
+/***/ },
+/* 339 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * TableRow component. Constitutes as a row in a table.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _TableElement = __webpack_require__(340);
+
+	var _TableElement2 = _interopRequireDefault(_TableElement);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var TableRow = function (_React$Component) {
+	  _inherits(TableRow, _React$Component);
+
+	  function TableRow() {
+	    _classCallCheck(this, TableRow);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TableRow).apply(this, arguments));
+	  }
+
+	  _createClass(TableRow, [{
+	    key: 'createElements',
+	    value: function createElements() {
+	      var elements = [];
+	      for (var i = 0; i < this.props.data.elements.length; i++) {
+	        elements.push(_react2.default.createElement(_TableElement2.default, { key: i, data: this.props.data.elements[i] }));
+	      }
+	      return elements;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'tr',
+	        { className: 'cache_row tablerow-component' },
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          this.props.data.validbit
+	        ),
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          this.props.data.tag
+	        ),
+	        this.createElements()
+	      );
+	    }
+	  }]);
+
+	  return TableRow;
+	}(_react2.default.Component);
+
+	TableRow.displayName = 'TableRow';
+	TableRow.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = TableRow;
+
+/***/ },
+/* 340 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * TableElementComponent. Functional stateless component that constitutes as a element in a table.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactTooltip = __webpack_require__(341);
+
+	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var TableElement = function (_React$Component) {
+	  _inherits(TableElement, _React$Component);
+
+	  function TableElement() {
+	    _classCallCheck(this, TableElement);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TableElement).apply(this, arguments));
+	  }
+
+	  _createClass(TableElement, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'td',
+	        { 'data-tip': true, 'data-for': this.props.data.id, id: this.props.data.id, className: 'cache_element tableelement-component' },
+	        this.props.data.data,
+	        _react2.default.createElement(
+	          _reactTooltip2.default,
+	          _extends({ id: this.props.data.id }, this.props),
+	          _react2.default.createElement(
+	            'table',
+	            { className: 'table table-striped my_tooltip' },
+	            _react2.default.createElement(
+	              'tbody',
+	              null,
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Index'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  this.props.data.index
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'tr',
+	                null,
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  'Byte'
+	                ),
+	                _react2.default.createElement(
+	                  'td',
+	                  null,
+	                  this.props.data.byte
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return TableElement;
+	}(_react2.default.Component);
+
+	TableElement.displayName = 'TableElement';
+	TableElement.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = TableElement;
+
+/***/ },
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	module.exports = __webpack_require__(348)
+	module.exports = __webpack_require__(342)
 
 
 /***/ },
-/* 348 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35527,11 +35303,11 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _classnames = __webpack_require__(349);
+	var _classnames = __webpack_require__(343);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _style = __webpack_require__(350);
+	var _style = __webpack_require__(344);
 
 	var _style2 = _interopRequireDefault(_style);
 
@@ -36283,7 +36059,7 @@
 
 
 /***/ },
-/* 349 */
+/* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -36337,7 +36113,7 @@
 
 
 /***/ },
-/* 350 */
+/* 344 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -36347,6 +36123,206 @@
 	});
 	exports.default = '.__react_component_tooltip{border-radius:3px;display:inline-block;font-size:13px;left:-999em;opacity:0;padding:8px 21px;position:fixed;pointer-events:none;transition:opacity 0.3s ease-out , margin-top 0.3s ease-out, margin-left 0.3s ease-out;top:-999em;visibility:hidden;z-index:999}.__react_component_tooltip:before,.__react_component_tooltip:after{content:"";width:0;height:0;position:absolute}.__react_component_tooltip.show{opacity:0.9;margin-top:0px;margin-left:0px;visibility:visible}.__react_component_tooltip.type-dark{color:#fff;background-color:#222}.__react_component_tooltip.type-dark.place-top:after{border-top:6px solid #222}.__react_component_tooltip.type-dark.place-bottom:after{border-bottom:6px solid #222}.__react_component_tooltip.type-dark.place-left:after{border-left:6px solid #222}.__react_component_tooltip.type-dark.place-right:after{border-right:6px solid #222}.__react_component_tooltip.type-dark.border{border:1px solid #fff}.__react_component_tooltip.type-dark.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-dark.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-dark.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-dark.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-success{color:#fff;background-color:#8DC572}.__react_component_tooltip.type-success.place-top:after{border-top:6px solid #8DC572}.__react_component_tooltip.type-success.place-bottom:after{border-bottom:6px solid #8DC572}.__react_component_tooltip.type-success.place-left:after{border-left:6px solid #8DC572}.__react_component_tooltip.type-success.place-right:after{border-right:6px solid #8DC572}.__react_component_tooltip.type-success.border{border:1px solid #fff}.__react_component_tooltip.type-success.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-success.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-success.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-success.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-warning{color:#fff;background-color:#F0AD4E}.__react_component_tooltip.type-warning.place-top:after{border-top:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-bottom:after{border-bottom:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-left:after{border-left:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-right:after{border-right:6px solid #F0AD4E}.__react_component_tooltip.type-warning.border{border:1px solid #fff}.__react_component_tooltip.type-warning.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-warning.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-warning.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-warning.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-error{color:#fff;background-color:#BE6464}.__react_component_tooltip.type-error.place-top:after{border-top:6px solid #BE6464}.__react_component_tooltip.type-error.place-bottom:after{border-bottom:6px solid #BE6464}.__react_component_tooltip.type-error.place-left:after{border-left:6px solid #BE6464}.__react_component_tooltip.type-error.place-right:after{border-right:6px solid #BE6464}.__react_component_tooltip.type-error.border{border:1px solid #fff}.__react_component_tooltip.type-error.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-error.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-error.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-error.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-info{color:#fff;background-color:#337AB7}.__react_component_tooltip.type-info.place-top:after{border-top:6px solid #337AB7}.__react_component_tooltip.type-info.place-bottom:after{border-bottom:6px solid #337AB7}.__react_component_tooltip.type-info.place-left:after{border-left:6px solid #337AB7}.__react_component_tooltip.type-info.place-right:after{border-right:6px solid #337AB7}.__react_component_tooltip.type-info.border{border:1px solid #fff}.__react_component_tooltip.type-info.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-info.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-info.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-info.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-light{color:#222;background-color:#fff}.__react_component_tooltip.type-light.place-top:after{border-top:6px solid #fff}.__react_component_tooltip.type-light.place-bottom:after{border-bottom:6px solid #fff}.__react_component_tooltip.type-light.place-left:after{border-left:6px solid #fff}.__react_component_tooltip.type-light.place-right:after{border-right:6px solid #fff}.__react_component_tooltip.type-light.border{border:1px solid #222}.__react_component_tooltip.type-light.border.place-top:before{border-top:8px solid #222}.__react_component_tooltip.type-light.border.place-bottom:before{border-bottom:8px solid #222}.__react_component_tooltip.type-light.border.place-left:before{border-left:8px solid #222}.__react_component_tooltip.type-light.border.place-right:before{border-right:8px solid #222}.__react_component_tooltip.place-top{margin-top:-10px}.__react_component_tooltip.place-top:before{border-left:10px solid transparent;border-right:10px solid transparent;bottom:-8px;left:50%;margin-left:-10px}.__react_component_tooltip.place-top:after{border-left:8px solid transparent;border-right:8px solid transparent;bottom:-6px;left:50%;margin-left:-8px}.__react_component_tooltip.place-bottom{margin-top:10px}.__react_component_tooltip.place-bottom:before{border-left:10px solid transparent;border-right:10px solid transparent;top:-8px;left:50%;margin-left:-10px}.__react_component_tooltip.place-bottom:after{border-left:8px solid transparent;border-right:8px solid transparent;top:-6px;left:50%;margin-left:-8px}.__react_component_tooltip.place-left{margin-left:-10px}.__react_component_tooltip.place-left:before{border-top:6px solid transparent;border-bottom:6px solid transparent;right:-8px;top:50%;margin-top:-5px}.__react_component_tooltip.place-left:after{border-top:5px solid transparent;border-bottom:5px solid transparent;right:-6px;top:50%;margin-top:-4px}.__react_component_tooltip.place-right{margin-left:10px}.__react_component_tooltip.place-right:before{border-top:6px solid transparent;border-bottom:6px solid transparent;left:-8px;top:50%;margin-top:-5px}.__react_component_tooltip.place-right:after{border-top:5px solid transparent;border-bottom:5px solid transparent;left:-6px;top:50%;margin-top:-4px}.__react_component_tooltip .multi-line{display:block;padding:2px 0px;text-align:center}';
 
+
+/***/ },
+/* 345 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for 404s - when page is not found.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NotFound = function NotFound() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: '404-component' },
+	    _react2.default.createElement(
+	      'h3',
+	      { className: 'bolder' },
+	      '404 - PAGE NOT FOUND'
+	    )
+	  );
+	};
+
+	NotFound.displayName = 'NotFound';
+	exports.default = NotFound;
+
+/***/ },
+/* 346 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for the about page.
+	 *
+	 * Created by kim on 2016-05-19.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var About = function About() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'about-component' },
+	    _react2.default.createElement(
+	      'h3',
+	      { className: 'bold' },
+	      'What is this?'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'This is a cache simulator ... (TODO)'
+	    )
+	  );
+	};
+
+	About.displayName = 'About';
+	exports.default = About;
+
+/***/ },
+/* 347 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Functional stateless Component shown for the colophon page.
+	 *
+	 * Created by kim on 2016-05-19.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Colophon = function Colophon() {
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'colophon-component' },
+	    _react2.default.createElement(
+	      'h3',
+	      { className: 'bold' },
+	      'Colophon'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The site is written in JavaScript and styled with Cascading Style Sheets. '
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'React is used for view rendering with redux for state management.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Twitter Bootstrap is used for styling some components on the page.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Hosted: Not Yet. '
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The site is written by ',
+	      _react2.default.createElement(
+	        'a',
+	        { href: 'https://github.com/Limmen', target: '_blank' },
+	        'Kim Hammar'
+	      )
+	    )
+	  );
+	};
+
+	Colophon.displayName = 'Colophon';
+	exports.default = Colophon;
+
+/***/ },
+/* 348 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = initialContent;
+	/**
+	 * Created by kim on 2016-05-21.
+	 */
+
+	function initialContent(cacheSize, blockSize, associativity) {
+	  var blockCount = cacheSize / associativity / blockSize;
+
+	  var state = {
+	    cacheSize: cacheSize,
+	    blockSize: blockSize,
+	    associativity: associativity,
+	    blockCount: blockCount,
+	    sets: []
+	  };
+
+	  for (var i = 0; i < associativity; i++) {
+	    var table = {
+	      set: i,
+	      rows: [],
+	      nr_elements: blockSize
+	    };
+	    state.sets.push(table);
+	    for (var j = 0; j < cacheSize / associativity / blockSize; j++) {
+	      var row = {
+	        id: "row_id" + i + j,
+	        tag: "empty",
+	        validbit: "N",
+	        elements: []
+	      };
+	      table.rows.push(row);
+	      for (var k = 0; k < blockSize; k++) {
+	        var element = {
+	          id: "element_id" + i + j + k,
+	          index: j,
+	          byte: k,
+	          data: 'empty'
+	        };
+	        row.elements.push(element);
+	      }
+	    }
+	  }
+	  return state;
+	}
 
 /***/ }
 /******/ ]);

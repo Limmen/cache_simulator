@@ -7,12 +7,15 @@
 
 .cache
 {
-  overflow:hidden;
+/*  overflow:hidden;
   table-layout:fixed;
+  */
 }
 .table
 {
+
   width: auto;
+
 }
 .cache_info
 {
@@ -36,4 +39,9 @@
 .my_tooltip
 {
   color: black
+}
+
+.set_margin
+{
+  margin-right: 100px;
 }

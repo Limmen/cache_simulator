@@ -27,8 +27,16 @@ class Table extends React.Component {
 
   render() {
     return (
-      <div className="table-component col-sm-4">
+      <div className="table-component">
         <table className="table table-bordered cache">
+          <caption>Set: {this.props.data.set}</caption>
+          <thead>
+          <tr>
+            <td className="bold center_text">Valid Bit</td>
+            <td className="bold center_text">Tag</td>
+            <td className="bold center_text" colSpan={this.props.data.nr_elements}>Data</td>
+          </tr>
+          </thead>
           <tbody>
           {this.createRows()}
           </tbody>

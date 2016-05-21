@@ -14,8 +14,8 @@ class CacheMem extends React.Component {
 
   createTables() {
     let tables = [];
-    for (let i = 0; i < this.props.cachecontent.length; i++) {
-      tables.push(<Table key={i} data={this.props.cachecontent[i]}/>);
+    for (let i = 0; i < this.props.cachecontent.sets.length; i++) {
+      tables.push(<Table className="set_margin" key={i} data={this.props.cachecontent.sets[i]}/>);
     }
     return tables;
   }
@@ -30,12 +30,7 @@ class CacheMem extends React.Component {
         <div className="row">
           <div className="cache_info center-block col-sm-6">
             <table className="table table-striped">
-              <thead>
-              <tr>
-                <th>Property</th>
-                <th>Value</th>
-              </tr>
-              </thead>
+              <caption>Cache properties</caption>
               <tbody>
               <tr>
                 <td>Address length</td>
@@ -47,36 +42,36 @@ class CacheMem extends React.Component {
               </tr>
               <tr>
                 <td>Cache size</td>
-                <td>{this.props.cacheSize} Bytes</td>
+                <td>{this.props.cachecontent.cacheSize} Bytes</td>
               </tr>
               <tr>
                 <td>Associativity</td>
-                <td>{this.props.associativity}</td>
+                <td>{this.props.cachecontent.associativity}</td>
               </tr>
               <tr>
                 <td>Block Count</td>
-                <td>{this.props.cachecontent[0].rows.length}</td>
+                <td>{this.props.cachecontent.blockCount}</td>
               </tr>
               <tr>
                 <td>Block Size</td>
-                <td>{this.props.blockSize} Bytes</td>
+                <td>{this.props.cachecontent.blockSize} Bytes</td>
               </tr>
               </tbody>
             </table>
           </div>
           <div className="col-sm-6">
-            <p className="bold">Address Layout</p>
             <table className="table table-bordered">
+              <caption>Address Layout</caption>
               <tbody>
               <tr>
                 <td>
-                  Tag({32 - (this.bitSize(this.props.cacheSize -1))} bits)
+                  Tag({32 - (this.bitSize(this.props.cachecontent.blockCount - 1) + this.bitSize(this.props.cachecontent.blockSize - 1))} bits)
                 </td>
                 <td>
-                  Index({this.bitSize(this.props.cachecontent[0].rows.length - 1)} bits)
+                  Index({this.bitSize(this.props.cachecontent.blockCount - 1)} bits)
                 </td>
                 <td>
-                  Offset({this.bitSize(this.props.blockSize - 1)} bits)
+                  Offset({this.bitSize(this.props.cachecontent.blockSize - 1)} bits)
                 </td>
               </tr>
               </tbody>
@@ -101,7 +96,7 @@ CacheMem.propTypes = {}
  */
 function mapStateToProps(state) {
   return {
-    cachecontent: state.cachecontent.content
+    cachecontent: state.cachecontent
   }
 }
 
