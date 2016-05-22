@@ -19,8 +19,8 @@ class CacheTable extends React.Component {
    */
   createRows() {
     let rows = [];
-    for (let i = 0; i < this.props.data.rows.length; i++) {
-      rows.push(<CacheTableRow data={this.props.data.rows[i]} key={i}/>);
+    for (let i = 0; i < this.props.data.get('rows').size; i++) {
+      rows.push(<CacheTableRow data={this.props.data.get('rows').get(i)} key={i}/>);
     }
     return rows;
   }
@@ -29,12 +29,12 @@ class CacheTable extends React.Component {
     return (
       <div className="cachetable-component">
         <table className="table table-bordered cache center-table">
-          <caption>Set: {this.props.data.set}</caption>
+          <caption>Set: {this.props.data.get('set')}</caption>
           <thead>
           <tr>
             <td className="bold center_text cache_element">Valid Bit</td>
             <td className="bold center_text cache_element">Tag</td>
-            <td className="bold center_text cache_element" colSpan={this.props.data.nr_elements}>Data</td>
+            <td className="bold center_text cache_element" colSpan={this.props.data.get('nr_elements')}>Data</td>
           </tr>
           </thead>
           <tbody>

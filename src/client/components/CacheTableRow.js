@@ -14,8 +14,8 @@ class CacheTableRow extends React.Component {
 
   createElements(){
     let elements = [];
-    for (let i = 0; i < this.props.data.elements.length; i++) {
-      elements.push(<CacheTableElement key={i} data={this.props.data.elements[i]}/>);
+    for (let i = 0; i < this.props.data.get('elements').size; i++) {
+      elements.push(<CacheTableElement key={i} data={this.props.data.get('elements').get(i)}/>);
     }
     return elements;
   }
@@ -23,14 +23,17 @@ class CacheTableRow extends React.Component {
   render() {
     return (
       <tr className="cache_row cachetablerow-component">
-        <td data-tip data-for={this.props.data.id}>
-          {this.props.data.validbit}
-          <ReactTooltip id={this.props.data.id} {...this.props}>
-            <p>{this.props.data.validbit === 1 ? "Valid" : "Not Valid"}</p>
+        <td data-tip data-for={this.props.data.get('id')}>
+          {this.props.data.get('validbit')}
+          <ReactTooltip id={this.props.data.get('id')} {...this.props}>
+            <p>{this.props.data.get('validbit') === 1 ? "Valid" : "Not Valid"}</p>
           </ReactTooltip>
         </td>
-        <td>
+        <td data-tip data-for={this.props.data.get('id') + "index"}>
           {this.props.data.tag}
+          <ReactTooltip id={this.props.data.get('id') + "index"} {...this.props}>
+            <p>Index: {this.props.data.get('index')}</p>
+          </ReactTooltip>
         </td>
         {this.createElements()}
       </tr>

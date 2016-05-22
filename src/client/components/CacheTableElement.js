@@ -14,21 +14,10 @@ class CacheTableElement extends React.Component {
 
   render() {
     return (
-      <td data-tip data-for={this.props.data.id} id={this.props.data.id} className="cache_element cachetableelement-component">
-        {this.props.data.data}
-        <ReactTooltip id={this.props.data.id} {...this.props}>
-          <table className="table table-striped my_tooltip">
-            <tbody>
-            <tr>
-              <td>Index</td>
-              <td>{this.props.data.index}</td>
-            </tr>
-            <tr>
-              <td>Byte</td>
-              <td>{this.props.data.byte}</td>
-            </tr>
-            </tbody>
-          </table>
+      <td data-tip data-for={this.props.data.get('id')} id={this.props.data.get('id')} className="cache_element cachetableelement-component">
+        {this.props.data.get('data')}
+        <ReactTooltip id={this.props.data.get('id')} {...this.props}>
+          <p>Byte: {this.props.data.get('byte')}</p>
         </ReactTooltip>
         </td>
     )

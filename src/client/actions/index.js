@@ -5,42 +5,18 @@
  */
 import * as types from '../constants/ActionTypes'
 
-/**
- * Creates the cacheform action.
- *
- * @param fields fields of the form
- * @returns {{type, fields: *}}
- */
-export function cacheFormSubmit(fields) {
+
+
+export function cacheAndMemoryContentInitialization(fields) {
   return {
-    type: types.CACHE_FORM_SUBMIT,
+    type: types.CACHE_AND_MEMORY_CONTENT_INIT,
     fields
   }
 }
 
-/**
- * Creates the fetchform action.
- *
- * @param fields
- * @returns {{type, fields: *}}
- */
-export function fetchFormSubmit(fields) {
+export function cacheContentUpdate(fields) {
   return {
-    type: types.FETCH_FORM_SUBMIT,
-    fields
-  }
-}
-
-export function cacheContentInitialization(fields) {
-  return {
-    type: types.CACHE_CONTENT_INIT,
-    fields
-  }
-}
-
-export function memoryContentInitialization(fields) {
-  return {
-    type: types.MEMORY_CONTENT_INIT,
+    type: types.CACHE_CONTENT_UPDATE,
     fields
   }
 }

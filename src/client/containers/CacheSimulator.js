@@ -18,7 +18,7 @@ class CacheSimulator extends React.Component {
         <div className="row">
           <CacheMemory />
           <hr></hr>
-          <h3 className="bold center_text">Simulate Intructions</h3>
+          <h3 className="bold center_text">Simulate Processor Intructions</h3>
           <InstructionPanel />
           <hr></hr>
           <h3 className="bold center_text">Main Memory</h3>
@@ -57,9 +57,9 @@ CacheSimulator.propTypes = {}
  */
 function mapStateToProps(state) {
   return {
-    associativity: state.cachecontent.associativity,
-    cacheSize: state.cachecontent.cacheSize,
-    blockSize: state.cachecontent.blockSize
+    associativity: state.cacheAndMemoryContent.get('cache').get('associativity'),
+    cacheSize: state.cacheAndMemoryContent.get('cache').get('cacheSize'),
+    blockSize: state.cacheAndMemoryContent.get('cache').get('blockSize')
   }
 }
 

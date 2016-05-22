@@ -2,22 +2,25 @@
  * Created by kim on 2016-05-21.
  */
 
+import {Map, List} from 'immutable'
+
 export default function initialMemoryContent(memorySize) {
 
-  let state =
-  {
-    memory: []
-  };
+  let memory = List()
 
-  for(let i = 0; i < memorySize; i++){
-    state.memory.push(
+  for (let i = 0; i < memorySize; i++) {
+    let data = getRandomArbitrary(0, 256);
+    let newMemory = memory.push(Map(
       {
-        address: "0x" + i.toString(16),
-        data: "0x" + Number(getRandomArbitrary(0, 256)).toString(16)
+        address_string: "0x" + i.toString(16),
+        address_number: i,
+        data_string: "0x" + Number(data).toString(16),
+        data_number: data
       }
-    )
+    ))
+    memory = newMemory;
   }
-  return state;
+  return memory;
 }
 
 // Returns a random number between min (inclusive) and max (exclusive)

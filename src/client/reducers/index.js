@@ -7,14 +7,10 @@
 import { combineReducers } from 'redux'
 import {reducer as formReducer} from 'redux-form';
 import { routerReducer } from 'react-router-redux'
-import fetchform from './fetchform'
-import cachecontent from './cachecontent'
-import memorycontent from './memorycontent'
+import cacheAndMemoryContent from './cacheAndMemoryContent'
 
 const rootReducer = combineReducers({
-  fetchform,
-  cachecontent,
-  memorycontent,
+  cacheAndMemoryContent,
   form: formReducer,
   routing: routerReducer
 })

@@ -39,7 +39,8 @@ InstructionPanel.propTypes = {
  * @returns {{}}
  */
 function mapStateToProps() {
-  return {}
+  return {
+  }
 }
 /**
  * Maps the redux dispatcher to props that this container provides.
@@ -54,7 +55,7 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields of the action
      */
     fetchHandleSubmit: (fields) => {
-      dispatch(actions.fetchFormSubmit(fields))
+      dispatch(actions.cacheContentUpdate(fields))
     }
   }
 }

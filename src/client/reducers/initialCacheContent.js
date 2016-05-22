@@ -2,46 +2,52 @@
  * Created by kim on 2016-05-21.
  */
 
-export default function initialCacheContent(cacheSize, blockSize, associativity) {
+import {Map, List} from 'immutable'
+
+export default function initialCacheContent(cacheSize, blockSize, associativity, replacementAlgorithm) {
   let blockCount = (cacheSize / associativity) / blockSize;
 
-  let state =
+  let state = Map(
   {
     cacheSize: cacheSize,
     blockSize: blockSize,
     associativity: associativity,
     blockCount: blockCount,
-    sets: []
-  }
+    replacementAlgorithm: replacementAlgorithm,
+    sets: List()
+  });
 
   for (let i = 0; i < associativity; i++) {
-    let table =
+    let table = Map(
     {
       set: i,
-      rows: [],
+      rows: List(),
       nr_elements: blockSize
-    }
-    state.sets.push(table)
+    })
     for (let j = 0; j < (cacheSize / associativity) / blockSize; j++) {
-      let row =
+      let row = Map(
       {
         id: "row_id" + i + j,
         tag: "empty",
+        index: j,
         validbit: 0,
-        elements: []
-      }
-      table.rows.push(row)
+        elements: List()
+      })
       for (let k = 0; k < blockSize; k++) {
-        let element =
+        let element = Map(
         {
           id: "element_id" + i + j + k,
-          index: j,
           byte: k,
           data: 'empty'
-        }
-        row.elements.push(element)
+        })
+        let newRow = row.set('elements', row.get('elements').push(element))
+        row = newRow
       }
+      let newTable = table.set('rows', table.get('rows').push(row))
+      table = newTable
     }
+    let newState = state.set('sets', state.get('sets').push(table))
+    state = newState;
   }
   return state;
 }

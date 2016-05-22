@@ -14,8 +14,8 @@ class CacheMem extends React.Component {
 
   createTables() {
     let tables = [];
-    for (let i = 0; i < this.props.cachecontent.sets.length; i++) {
-      tables.push(<Table className="set_margin center center-block" key={i} data={this.props.cachecontent.sets[i]}/>);
+    for (let i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
+      tables.push(<Table className="set_margin center center-block" key={i} data={this.props.cachecontent.get('cache').get('sets').get(i)}/>);
     }
     return tables;
   }
@@ -114,7 +114,7 @@ CacheMem.propTypes = {}
  */
 function mapStateToProps(state) {
   return {
-    cachecontent: state.cachecontent
+    cachecontent: state.cacheAndMemoryContent
   }
 }
 

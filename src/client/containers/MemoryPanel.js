@@ -34,7 +34,7 @@ MemoryPanel.propTypes = {
  */
 function mapStateToProps(state) {
   return {
-    memory: state.memorycontent.memory
+    memory: state.cacheAndMemoryContent.get('memory')
   }
 }
 

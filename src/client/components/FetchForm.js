@@ -29,7 +29,7 @@ class FetchForm extends React.Component {
       <div className="fetchform-component row">
         <form onSubmit={handleSubmit}>
           <div className="form-group col-sm-6">
-            <label className="bold">Fetch Address</label>
+            <label className="bold">Address</label>
             <div>
               <input type="text" placeholder="fetch address" {...fetchAddress} className="form-control"/>
             </div>

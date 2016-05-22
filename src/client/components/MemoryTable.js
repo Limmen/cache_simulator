@@ -16,7 +16,7 @@ class MemoryTable extends React.Component {
     return (
       <div className="memorytable-component">
         <Table
-          rowsCount={this.props.data.length}
+          rowsCount={this.props.data.size}
           rowHeight={50}
           headerHeight={50}
           width={this.props.containerWidth}
@@ -25,7 +25,7 @@ class MemoryTable extends React.Component {
             header={<Cell>Address</Cell>}
             cell={props => (
            <Cell {...props}>
-         {this.props.data[props.rowIndex].address}
+         {this.props.data.get(props.rowIndex).get('address_string')}
           </Cell>
         )}
             width={50}
@@ -35,7 +35,7 @@ class MemoryTable extends React.Component {
             header={<Cell>Data (randomized)</Cell>}
             cell={props => (
            <Cell {...props}>
-         {this.props.data[props.rowIndex].data}
+         {this.props.data.get(props.rowIndex).get('data_string')}
           </Cell>
         )}
             width={50}
