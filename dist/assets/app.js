@@ -36568,10 +36568,6 @@
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
-	var _NavBar = __webpack_require__(313);
-
-	var _NavBar2 = _interopRequireDefault(_NavBar);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -36607,7 +36603,6 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'col-sm-6' },
-	            _react2.default.createElement(_NavBar2.default, null),
 	            this.props.children
 	          ),
 	          _react2.default.createElement('div', { className: 'col-sm-3' })
@@ -36653,12 +36648,25 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _NavBar = __webpack_require__(313);
+
+	var _NavBar2 = _interopRequireDefault(_NavBar);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var Header = function Header() {
 	  return _react2.default.createElement(
 	    'div',
 	    { className: 'header-component' },
+	    _react2.default.createElement(
+	      'nav',
+	      { className: 'navbar navbar-default' },
+	      _react2.default.createElement(
+	        'div',
+	        { className: 'container-fluid' },
+	        _react2.default.createElement(_NavBar2.default, null)
+	      )
+	    ),
 	    _react2.default.createElement(
 	      'div',
 	      { className: 'jumbotron' },
@@ -36768,10 +36776,10 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'navbar-component' },
+	        { className: 'collapse navbar-collapse navbar-component' },
 	        _react2.default.createElement(
 	          'ul',
-	          { className: 'nav nav-pills' },
+	          { className: 'nav navbar-nav center center-text' },
 	          _react2.default.createElement(
 	            'li',
 	            null,

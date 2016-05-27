@@ -13,19 +13,19 @@ class NavBar extends React.Component {
 
   render() {
     return (
-      <div className="navbar-component">
-        <ul className="nav nav-pills">
-          <li>
-            <NavLink to="/simulator">Simulator</NavLink>
-          </li>
-          <li>
-            <NavLink to="/about">What is this?</NavLink>
-          </li>
-          <li>
-            <NavLink to="/colophon">Colophon</NavLink>
-          </li>
-        </ul>
-      </div>
+    <div className="collapse navbar-collapse navbar-component">
+      <ul className="nav navbar-nav center center-text">
+        <li>
+          <NavLink to="/simulator">Simulator</NavLink>
+        </li>
+        <li>
+          <NavLink to="/about">What is this?</NavLink>
+        </li>
+        <li>
+          <NavLink to="/colophon">Colophon</NavLink>
+        </li>
+      </ul>
+    </div>
     );
   }
 }
