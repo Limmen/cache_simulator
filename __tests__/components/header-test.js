@@ -18,15 +18,12 @@ describe('Header', () => {
     component = render(<Header />);
   });
 
-  it('should render a title', () => {
-    expect(component.find("h1").text()).toEqual('Cache-Simulator')
-  });
-
   it('should have its component name as default className', () => {
     expect(component.find("div").hasClass("header-component")).toEqual(true)
   });
 
-  it('should render a jumbotron', () => {
-    expect(component.find("div").hasClass("jumbotron")).toEqual(true)
+  it('should render a navbar', () => {
+    expect(component.find("nav")).toEqual(true)
   });
+
 });

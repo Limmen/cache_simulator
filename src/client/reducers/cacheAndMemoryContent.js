@@ -13,6 +13,7 @@ const initialState = Map(
   {
     memory: List(),
     cache: Map(),
+    instructionHistory: List()
   }
 )
 export default function cacheAndMemoryContent(state = initialState, action) {

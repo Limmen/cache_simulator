@@ -24,6 +24,20 @@ class CacheMem extends React.Component {
     return num.toString(2).length;
   }
 
+  getHitRate(){
+    if(this.props.cachecontent.get("instructionHistory").size > 0){
+      return this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "HIT").size
+    }
+    else return 0;
+  }
+
+  getMissRate(){
+    if(this.props.cachecontent.get("instructionHistory").size > 0){
+      return this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size
+    }
+    else return 0;
+  }
+
   render() {
     return (
       <div>
@@ -43,19 +57,19 @@ class CacheMem extends React.Component {
               </tr>
               <tr>
                 <td>Cache size</td>
-                <td>{this.props.cachecontent.cacheSize} Bytes</td>
+                <td>{this.props.cachecontent.get('cache').get('cacheSize')} Bytes</td>
               </tr>
               <tr>
                 <td>Associativity</td>
-                <td>{this.props.cachecontent.associativity}</td>
+                <td>{this.props.cachecontent.get('cache').get('associativity')}</td>
               </tr>
               <tr>
                 <td>Block Count</td>
-                <td>{this.props.cachecontent.blockCount}</td>
+                <td>{this.props.cachecontent.get('cache').get('blockCount')}</td>
               </tr>
               <tr>
                 <td>Block Size</td>
-                <td>{this.props.cachecontent.blockSize} Bytes</td>
+                <td>{this.props.cachecontent.get('cache').get('blockSize')} Bytes</td>
               </tr>
               </tbody>
             </table>
@@ -84,17 +98,17 @@ class CacheMem extends React.Component {
               <tbody>
               <tr>
                 <td>Hit rate</td>
-                <td> </td>
+                <td>{this.getHitRate()}%</td>
               </tr>
               <tr>
                 <td>Miss rate</td>
-                <td> </td>
+                <td>{this.getMissRate()}%</td>
               </tr>
               </tbody>
             </table>
           </div>
-          <hr></hr>
         </div>
+        <hr></hr>
         <div className="row">
           <h3 className="bold center_text">Cache Memory</h3>
           {this.createTables()}

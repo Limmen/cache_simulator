@@ -13,11 +13,9 @@ let Header = () => (
         <NavBar/>
       </div>
     </nav>
-    <div className="jumbotron">
-      <h1 className="display-2 text-center"><strong>Cache-Simulator</strong></h1>
-    </div>
   </div>
 );
 
 Header.displayName = 'Header';
 export default Header;
+

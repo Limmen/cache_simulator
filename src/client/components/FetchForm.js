@@ -19,6 +19,9 @@ const validate = values => {
   if (!values.fetchAddress) {
     errors.fetchAddress = 'Required'
   }
+  if (!values.operationType) {
+    errors.operationType = 'Required'
+  }
   return errors
 }
 
@@ -41,9 +44,13 @@ class FetchForm extends React.Component {
             <label className="bold">Operation type</label>
             <div>
               <select className="form-control" {...operationType}>
+                <option></option>
                 <option>LOAD</option>
                 <option>STORE</option>
               </select>
+              <div className="error">
+                {operationType.touched && operationType.error && <div>{operationType.error}</div>}
+              </div>
             </div>
           </div>
           <div className="form-group col-sm-12">
