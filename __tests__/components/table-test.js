@@ -13,10 +13,10 @@ import initialCacheContent from '../../src/client/reducers/initialCacheContent';
 
 describe('Table', () => {
   let component;
-  let data = initialCacheContent(64, 8, 2)
+  let data = initialCacheContent(64, 8, 2, 'LRU')
 
   beforeEach(() => {
-    component = mount(<CacheTable data={data.sets[0]}/>)
+    component = mount(<CacheTable data={data.get('sets').get(0)}/>)
   });
 
   it('should render one table', () => {
@@ -24,7 +24,7 @@ describe('Table', () => {
   });
 
   it('should have props', () => {
-    expect(component.props().data).toEqual(initialCacheContent(64, 8, 2).sets[0]);
+    expect(component.props().data).toEqual(initialCacheContent(64, 8, 2, 'LRU').get("sets").get(0));
   });
 
   it('should render tablerows', () => {

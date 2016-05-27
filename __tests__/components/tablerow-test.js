@@ -13,7 +13,7 @@ import initialCacheContent from '../../src/client/reducers/initialCacheContent';
 
 describe('CacheTableRow', () => {
   let component;
-  let data = initialCacheContent(64, 8, 2).sets[0].rows[0]
+  let data = initialCacheContent(64, 8, 2, 'LRU').get("sets").get(0).get("rows").get(0)
 
   beforeEach(() => {
     component = mount(<table><tbody><CacheTableRow data={data} /></tbody></table>)
@@ -25,7 +25,7 @@ describe('CacheTableRow', () => {
 
 
   it('should have props', () => {
-    expect(component.find("CacheTableRow").props().data).toEqual(initialCacheContent(64, 8, 2).sets[0].rows[0]);
+    expect(component.find("CacheTableRow").props().data).toEqual(initialCacheContent(64, 8, 2, 'LRU').get("sets").get(0).get("rows").get(0));
   });
 
   it('should render tablelements', () => {

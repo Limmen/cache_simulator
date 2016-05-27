@@ -3,7 +3,7 @@
  *
  * Created by kim on 2016-05-11.
  */
-
+/*
 jest.unmock('../../src/client/reducers/fetchform.js');
 jest.unmock('../../src/client/actions/');
 
@@ -34,3 +34,4 @@ describe('fetchform-reducer', () => {
   })
 
 })
+*/

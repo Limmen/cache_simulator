@@ -13,11 +13,11 @@ import initialCacheContent from '../../src/client/reducers/initialCacheContent';
 
 describe('CacheTableElement', () => {
   let component;
-  let data = initialCacheContent(64, 8, 2)
+  let data = initialCacheContent(64, 8, 2, 'LRU').get("sets").get(0).get("rows").get(0).get("elements").get(0)
 
 
   beforeEach(() => {
-    component = mount(<table><tbody><tr><CacheTableElement data={data.sets[0].rows[0].elements[0]} /></tr></tbody></table>);
+    component = mount(<table><tbody><tr><CacheTableElement data={data} /></tr></tbody></table>);
   });
 
   it('should render one table element', () => {
@@ -25,7 +25,7 @@ describe('CacheTableElement', () => {
   });
 
   it('should have props', () => {
-    expect(component.find("CacheTableElement").props().data).toEqual(initialCacheContent(64, 8, 2).sets[0].rows[0].elements[0]);
+    expect(component.find("CacheTableElement").props().data).toEqual(initialCacheContent(64, 8, 2, 'LRU').get("sets").get(0).get("rows").get(0).get("elements").get(0));
   });
 
 });
