@@ -13,29 +13,6 @@ import InstructionTableComponent from './../components/InstructionTable';
 class InstructionResultPanel extends React.Component {
 
   render() {
-    let data =
-      [
-        {
-          instructionType: 'LOAD',
-          address: "0x0",
-          result: "MISS"
-        },
-        {
-          instructionType: 'LOAD',
-          address: "0x0",
-          result: "MISS"
-        },
-        {
-          instructionType: 'LOAD',
-          address: "0x0",
-          result: "MISS"
-        },
-        {
-          instructionType: 'LOAD',
-          address: "0x0",
-          result: "MISS"
-        }
-      ]
     return (
       <div>
         <InstructionTableComponent data={this.props.instructionHistory}/>

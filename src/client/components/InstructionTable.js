@@ -14,6 +14,7 @@ import Dimensions from 'react-dimensions'
 class InstructionTable extends React.Component {
 
   render() {
+    if(this.props.data.size > 0)
     return (
       <div className="instructiontable-component">
         <Table
@@ -21,7 +22,7 @@ class InstructionTable extends React.Component {
           rowHeight={50}
           headerHeight={50}
           width={this.props.containerWidth}
-          height={500}>
+          maxHeight={500}>
           <Column
             header={<Cell>Operation type</Cell>}
             cell={props => (
@@ -55,6 +56,8 @@ class InstructionTable extends React.Component {
         </Table>
       </div>
     );
+    else
+      return(<div className="instructiontable-component"> <p className="center_text">No results yet</p></div>)
   }
 }
 

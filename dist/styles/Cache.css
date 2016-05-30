@@ -12,9 +12,7 @@
 }
 .table
 {
-
   width: auto;
-
 }
 .cache_info
 {
@@ -31,10 +29,7 @@
 {
   font-style: italic;
 }
-.address_layout
-{
 
-}
 .my_tooltip
 {
   color: black
@@ -50,3 +45,8 @@
   margin-bottom: 10%;
 }
 
+.address_layout td
+{
+  height: 60px;
+  width: 140px;
+}

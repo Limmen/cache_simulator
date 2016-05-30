@@ -35433,7 +35433,7 @@
 	  }));
 	  state = updateInstructionHistory(state, address, state.get('memory'), operationType);
 	  return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
-	    return s.set('rows', s.get('rows').update(index, function (r) {
+	    return s.set('rows', s.get('rows').update(index, function () {
 	      return newRow;
 	    }));
 	  })));
@@ -37958,7 +37958,7 @@
 	            { className: 'col-sm-4' },
 	            _react2.default.createElement(
 	              'table',
-	              { className: 'table table-bordered center-table' },
+	              { className: 'address_layout table-bordered center-table' },
 	              _react2.default.createElement(
 	                'caption',
 	                null,
@@ -39368,7 +39368,7 @@
 	            rowHeight: 50,
 	            headerHeight: 50,
 	            width: this.props.containerWidth,
-	            height: 500 },
+	            maxHeight: 500 },
 	          _react2.default.createElement(_fixedDataTable.Column, {
 	            header: _react2.default.createElement(
 	              _fixedDataTable.Cell,
@@ -46432,23 +46432,6 @@
 	  _createClass(InstructionResultPanel, [{
 	    key: 'render',
 	    value: function render() {
-	      var data = [{
-	        instructionType: 'LOAD',
-	        address: "0x0",
-	        result: "MISS"
-	      }, {
-	        instructionType: 'LOAD',
-	        address: "0x0",
-	        result: "MISS"
-	      }, {
-	        instructionType: 'LOAD',
-	        address: "0x0",
-	        result: "MISS"
-	      }, {
-	        instructionType: 'LOAD',
-	        address: "0x0",
-	        result: "MISS"
-	      }];
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -46524,7 +46507,7 @@
 	    value: function render() {
 	      var _this2 = this;
 
-	      return _react2.default.createElement(
+	      if (this.props.data.size > 0) return _react2.default.createElement(
 	        'div',
 	        { className: 'instructiontable-component' },
 	        _react2.default.createElement(
@@ -46534,7 +46517,7 @@
 	            rowHeight: 50,
 	            headerHeight: 50,
 	            width: this.props.containerWidth,
-	            height: 500 },
+	            maxHeight: 500 },
 	          _react2.default.createElement(_fixedDataTable.Column, {
 	            header: _react2.default.createElement(
 	              _fixedDataTable.Cell,
@@ -46583,6 +46566,15 @@
 	            width: 50,
 	            flexGrow: 1
 	          })
+	        )
+	      );else return _react2.default.createElement(
+	        'div',
+	        { className: 'instructiontable-component' },
+	        ' ',
+	        _react2.default.createElement(
+	          'p',
+	          { className: 'center_text' },
+	          'No results yet'
 	        )
 	      );
 	    }

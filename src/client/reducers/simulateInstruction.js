@@ -2,7 +2,7 @@
  * Created by kim on 2016-05-27.
  */
 
-import {Map, List} from 'immutable'
+import {Map} from 'immutable'
 
 export default function simulateInstruction(state, address, operationType) {
   let index = getRowIndex(address, state.get('cache').get('cacheSize'));
@@ -11,7 +11,7 @@ export default function simulateInstruction(state, address, operationType) {
   let row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
   let newRow = row.set('elements', row.get('elements').map((e) => e.set('data', data[e.get('byte')])))
   state = updateInstructionHistory(state, address, state.get('memory'), operationType);
-  return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, (r) => newRow)))))
+  return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
 }
 
 function getSetNr(index, algorithm) {

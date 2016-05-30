@@ -20,7 +20,7 @@ class MemoryTable extends React.Component {
           rowHeight={50}
           headerHeight={50}
           width={this.props.containerWidth}
-          height={500}>
+          maxHeight={500}>
           <Column
             header={<Cell>Address</Cell>}
             cell={props => (
