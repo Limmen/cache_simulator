@@ -38,7 +38,8 @@ export default function initialCacheContent(cacheSize, blockSize, associativity,
         {
           id: "element_id" + i + j + k,
           byte: k,
-          data: 'empty'
+          data: 'empty',
+          hit: false
         })
         let newRow = row.set('elements', row.get('elements').push(element))
         row = newRow

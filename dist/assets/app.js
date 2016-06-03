@@ -30371,7 +30371,8 @@
 	        var element = (0, _immutable.Map)({
 	          id: "element_id" + i + j + k,
 	          byte: k,
-	          data: 'empty'
+	          data: 'empty',
+	          hit: false
 	        });
 	        var newRow = row.set('elements', row.get('elements').push(element));
 	        row = newRow;
@@ -35419,27 +35420,54 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; }; /**
+	                                                                                                                                                                                                                                                   * Created by kim on 2016-05-27.
+	                                                                                                                                                                                                                                                   */
+
 	exports.default = simulateInstruction;
 
 	var _immutable = __webpack_require__(298);
 
 	function simulateInstruction(state, address, operationType) {
 	  var index = getRowIndex(address, state.get('cache').get('cacheSize'));
-	  var data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'));
-	  var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
-	  var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
-	  var newRow = row.set('elements', row.get('elements').map(function (e) {
-	    return e.set('data', data[e.get('byte')]);
-	  }));
-	  state = updateInstructionHistory(state, address, state.get('memory'), operationType);
-	  return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
-	    return s.set('rows', s.get('rows').update(index, function () {
-	      return newRow;
+	  state = clear(state);
+	  if (hit(address, state.get('memory'))) {
+	    var _ret = function () {
+	      var data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'));
+	      var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
+	      var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
+	      var newRow = row.set('elements', row.get('elements').map(function (e) {
+	        if (Number(e.get("byte")) === Number(0)) {
+	          return e.set('data', data[e.get('byte')]).set("hit", true);
+	        } else return e.set('data', data[e.get('byte')]);
+	      })).set("validbit", 1);
+	      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	      return {
+	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
+	          return s.set('rows', s.get('rows').update(index, function () {
+	            return newRow;
+	          }));
+	        })))
+	      };
+	    }();
+
+	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	  } else {
+	    state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	    return state;
+	  }
+	}
+
+	function clear(state) {
+	  return state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	    return s.set("rows", s.get("rows").map(function (r) {
+	      return r.set("elements", r.get("elements").map(function (e) {
+	        return e.set("hit", false);
+	      }));
 	    }));
 	  })));
-	} /**
-	   * Created by kim on 2016-05-27.
-	   */
+	}
 
 	function getSetNr(index, algorithm) {
 	  return 0;
@@ -35470,7 +35498,7 @@
 
 	function updateInstructionHistory(state, address, memory, operationType) {
 	  var result = void 0;
-	  if (getData(address, memory) !== "empty") {
+	  if (hit(address, memory)) {
 	    result = "HIT";
 	  } else {
 	    result = "MISS";
@@ -35481,6 +35509,10 @@
 	    result: result
 	  });
 	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
+	}
+
+	function hit(address, memory) {
+	  if (getData(address, memory) !== "empty") return true;else return false;
 	}
 
 /***/ },
@@ -37822,18 +37854,18 @@
 	    key: 'getHitRate',
 	    value: function getHitRate() {
 	      if (this.props.cachecontent.get("instructionHistory").size > 0) {
-	        return this.props.cachecontent.get("instructionHistory").filter(function (i) {
+	        return Math.round(this.props.cachecontent.get("instructionHistory").filter(function (i) {
 	          return i.get("result") === "HIT";
-	        }).size;
+	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
 	      } else return 0;
 	    }
 	  }, {
 	    key: 'getMissRate',
 	    value: function getMissRate() {
 	      if (this.props.cachecontent.get("instructionHistory").size > 0) {
-	        return this.props.cachecontent.get("instructionHistory").filter(function (i) {
+	        return Math.round(this.props.cachecontent.get("instructionHistory").filter(function (i) {
 	          return i.get("result") === "MISS";
-	        }).size;
+	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
 	      } else return 0;
 	    }
 	  }, {
@@ -38357,7 +38389,8 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'td',
-	        { 'data-tip': true, 'data-for': this.props.data.get('id'), id: this.props.data.get('id'), className: 'cache_element cachetableelement-component' },
+	        { 'data-tip': true, 'data-for': this.props.data.get('id'), id: this.props.data.get('id'),
+	          className: 'cache_element cachetableelement-component' },
 	        this.props.data.get('data'),
 	        _react2.default.createElement(
 	          _reactTooltip2.default,

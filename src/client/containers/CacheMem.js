@@ -26,14 +26,14 @@ class CacheMem extends React.Component {
 
   getHitRate(){
     if(this.props.cachecontent.get("instructionHistory").size > 0){
-      return this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "HIT").size
+      return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "HIT").size / this.props.cachecontent.get("instructionHistory").size) * 100)/100)*100
     }
     else return 0;
   }
 
   getMissRate(){
     if(this.props.cachecontent.get("instructionHistory").size > 0){
-      return this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size
+      return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size / this.props.cachecontent.get("instructionHistory").size) * 100)/100)*100
     }
     else return 0;
   }
