@@ -11,8 +11,33 @@ import ReactTooltip from 'react-tooltip'
 
 
 class CacheTableElement extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.green = false;
+  };
+
+  animateHit() {
+    if (this.props.data.get("hit")){
+      for(let i = 0; i < 10; i ++) {
+        setTimeout(this.changeColor.bind(this), i * 500)
+      }
+    }
+    return true;
+  }
+
+  changeColor(){
+    if(this.green) {
+      $("#" + this.props.data.get("id")).css("background-color", "white");
+      this.green = false;
+    }
+    else {
+      $("#" + this.props.data.get("id")).css("background-color", "green");
+      this.green = true;
+    }
+  }
 
   render() {
+    this.animateHit.bind(this)()
     return (
       <td data-tip data-for={this.props.data.get('id')} id={this.props.data.get('id')}
           className="cache_element cachetableelement-component">

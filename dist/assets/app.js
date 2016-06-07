@@ -38378,15 +38378,40 @@
 	var CacheTableElement = function (_React$Component) {
 	  _inherits(CacheTableElement, _React$Component);
 
-	  function CacheTableElement() {
+	  function CacheTableElement(props, context) {
 	    _classCallCheck(this, CacheTableElement);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableElement).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableElement).call(this, props, context));
+
+	    _this.green = false;
+	    return _this;
 	  }
 
 	  _createClass(CacheTableElement, [{
+	    key: 'animateHit',
+	    value: function animateHit() {
+	      if (this.props.data.get("hit")) {
+	        for (var i = 0; i < 10; i++) {
+	          setTimeout(this.changeColor.bind(this), i * 500);
+	        }
+	      }
+	      return true;
+	    }
+	  }, {
+	    key: 'changeColor',
+	    value: function changeColor() {
+	      if (this.green) {
+	        $("#" + this.props.data.get("id")).css("background-color", "white");
+	        this.green = false;
+	      } else {
+	        $("#" + this.props.data.get("id")).css("background-color", "green");
+	        this.green = true;
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      this.animateHit.bind(this)();
 	      return _react2.default.createElement(
 	        'td',
 	        { 'data-tip': true, 'data-for': this.props.data.get('id'), id: this.props.data.get('id'),
