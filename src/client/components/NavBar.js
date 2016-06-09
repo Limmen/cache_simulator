@@ -16,13 +16,13 @@ class NavBar extends React.Component {
     <div className="collapse navbar-collapse navbar-component">
       <ul className="nav navbar-nav center center-text">
         <li>
-          <NavLink to="/simulator">Simulator</NavLink>
+          <NavLink to="/simulator" onClick={this.props.linkClicked}>Simulator</NavLink>
         </li>
         <li>
-          <NavLink to="/about">What is this?</NavLink>
+          <NavLink to="/about" onClick={this.props.linkClicked}>What is this?</NavLink>
         </li>
         <li>
-          <NavLink to="/colophon">Colophon</NavLink>
+          <NavLink to="/colophon" onClick={this.props.linkClicked}>Colophon</NavLink>
         </li>
       </ul>
     </div>

@@ -6,25 +6,35 @@ import {Map} from 'immutable'
 
 export default function simulateInstruction(state, address, operationType) {
   let index = getRowIndex(address, state.get('cache').get('cacheSize'));
+  let setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
+  let row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
   state = clear(state)
-  if (hit(address, state.get('memory'))) {
-    let data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'))
-    let setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
-    let row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
-    let newRow = row.set('elements', row.get('elements').map((e) =>
-    {
+
+  if(hit(row,address)){
+    let newRow = row.set('elements', row.get('elements').map((e) => {
       if ((Number(e.get("byte"))) === Number(0)) {
-        return  e.set('data', data[e.get('byte')]).set("hit", true);
-      }else
-        return e.set('data', data[e.get('byte')])
-    })).set("validbit", 1)
+        return e.set("hit", true);
+      } else
+        return e
+    }))
     state = updateInstructionHistory(state, address, state.get('memory'), operationType);
     return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
-  } else {
-    state = updateInstructionHistory(state, address, state.get('memory'), operationType);
-    return state;
+  }
+  else {
+    if (memoryHit(address, state.get('memory'))) {
+      let data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'))
+      let newRow = row.set('elements', row.get('elements').map((e) => {
+          return e.set('data', data[e.get('byte')])
+      })).set("validbit", 1)
+      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+      return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
+    } else {
+      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+      return state;
+    }
   }
 }
+
 
 function clear(state) {
   return state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("elements", r.get("elements").map((e) => e.set("hit", false))))))))
@@ -59,7 +69,7 @@ function getData(address, memory) {
 
 function updateInstructionHistory(state, address, memory, operationType) {
   let result;
-  if (hit(address, memory)) {
+  if (memoryHit(address, memory)) {
     result = "HIT";
   }
   else {
@@ -74,7 +84,14 @@ function updateInstructionHistory(state, address, memory, operationType) {
   return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
 }
 
-function hit(address, memory) {
+function hit(row, address) {
+  if (row.get("validbit") === 1)
+    return true;
+  else
+    return false;
+}
+
+function memoryHit(address, memory) {
   if (getData(address, memory) !== "empty")
     return true;
   else

@@ -30306,9 +30306,21 @@
 	      return state.set('cache', newcache).set('memory', newmemory);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
 	      return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);
+	    case _ActionTypes.LINK_CLICKED:
+	      return clear(state);
 	    default:
 	      return state;
 	  }
+	}
+
+	function clear(state) {
+	  return state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	    return s.set("rows", s.get("rows").map(function (r) {
+	      return r.set("elements", r.get("elements").map(function (e) {
+	        return e.set("hit", false);
+	      }));
+	    }));
+	  })));
 	}
 
 /***/ },
@@ -30327,6 +30339,7 @@
 	});
 	var CACHE_AND_MEMORY_CONTENT_INIT = exports.CACHE_AND_MEMORY_CONTENT_INIT = 'CACHE_AND_MEMORY_CONTENT_INIT';
 	var CACHE_CONTENT_UPDATE = exports.CACHE_CONTENT_UPDATE = 'CACHE_CONTENT_UPDATE';
+	var LINK_CLICKED = exports.LINK_CLICKED = 'LINK_CLICKED';
 
 /***/ },
 /* 297 */
@@ -35431,17 +35444,17 @@
 
 	function simulateInstruction(state, address, operationType) {
 	  var index = getRowIndex(address, state.get('cache').get('cacheSize'));
+	  var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
+	  var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
 	  state = clear(state);
-	  if (hit(address, state.get('memory'))) {
+
+	  if (hit(row, address)) {
 	    var _ret = function () {
-	      var data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'));
-	      var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
-	      var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
 	      var newRow = row.set('elements', row.get('elements').map(function (e) {
 	        if (Number(e.get("byte")) === Number(0)) {
-	          return e.set('data', data[e.get('byte')]).set("hit", true);
-	        } else return e.set('data', data[e.get('byte')]);
-	      })).set("validbit", 1);
+	          return e.set("hit", true);
+	        } else return e;
+	      }));
 	      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
 	      return {
 	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
@@ -35454,8 +35467,27 @@
 
 	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	  } else {
-	    state = updateInstructionHistory(state, address, state.get('memory'), operationType);
-	    return state;
+	    if (memoryHit(address, state.get('memory'))) {
+	      var _ret2 = function () {
+	        var data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'));
+	        var newRow = row.set('elements', row.get('elements').map(function (e) {
+	          return e.set('data', data[e.get('byte')]);
+	        })).set("validbit", 1);
+	        state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	        return {
+	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
+	            return s.set('rows', s.get('rows').update(index, function () {
+	              return newRow;
+	            }));
+	          })))
+	        };
+	      }();
+
+	      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+	    } else {
+	      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	      return state;
+	    }
 	  }
 	}
 
@@ -35498,7 +35530,7 @@
 
 	function updateInstructionHistory(state, address, memory, operationType) {
 	  var result = void 0;
-	  if (hit(address, memory)) {
+	  if (memoryHit(address, memory)) {
 	    result = "HIT";
 	  } else {
 	    result = "MISS";
@@ -35511,7 +35543,11 @@
 	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
 	}
 
-	function hit(address, memory) {
+	function hit(row, address) {
+	  if (row.get("validbit") === 1) return true;else return false;
+	}
+
+	function memoryHit(address, memory) {
 	  if (getData(address, memory) !== "empty") return true;else return false;
 	}
 
@@ -36674,6 +36710,12 @@
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
+	var _actions = __webpack_require__(319);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -36700,7 +36742,7 @@
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'row' },
-	          _react2.default.createElement(_Header2.default, null)
+	          _react2.default.createElement(_Header2.default, { linkClicked: this.props.linkClicked })
 	        ),
 	        _react2.default.createElement(
 	          'div',
@@ -36731,8 +36773,12 @@
 	  return {};
 	}
 
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    linkClicked: function linkClicked(fields) {
+	      dispatch(actions.linkClicked());
+	    }
+	  };
 	};
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
@@ -36750,6 +36796,8 @@
 	  value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -36760,21 +36808,42 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var Header = function Header() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'header-component' },
-	    _react2.default.createElement(
-	      'nav',
-	      { className: 'navbar navbar-default' },
-	      _react2.default.createElement(
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Header = function (_React$Component) {
+	  _inherits(Header, _React$Component);
+
+	  function Header() {
+	    _classCallCheck(this, Header);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Header).apply(this, arguments));
+	  }
+
+	  _createClass(Header, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
 	        'div',
-	        { className: 'container-fluid' },
-	        _react2.default.createElement(_NavBar2.default, null)
-	      )
-	    )
-	  );
-	};
+	        { className: 'header-component' },
+	        _react2.default.createElement(
+	          'nav',
+	          { className: 'navbar navbar-default' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'container-fluid' },
+	            _react2.default.createElement(_NavBar2.default, { linkClicked: this.props.linkClicked })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Header;
+	}(_react2.default.Component);
 
 	Header.displayName = 'Header';
 	exports.default = Header;
@@ -36836,7 +36905,7 @@
 	            null,
 	            _react2.default.createElement(
 	              _NavLink2.default,
-	              { to: '/simulator' },
+	              { to: '/simulator', onClick: this.props.linkClicked },
 	              'Simulator'
 	            )
 	          ),
@@ -36845,7 +36914,7 @@
 	            null,
 	            _react2.default.createElement(
 	              _NavLink2.default,
-	              { to: '/about' },
+	              { to: '/about', onClick: this.props.linkClicked },
 	              'What is this?'
 	            )
 	          ),
@@ -36854,7 +36923,7 @@
 	            null,
 	            _react2.default.createElement(
 	              _NavLink2.default,
-	              { to: '/colophon' },
+	              { to: '/colophon', onClick: this.props.linkClicked },
 	              'Colophon'
 	            )
 	          )
@@ -37490,6 +37559,7 @@
 	});
 	exports.cacheAndMemoryContentInitialization = cacheAndMemoryContentInitialization;
 	exports.cacheContentUpdate = cacheContentUpdate;
+	exports.linkClicked = linkClicked;
 
 	var _ActionTypes = __webpack_require__(296);
 
@@ -37513,6 +37583,12 @@
 	  return {
 	    type: types.CACHE_CONTENT_UPDATE,
 	    fields: fields
+	  };
+	}
+
+	function linkClicked() {
+	  return {
+	    type: types.LINK_CLICKED
 	  };
 	}
 

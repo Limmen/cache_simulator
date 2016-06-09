@@ -7,13 +7,15 @@ import React from 'react';
 import { connect } from 'react-redux'
 import Header from './../components/Header';
 import Footer from './../components/Footer';
+import * as actions from '../actions/'
 
 class App extends React.Component {
+
   render() {
     return (
       <div className="index container-fluid">
         <div className="row">
-          <Header/>
+          <Header linkClicked={this.props.linkClicked}/>
         </div>
         <div className="row">
           <div className="col-sm-3"></div>
@@ -36,8 +38,12 @@ function mapStateToProps() {
   return {}
 }
 
-const mapDispatchToProps = () => {
-  return {}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    linkClicked: (fields) => {
+      dispatch(actions.linkClicked());
+    }
+  }
 }
 
 export default connect(

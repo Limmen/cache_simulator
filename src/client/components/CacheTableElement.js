@@ -16,6 +16,7 @@ class CacheTableElement extends React.Component {
     this.green = false;
   };
 
+
   animateHit() {
     if (this.props.data.get("hit")){
       for(let i = 0; i < 10; i ++) {

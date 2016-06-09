@@ -21,3 +21,9 @@ export function cacheContentUpdate(fields) {
   }
 }
 
+export function linkClicked() {
+  return {
+    type: types.LINK_CLICKED
+  }
+}
+
