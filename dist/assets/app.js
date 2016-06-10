@@ -30356,13 +30356,18 @@
 
 	function initialCacheContent(cacheSize, blockSize, associativity, replacementAlgorithm) {
 	  var blockCount = cacheSize / associativity / blockSize;
-
+	  var indexBits = bitSize(blockCount - 1);
+	  var offsetBits = bitSize(blockSize - 1);
+	  var tagBits = 32 - (indexBits + offsetBits);
 	  var state = (0, _immutable.Map)({
 	    cacheSize: cacheSize,
 	    blockSize: blockSize,
 	    associativity: associativity,
 	    blockCount: blockCount,
 	    replacementAlgorithm: replacementAlgorithm,
+	    tagBits: tagBits,
+	    indexBits: indexBits,
+	    offsetBits: offsetBits,
 	    sets: (0, _immutable.List)()
 	  });
 
@@ -30400,6 +30405,10 @@
 	} /**
 	   * Created by kim on 2016-05-21.
 	   */
+
+	function bitSize(num) {
+	  return num.toString(2).length;
+	}
 
 /***/ },
 /* 298 */
@@ -35443,7 +35452,7 @@
 	var _immutable = __webpack_require__(298);
 
 	function simulateInstruction(state, address, operationType) {
-	  var index = getRowIndex(address, state.get('cache').get('cacheSize'));
+	  var index = getRowIndex(address, state.get('cache').get('cacheSize'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
 	  var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
 	  var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
 	  state = clear(state);
@@ -35505,8 +35514,10 @@
 	  return 0;
 	}
 
-	function getRowIndex(address, cacheSize) {
-	  return Number(Number(address) % Number(cacheSize) - 1);
+	function getRowIndex(address, cacheSize, offsetBits, indexBits) {
+	  var binary = createBinaryString(Number(address));
+	  var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
+	  return parseInt(index, 2);
 	}
 
 	function getBlock(blockSize, address, memory) {
@@ -35544,11 +35555,21 @@
 	}
 
 	function hit(row, address) {
-	  if (row.get("validbit") === 1) return true;else return false;
+	  if (row.get("validbit") === 1) {
+	    if (row.get("tag") === "0x" + address) return true;else return false;
+	  } else {
+	    return false;
+	  }
 	}
 
 	function memoryHit(address, memory) {
 	  if (getData(address, memory) !== "empty") return true;else return false;
+	}
+
+	function createBinaryString(nMask) {
+	  // nMask must be between -2147483648 and 2147483647
+	  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
+	  return sMask;
 	}
 
 /***/ },
@@ -37917,7 +37938,8 @@
 	    value: function createTables() {
 	      var tables = [];
 	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
-	        tables.push(_react2.default.createElement(_CacheTable2.default, { className: 'set_margin center center-block', key: i, data: this.props.cachecontent.get('cache').get('sets').get(i) }));
+	        tables.push(_react2.default.createElement(_CacheTable2.default, { className: 'set_margin center center-block', key: i,
+	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
 	      }
 	      return tables;
 	    }
@@ -38082,21 +38104,21 @@
 	                    'td',
 	                    null,
 	                    'Tag(',
-	                    32 - (this.bitSize(this.props.cachecontent.blockCount - 1) + this.bitSize(this.props.cachecontent.blockSize - 1)),
+	                    this.props.cachecontent.get("cache").get("tagBits"),
 	                    ' bits)'
 	                  ),
 	                  _react2.default.createElement(
 	                    'td',
 	                    null,
 	                    'Index(',
-	                    this.bitSize(this.props.cachecontent.blockCount - 1),
+	                    this.props.cachecontent.get("cache").get("indexBits"),
 	                    ' bits)'
 	                  ),
 	                  _react2.default.createElement(
 	                    'td',
 	                    null,
 	                    'Offset(',
-	                    this.bitSize(this.props.cachecontent.blockSize - 1),
+	                    this.props.cachecontent.get("cache").get("offsetBits"),
 	                    ' bits)'
 	                  )
 	                )

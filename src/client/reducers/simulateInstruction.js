@@ -5,12 +5,12 @@
 import {Map} from 'immutable'
 
 export default function simulateInstruction(state, address, operationType) {
-  let index = getRowIndex(address, state.get('cache').get('cacheSize'));
+  let index = getRowIndex(address, state.get('cache').get('cacheSize'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
   let setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
   let row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
   state = clear(state)
 
-  if(hit(row,address)){
+  if (hit(row, address)) {
     let newRow = row.set('elements', row.get('elements').map((e) => {
       if ((Number(e.get("byte"))) === Number(0)) {
         return e.set("hit", true);
@@ -24,7 +24,7 @@ export default function simulateInstruction(state, address, operationType) {
     if (memoryHit(address, state.get('memory'))) {
       let data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'))
       let newRow = row.set('elements', row.get('elements').map((e) => {
-          return e.set('data', data[e.get('byte')])
+        return e.set('data', data[e.get('byte')])
       })).set("validbit", 1).set("tag", "0x" + address);
       state = updateInstructionHistory(state, address, state.get('memory'), operationType);
       return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
@@ -44,8 +44,10 @@ function getSetNr(index, algorithm) {
   return 0;
 }
 
-function getRowIndex(address, cacheSize) {
-  return Number((Number(address) % Number(cacheSize)) - 1);
+function getRowIndex(address, cacheSize, offsetBits, indexBits) {
+  let binary = createBinaryString(Number(address))
+  let index = binary.slice(32-(offsetBits + indexBits),32-offsetBits)
+  return parseInt(index, 2);
 }
 
 function getBlock(blockSize, address, memory) {
@@ -85,10 +87,15 @@ function updateInstructionHistory(state, address, memory, operationType) {
 }
 
 function hit(row, address) {
-  if (row.get("validbit") === 1)
-    return true;
-  else
+  if (row.get("validbit") === 1) {
+    if (row.get("tag") === "0x" + address)
+      return true;
+    else
+      return false;
+  }
+  else {
     return false;
+  }
 }
 
 function memoryHit(address, memory) {
@@ -96,4 +103,11 @@ function memoryHit(address, memory) {
     return true;
   else
     return false;
+}
+
+function createBinaryString (nMask) {
+  // nMask must be between -2147483648 and 2147483647
+  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32;
+       nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1);
+  return sMask;
 }

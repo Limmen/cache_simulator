@@ -15,7 +15,8 @@ class CacheMem extends React.Component {
   createTables() {
     let tables = [];
     for (let i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
-      tables.push(<Table className="set_margin center center-block" key={i} data={this.props.cachecontent.get('cache').get('sets').get(i)}/>);
+      tables.push(<Table className="set_margin center center-block" key={i}
+                         data={this.props.cachecontent.get('cache').get('sets').get(i)}/>);
     }
     return tables;
   }
@@ -24,16 +25,16 @@ class CacheMem extends React.Component {
     return num.toString(2).length;
   }
 
-  getHitRate(){
-    if(this.props.cachecontent.get("instructionHistory").size > 0){
-      return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "HIT").size / this.props.cachecontent.get("instructionHistory").size) * 100)/100)*100
+  getHitRate() {
+    if (this.props.cachecontent.get("instructionHistory").size > 0) {
+      return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "HIT").size / this.props.cachecontent.get("instructionHistory").size) * 100) / 100) * 100
     }
     else return 0;
   }
 
-  getMissRate(){
-    if(this.props.cachecontent.get("instructionHistory").size > 0){
-      return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size / this.props.cachecontent.get("instructionHistory").size) * 100)/100)*100
+  getMissRate() {
+    if (this.props.cachecontent.get("instructionHistory").size > 0) {
+      return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size / this.props.cachecontent.get("instructionHistory").size) * 100) / 100) * 100
     }
     else return 0;
   }
@@ -80,13 +81,13 @@ class CacheMem extends React.Component {
               <tbody>
               <tr>
                 <td>
-                  Tag({32 - (this.bitSize(this.props.cachecontent.blockCount - 1) + this.bitSize(this.props.cachecontent.blockSize - 1))} bits)
+                  Tag({this.props.cachecontent.get("cache").get("tagBits")} bits)
                 </td>
                 <td>
-                  Index({this.bitSize(this.props.cachecontent.blockCount - 1)} bits)
+                  Index({this.props.cachecontent.get("cache").get("indexBits")} bits)
                 </td>
                 <td>
-                  Offset({this.bitSize(this.props.cachecontent.blockSize - 1)} bits)
+                  Offset({this.props.cachecontent.get("cache").get("offsetBits")} bits)
                 </td>
               </tr>
               </tbody>
