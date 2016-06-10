@@ -22,8 +22,13 @@ class CacheTableElement extends React.Component {
       for(let i = 0; i < 10; i ++) {
         setTimeout(this.changeColor.bind(this), i * 500)
       }
+      setTimeout(this.removeBackground.bind(this), 11 * 500)
     }
     return true;
+  }
+
+  removeBackground(){
+    $("#" + this.props.data.get("id")).css("background-color", "none");
   }
 
   changeColor(){

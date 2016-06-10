@@ -11,8 +11,12 @@ import CacheTableElement from './CacheTableElement'
 import ReactTooltip from 'react-tooltip'
 
 class CacheTableRow extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.red = false;
+  };
 
-  createElements(){
+  createElements() {
     let elements = [];
     for (let i = 0; i < this.props.data.get('elements').size; i++) {
       elements.push(<CacheTableElement key={i} data={this.props.data.get('elements').get(i)}/>);
@@ -20,9 +24,34 @@ class CacheTableRow extends React.Component {
     return elements;
   }
 
+  animateMiss() {
+    if (this.props.data.get("miss")) {
+      for (let i = 0; i < 10; i++) {
+        setTimeout(this.changeColor.bind(this), i * 500)
+      }
+      setTimeout(this.removeBackground.bind(this), 11 * 500)
+    }
+    return true;
+  }
+
+  removeBackground(){
+    $("#" + this.props.data.get("id")).css("background-color", "none");
+  }
+  changeColor() {
+    if (this.red) {
+      $("#" + this.props.data.get("id")).css("background-color", "white");
+      this.red = false;
+    }
+    else {
+      $("#" + this.props.data.get("id")).css("background-color", "red");
+      this.red = true;
+    }
+  }
+
   render() {
+    this.animateMiss.bind(this)()
     return (
-      <tr className="cache_row cachetablerow-component">
+      <tr id={this.props.data.get('id')} className="cache_row cachetablerow-component">
         <td data-tip data-for={this.props.data.get('id')}>
           {this.props.data.get('validbit')}
           <ReactTooltip id={this.props.data.get('id')} {...this.props}>

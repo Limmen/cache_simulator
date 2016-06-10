@@ -30314,11 +30314,16 @@
 	}
 
 	function clear(state) {
-	  return state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	  var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
 	    return s.set("rows", s.get("rows").map(function (r) {
 	      return r.set("elements", r.get("elements").map(function (e) {
 	        return e.set("hit", false);
 	      }));
+	    }));
+	  })));
+	  return newState.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	    return s.set("rows", s.get("rows").map(function (r) {
+	      return r.set("miss", false);
 	    }));
 	  })));
 	}
@@ -30383,6 +30388,7 @@
 	        tag: "empty",
 	        index: j,
 	        validbit: 0,
+	        miss: false,
 	        elements: (0, _immutable.List)()
 	      });
 	      for (var k = 0; k < blockSize; k++) {
@@ -35437,7 +35443,7 @@
 /* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -35452,19 +35458,20 @@
 	var _immutable = __webpack_require__(298);
 
 	function simulateInstruction(state, address, operationType) {
-	  var index = getRowIndex(address, state.get('cache').get('cacheSize'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
+	  var tag = getTag(address, state.get("cache").get("blockSize"));
+	  state = clear(state);
+	  var index = getRowIndex(tag, state.get('cache').get('cacheSize'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
 	  var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
 	  var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
-	  state = clear(state);
 
-	  if (hit(row, address)) {
+	  if (hit(row, tag)) {
 	    var _ret = function () {
 	      var newRow = row.set('elements', row.get('elements').map(function (e) {
-	        if (Number(e.get("byte")) === Number(0)) {
+	        if (Number(e.get("byte")) === Number(address) - Number(tag)) {
 	          return e.set("hit", true);
 	        } else return e;
 	      }));
-	      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	      state = updateInstructionHistory(row, tag, operationType, state);
 	      return {
 	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	          return s.set('rows', s.get('rows').update(index, function () {
@@ -35474,15 +35481,15 @@
 	      };
 	    }();
 
-	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	    if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
 	  } else {
-	    if (memoryHit(address, state.get('memory'))) {
+	    if (memoryHit(tag, state.get('memory'))) {
 	      var _ret2 = function () {
-	        var data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'));
+	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]);
-	        })).set("validbit", 1).set("tag", "0x" + address);
-	        state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true);
+	        state = updateInstructionHistory(row, tag, operationType, state);
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	            return s.set('rows', s.get('rows').update(index, function () {
@@ -35492,46 +35499,50 @@
 	        };
 	      }();
 
-	      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+	      if ((typeof _ret2 === "undefined" ? "undefined" : _typeof(_ret2)) === "object") return _ret2.v;
 	    } else {
-	      state = updateInstructionHistory(state, address, state.get('memory'), operationType);
+	      state = updateInstructionHistory(row, tag, operationType, state);
 	      return state;
 	    }
 	  }
 	}
 
 	function clear(state) {
-	  return state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	  var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
 	    return s.set("rows", s.get("rows").map(function (r) {
 	      return r.set("elements", r.get("elements").map(function (e) {
 	        return e.set("hit", false);
-	      }));
+	      })).set("miss", false);
 	    }));
 	  })));
+	  return newState;
 	}
 
 	function getSetNr(index, algorithm) {
 	  return 0;
 	}
 
-	function getRowIndex(address, cacheSize, offsetBits, indexBits) {
-	  var binary = createBinaryString(Number(address));
+	function getRowIndex(tag, cacheSize, offsetBits, indexBits) {
+	  var binary = createBinaryString(Number(tag));
 	  var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
 	  return parseInt(index, 2);
 	}
 
-	function getBlock(blockSize, address, memory) {
+	function getTag(tag, blockSize) {
+	  return Number(tag) - Number(Number(tag) % Number(blockSize));
+	}
+	function getBlock(blockSize, tag, memory) {
 	  var data = [];
 	  for (var i = 0; i < blockSize; i++) {
-	    data.push(getData(Number(address) + Number(i), memory));
+	    data.push(getData(Number(tag) + Number(i), memory));
 	  }
 	  return data;
 	}
 
-	function getData(address, memory) {
+	function getData(tag, memory) {
 	  var data = "empty";
 	  memory.map(function (addr) {
-	    if (Number(addr.get('address_number')) === Number(address)) {
+	    if (Number(addr.get('address_number')) === Number(tag)) {
 	      data = addr.get('data_string');
 	      return;
 	    }
@@ -35539,31 +35550,31 @@
 	  return data;
 	}
 
-	function updateInstructionHistory(state, address, memory, operationType) {
+	function updateInstructionHistory(row, tag, operationType, state) {
 	  var result = void 0;
-	  if (memoryHit(address, memory)) {
+	  if (hit(row, tag)) {
 	    result = "HIT";
 	  } else {
 	    result = "MISS";
 	  }
 	  var instruction = (0, _immutable.Map)({
 	    operationType: operationType,
-	    address: address,
+	    address: tag,
 	    result: result
 	  });
 	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
 	}
 
-	function hit(row, address) {
+	function hit(row, tag) {
 	  if (row.get("validbit") === 1) {
-	    if (row.get("tag") === "0x" + address) return true;else return false;
+	    if (row.get("tag") === "0x" + tag) return true;else return false;
 	  } else {
 	    return false;
 	  }
 	}
 
-	function memoryHit(address, memory) {
-	  if (getData(address, memory) !== "empty") return true;else return false;
+	function memoryHit(tag, memory) {
+	  if (getData(tag, memory) !== "empty") return true;else return false;
 	}
 
 	function createBinaryString(nMask) {
@@ -38372,10 +38383,13 @@
 	var CacheTableRow = function (_React$Component) {
 	  _inherits(CacheTableRow, _React$Component);
 
-	  function CacheTableRow() {
+	  function CacheTableRow(props, context) {
 	    _classCallCheck(this, CacheTableRow);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableRow).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableRow).call(this, props, context));
+
+	    _this.red = false;
+	    return _this;
 	  }
 
 	  _createClass(CacheTableRow, [{
@@ -38388,11 +38402,39 @@
 	      return elements;
 	    }
 	  }, {
+	    key: 'animateMiss',
+	    value: function animateMiss() {
+	      if (this.props.data.get("miss")) {
+	        for (var i = 0; i < 10; i++) {
+	          setTimeout(this.changeColor.bind(this), i * 500);
+	        }
+	        setTimeout(this.removeBackground.bind(this), 11 * 500);
+	      }
+	      return true;
+	    }
+	  }, {
+	    key: 'removeBackground',
+	    value: function removeBackground() {
+	      $("#" + this.props.data.get("id")).css("background-color", "none");
+	    }
+	  }, {
+	    key: 'changeColor',
+	    value: function changeColor() {
+	      if (this.red) {
+	        $("#" + this.props.data.get("id")).css("background-color", "white");
+	        this.red = false;
+	      } else {
+	        $("#" + this.props.data.get("id")).css("background-color", "red");
+	        this.red = true;
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      this.animateMiss.bind(this)();
 	      return _react2.default.createElement(
 	        'tr',
-	        { className: 'cache_row cachetablerow-component' },
+	        { id: this.props.data.get('id'), className: 'cache_row cachetablerow-component' },
 	        _react2.default.createElement(
 	          'td',
 	          { 'data-tip': true, 'data-for': this.props.data.get('id') },
@@ -38492,8 +38534,14 @@
 	        for (var i = 0; i < 10; i++) {
 	          setTimeout(this.changeColor.bind(this), i * 500);
 	        }
+	        setTimeout(this.removeBackground.bind(this), 11 * 500);
 	      }
 	      return true;
+	    }
+	  }, {
+	    key: 'removeBackground',
+	    value: function removeBackground() {
+	      $("#" + this.props.data.get("id")).css("background-color", "none");
 	    }
 	  }, {
 	    key: 'changeColor',

@@ -36,6 +36,7 @@ export default function initialCacheContent(cacheSize, blockSize, associativity,
           tag: "empty",
           index: j,
           validbit: 0,
+          miss: false,
           elements: List()
         })
       for (let k = 0; k < blockSize; k++) {
