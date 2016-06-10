@@ -30,7 +30,7 @@ class CacheTableRow extends React.Component {
           </ReactTooltip>
         </td>
         <td data-tip data-for={this.props.data.get('id') + "index"}>
-          {this.props.data.tag}
+          {this.props.data.get("tag")}
           <ReactTooltip id={this.props.data.get('id') + "index"} {...this.props}>
             <p>Index: {this.props.data.get('index')}</p>
           </ReactTooltip>

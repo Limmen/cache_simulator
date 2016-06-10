@@ -25,7 +25,7 @@ export default function simulateInstruction(state, address, operationType) {
       let data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'))
       let newRow = row.set('elements', row.get('elements').map((e) => {
           return e.set('data', data[e.get('byte')])
-      })).set("validbit", 1)
+      })).set("validbit", 1).set("tag", "0x" + address);
       state = updateInstructionHistory(state, address, state.get('memory'), operationType);
       return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
     } else {
@@ -60,7 +60,7 @@ function getData(address, memory) {
   let data = "empty"
   memory.map(function (addr) {
     if (Number(addr.get('address_number')) === Number(address)) {
-      data = addr.get('address_number');
+      data = addr.get('data_string');
       return;
     }
   })

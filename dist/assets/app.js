@@ -35472,7 +35472,7 @@
 	        var data = getBlock(state.get('cache').get('blockSize'), address, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]);
-	        })).set("validbit", 1);
+	        })).set("validbit", 1).set("tag", "0x" + address);
 	        state = updateInstructionHistory(state, address, state.get('memory'), operationType);
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
@@ -35521,7 +35521,7 @@
 	  var data = "empty";
 	  memory.map(function (addr) {
 	    if (Number(addr.get('address_number')) === Number(address)) {
-	      data = addr.get('address_number');
+	      data = addr.get('data_string');
 	      return;
 	    }
 	  });
@@ -36636,7 +36636,7 @@
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _CacheSimulator = __webpack_require__(316);
+	var _CacheSimulator = __webpack_require__(317);
 
 	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
 
@@ -36710,7 +36710,7 @@
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
-	var _actions = __webpack_require__(319);
+	var _actions = __webpack_require__(316);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -37015,6 +37015,50 @@
 /* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.cacheAndMemoryContentInitialization = cacheAndMemoryContentInitialization;
+	exports.cacheContentUpdate = cacheContentUpdate;
+	exports.linkClicked = linkClicked;
+
+	var _ActionTypes = __webpack_require__(296);
+
+	var types = _interopRequireWildcard(_ActionTypes);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function cacheAndMemoryContentInitialization(fields) {
+	  return {
+	    type: types.CACHE_AND_MEMORY_CONTENT_INIT,
+	    fields: fields
+	  };
+	} /**
+	   * ActionCreator, returns action objects of different types.
+	   *
+	   * Created by kim on 2016-05-05.
+	   */
+
+
+	function cacheContentUpdate(fields) {
+	  return {
+	    type: types.CACHE_CONTENT_UPDATE,
+	    fields: fields
+	  };
+	}
+
+	function linkClicked() {
+	  return {
+	    type: types.LINK_CLICKED
+	  };
+	}
+
+/***/ },
+/* 317 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/**
 	 * CacheSimulator redux-container. Container for the index-route and connects it to the redux store.
 	 */
@@ -37032,7 +37076,7 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _SettingsPanel = __webpack_require__(317);
+	var _SettingsPanel = __webpack_require__(318);
 
 	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
 
@@ -37155,7 +37199,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheSimulator);
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37180,11 +37224,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(318);
+	var _CacheForm = __webpack_require__(319);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _actions = __webpack_require__(319);
+	var _actions = __webpack_require__(316);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -37266,7 +37310,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
 
 /***/ },
-/* 318 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37549,50 +37593,6 @@
 	})(CacheForm);
 
 /***/ },
-/* 319 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.cacheAndMemoryContentInitialization = cacheAndMemoryContentInitialization;
-	exports.cacheContentUpdate = cacheContentUpdate;
-	exports.linkClicked = linkClicked;
-
-	var _ActionTypes = __webpack_require__(296);
-
-	var types = _interopRequireWildcard(_ActionTypes);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function cacheAndMemoryContentInitialization(fields) {
-	  return {
-	    type: types.CACHE_AND_MEMORY_CONTENT_INIT,
-	    fields: fields
-	  };
-	} /**
-	   * ActionCreator, returns action objects of different types.
-	   *
-	   * Created by kim on 2016-05-05.
-	   */
-
-
-	function cacheContentUpdate(fields) {
-	  return {
-	    type: types.CACHE_CONTENT_UPDATE,
-	    fields: fields
-	  };
-	}
-
-	function linkClicked() {
-	  return {
-	    type: types.LINK_CLICKED
-	  };
-	}
-
-/***/ },
 /* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -37622,7 +37622,7 @@
 
 	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
-	var _actions = __webpack_require__(319);
+	var _actions = __webpack_require__(316);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -38388,7 +38388,7 @@
 	        _react2.default.createElement(
 	          'td',
 	          { 'data-tip': true, 'data-for': this.props.data.get('id') + "index" },
-	          this.props.data.tag,
+	          this.props.data.get("tag"),
 	          _react2.default.createElement(
 	            _reactTooltip2.default,
 	            _extends({ id: this.props.data.get('id') + "index" }, this.props),
