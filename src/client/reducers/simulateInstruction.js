@@ -25,7 +25,7 @@ export default function simulateInstruction(state, address, operationType) {
     if (memoryHit(tag, state.get('memory'))) {
       let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
       let newRow = row.set('elements', row.get('elements').map((e) => {
-        return e.set('data', data[e.get('byte')])
+        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))))
       })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true);
       state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");;
       return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))

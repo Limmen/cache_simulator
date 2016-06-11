@@ -44,6 +44,7 @@ export default function initialCacheContent(cacheSize, blockSize, associativity,
           {
             id: "element_id" + i + j + k,
             byte: k,
+            address: 'empty',
             data: 'empty',
             hit: false
           })

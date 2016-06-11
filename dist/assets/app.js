@@ -30396,6 +30396,7 @@
 	        var element = (0, _immutable.Map)({
 	          id: "element_id" + i + j + k,
 	          byte: k,
+	          address: 'empty',
 	          data: 'empty',
 	          hit: false
 	        });
@@ -35488,7 +35489,7 @@
 	      var _ret2 = function () {
 	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
-	          return e.set('data', data[e.get('byte')]);
+	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))));
 	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true);
 	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");;
 	        return {
@@ -38587,6 +38588,12 @@
 	            null,
 	            'Byte: ',
 	            this.props.data.get('byte')
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'Address: ',
+	            this.props.data.get('address')
 	          )
 	        )
 	      );

@@ -50,6 +50,7 @@ class CacheTableElement extends React.Component {
         {this.props.data.get('data')}
         <ReactTooltip id={this.props.data.get('id')} {...this.props}>
           <p>Byte: {this.props.data.get('byte')}</p>
+          <p>Address: {this.props.data.get('address')}</p>
         </ReactTooltip>
       </td>
     )
