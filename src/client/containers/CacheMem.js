@@ -13,7 +13,6 @@ import Table from '../components/CacheTable'
 class CacheMem extends React.Component {
 
   instructionResult(){
-    console.log("RES: " + this.props.cachecontent.get("instructionResult"))
     $("#fade").fadeIn("slow");
     setTimeout(() => {
       $("#fade").fadeOut("slow");

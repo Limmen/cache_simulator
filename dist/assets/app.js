@@ -30390,6 +30390,8 @@
 	        index: j,
 	        validbit: 0,
 	        miss: false,
+	        loadedDate: -Infinity,
+	        usedDate: -Infinity,
 	        elements: (0, _immutable.List)()
 	      });
 	      for (var k = 0; k < blockSize; k++) {
@@ -35462,8 +35464,8 @@
 	function simulateInstruction(state, address, operationType) {
 	  var tag = getTag(address, state.get("cache").get("blockSize"));
 	  state = clear(state);
-	  var index = getRowIndex(tag, state.get('cache').get('cacheSize'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
-	  var setNr = getSetNr(index, state.get('cache').get('replacementAlgorithm'));
+	  var index = getRowIndex(tag, state.get('cache').get('blockCount'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
+	  var setNr = getSetNr(state, index, tag);
 	  var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
 
 	  if (hit(row, tag)) {
@@ -35472,7 +35474,7 @@
 	        if (Number(e.get("byte")) === Number(address) - Number(tag)) {
 	          return e.set("hit", true);
 	        } else return e;
-	      }));
+	      })).set("usedDate", Date.now());
 	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
 	      return {
 	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
@@ -35490,8 +35492,9 @@
 	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))));
-	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true);
-	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");;
+	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
+	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");
+	        ;
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	            return s.set('rows', s.get('rows').update(index, function () {
@@ -35520,11 +35523,53 @@
 	  return newState;
 	}
 
-	function getSetNr(index, algorithm) {
-	  return 0;
+	function getSetNr(state, index, tag) {
+	  var rows = (0, _immutable.List)();
+	  var algorithm = state.get('cache').get('replacementAlgorithm');
+	  var row = void 0;
+	  for (var i = 0; i < state.get("cache").get("sets").size; i++) {
+	    row = state.get("cache").get("sets").get(i).get("rows").get(index);
+	    if (hit(row, tag)) {
+	      console.log("hit  setnr: " + i);
+	      return i;
+	    }
+	    rows = rows.push(row);
+	  }
+	  for (var _i = 0; _i < rows.size; _i++) {
+	    if (rows.get(_i).get("validbit") === 0) {
+	      console.log("validbit setnr: " + _i);
+	      return _i;
+	    }
+	  }
+	  switch (algorithm) {
+	    case "LRU":
+	      return LRU(rows);
+	    case "FIFO":
+	      return FIFO(rows);
+	    case "RANDOM":
+	      return RANDOM(rows);
+	  }
 	}
 
-	function getRowIndex(tag, cacheSize, offsetBits, indexBits) {
+	function LRU(rows) {
+	  var setNr = 0;
+	  var usedDate = rows.get(0).get("usedDate");
+
+	  for (var i = 1; i < rows.size; i++) {
+	    if (rows.get(i).get("usedDate") < usedDate) {
+	      setNr = i;
+	      usedDate = rows.get(i).get("usedDate");
+	    }
+	  }
+	  return setNr;
+	}
+
+	function FIFO(rows) {}
+
+	function RANDOM(rows) {}
+
+	function getRowIndex(tag, blockCount, offsetBits, indexBits) {
+	  if (blockCount === 1) return 0;
 	  var binary = createBinaryString(Number(tag));
 	  var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
 	  return parseInt(index, 2);
@@ -37949,7 +37994,6 @@
 	  _createClass(CacheMem, [{
 	    key: 'instructionResult',
 	    value: function instructionResult() {
-	      console.log("RES: " + this.props.cachecontent.get("instructionResult"));
 	      $("#fade").fadeIn("slow");
 	      setTimeout(function () {
 	        $("#fade").fadeOut("slow");
@@ -38432,7 +38476,7 @@
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
-	      $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'none' }, 250, 'linear', function () {});
+	      $("#" + this.props.data.get("id")).css("background-color", "none");
 	    }
 	  }, {
 	    key: 'changeColor',
@@ -38558,6 +38602,8 @@
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
+	      console.log("REMOVE BACKGROOUND");
+	      $("#" + this.props.data.get("id")).css("background-color", "none");
 	      $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'none' }, 250, 'linear', function () {});
 	    }
 	  }, {
