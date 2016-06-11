@@ -12,7 +12,7 @@ let Colophon = () => (
   <div className="colophon-component" >
     <h3 className="bold">Colophon</h3>
     <p>The site is written in JavaScript and styled with Cascading Style Sheets. </p>
-    <p>React is used for view rendering with redux for state management.</p>
+    <p>React.js is used for view rendering with redux for state management.</p>
     <p>Twitter Bootstrap is used for styling some components on the page.</p>
     <p>Hosted: Not Yet. </p>
     <p>The site is written by <a href="https://github.com/Limmen" target="_blank">Kim Hammar</a></p>

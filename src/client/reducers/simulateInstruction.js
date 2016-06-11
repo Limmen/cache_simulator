@@ -18,7 +18,7 @@ export default function simulateInstruction(state, address, operationType) {
       } else
         return e
     }))
-    state = updateInstructionHistory(row, tag, operationType, state);
+    state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
     return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
   }
   else {
@@ -27,11 +27,11 @@ export default function simulateInstruction(state, address, operationType) {
       let newRow = row.set('elements', row.get('elements').map((e) => {
         return e.set('data', data[e.get('byte')])
       })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true);
-      state = updateInstructionHistory(row, tag, operationType, state);
+      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");;
       return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
     } else {
       state = updateInstructionHistory(row, tag, operationType, state);
-      return state;
+      return state.set("instructionResult", "MISS! Address not found in Main Memory");
     }
   }
 }
@@ -84,7 +84,7 @@ function updateInstructionHistory(row, tag, operationType, state) {
   let instruction = Map(
     {
       operationType: operationType,
-      address: tag,
+      address: "0x" + tag,
       result: result
     })
   return state.set('instructionHistory', state.get('instructionHistory').push(instruction));

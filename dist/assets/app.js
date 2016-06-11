@@ -30303,7 +30303,8 @@
 	    case _ActionTypes.CACHE_AND_MEMORY_CONTENT_INIT:
 	      var newcache = (0, _initialCacheContent2.default)(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm);
 	      var newmemory = (0, _initialMemoryContent2.default)(action.fields.memorySize);
-	      return state.set('cache', newcache).set('memory', newmemory);
+	      var instructionResult = "";
+	      return state.set('cache', newcache).set('memory', newmemory).set("instructionResult", instructionResult);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
 	      return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);
 	    case _ActionTypes.LINK_CLICKED:
@@ -35471,7 +35472,7 @@
 	          return e.set("hit", true);
 	        } else return e;
 	      }));
-	      state = updateInstructionHistory(row, tag, operationType, state);
+	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
 	      return {
 	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	          return s.set('rows', s.get('rows').update(index, function () {
@@ -35489,7 +35490,7 @@
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]);
 	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true);
-	        state = updateInstructionHistory(row, tag, operationType, state);
+	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");;
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	            return s.set('rows', s.get('rows').update(index, function () {
@@ -35502,7 +35503,7 @@
 	      if ((typeof _ret2 === "undefined" ? "undefined" : _typeof(_ret2)) === "object") return _ret2.v;
 	    } else {
 	      state = updateInstructionHistory(row, tag, operationType, state);
-	      return state;
+	      return state.set("instructionResult", "MISS! Address not found in Main Memory");
 	    }
 	  }
 	}
@@ -35559,7 +35560,7 @@
 	  }
 	  var instruction = (0, _immutable.Map)({
 	    operationType: operationType,
-	    address: tag,
+	    address: "0x" + tag,
 	    result: result
 	  });
 	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
@@ -37945,6 +37946,15 @@
 	  }
 
 	  _createClass(CacheMem, [{
+	    key: 'instructionResult',
+	    value: function instructionResult() {
+	      console.log("RES: " + this.props.cachecontent.get("instructionResult"));
+	      $("#fade").fadeIn("slow");
+	      setTimeout(function () {
+	        $("#fade").fadeOut("slow");
+	      }, 2000);
+	    }
+	  }, {
 	    key: 'createTables',
 	    value: function createTables() {
 	      var tables = [];
@@ -37980,6 +37990,7 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      this.instructionResult();
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -38191,7 +38202,12 @@
 	          _react2.default.createElement(
 	            'h3',
 	            { className: 'bold center_text' },
-	            'Cache Memory'
+	            'Cache Memory ',
+	            _react2.default.createElement(
+	              'small',
+	              { id: 'fade' },
+	              this.props.cachecontent.get("instructionResult")
+	            )
 	          ),
 	          this.createTables()
 	        )
@@ -38405,26 +38421,26 @@
 	    key: 'animateMiss',
 	    value: function animateMiss() {
 	      if (this.props.data.get("miss")) {
-	        for (var i = 0; i < 10; i++) {
+	        for (var i = 0; i < 6; i++) {
 	          setTimeout(this.changeColor.bind(this), i * 500);
 	        }
-	        setTimeout(this.removeBackground.bind(this), 11 * 500);
+	        setTimeout(this.removeBackground.bind(this), 7 * 500);
 	      }
 	      return true;
 	    }
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
-	      $("#" + this.props.data.get("id")).css("background-color", "none");
+	      $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'none' }, 250, 'linear', function () {});
 	    }
 	  }, {
 	    key: 'changeColor',
 	    value: function changeColor() {
 	      if (this.red) {
-	        $("#" + this.props.data.get("id")).css("background-color", "white");
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'white' }, 250, 'linear', function () {});
 	        this.red = false;
 	      } else {
-	        $("#" + this.props.data.get("id")).css("background-color", "red");
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'red' }, 250, 'linear', function () {});
 	        this.red = true;
 	      }
 	    }
@@ -38531,26 +38547,26 @@
 	    key: 'animateHit',
 	    value: function animateHit() {
 	      if (this.props.data.get("hit")) {
-	        for (var i = 0; i < 10; i++) {
+	        for (var i = 0; i < 6; i++) {
 	          setTimeout(this.changeColor.bind(this), i * 500);
 	        }
-	        setTimeout(this.removeBackground.bind(this), 11 * 500);
+	        setTimeout(this.removeBackground.bind(this), 7 * 500);
 	      }
 	      return true;
 	    }
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
-	      $("#" + this.props.data.get("id")).css("background-color", "none");
+	      $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'none' }, 250, 'linear', function () {});
 	    }
 	  }, {
 	    key: 'changeColor',
 	    value: function changeColor() {
 	      if (this.green) {
-	        $("#" + this.props.data.get("id")).css("background-color", "white");
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'white' }, 250, 'linear', function () {});
 	        this.green = false;
 	      } else {
-	        $("#" + this.props.data.get("id")).css("background-color", "green");
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'green' }, 250, 'linear', function () {});
 	        this.green = true;
 	      }
 	    }
@@ -46953,7 +46969,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'React is used for view rendering with redux for state management.'
+	      'React.js is used for view rendering with redux for state management.'
 	    ),
 	    _react2.default.createElement(
 	      'p',

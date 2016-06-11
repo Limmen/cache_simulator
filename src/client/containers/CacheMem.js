@@ -12,6 +12,14 @@ import Table from '../components/CacheTable'
 
 class CacheMem extends React.Component {
 
+  instructionResult(){
+    console.log("RES: " + this.props.cachecontent.get("instructionResult"))
+    $("#fade").fadeIn("slow");
+    setTimeout(() => {
+      $("#fade").fadeOut("slow");
+    }, 2000);
+  }
+
   createTables() {
     let tables = [];
     for (let i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
@@ -40,6 +48,7 @@ class CacheMem extends React.Component {
   }
 
   render() {
+    this.instructionResult()
     return (
       <div>
         <div className="row">
@@ -111,7 +120,7 @@ class CacheMem extends React.Component {
         </div>
         <hr></hr>
         <div className="row">
-          <h3 className="bold center_text">Cache Memory</h3>
+          <h3 className="bold center_text">Cache Memory <small id="fade">{this.props.cachecontent.get("instructionResult")}</small></h3>
           {this.createTables()}
         </div>
       </div>

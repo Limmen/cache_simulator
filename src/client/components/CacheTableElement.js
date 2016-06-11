@@ -18,26 +18,26 @@ class CacheTableElement extends React.Component {
 
 
   animateHit() {
-    if (this.props.data.get("hit")){
-      for(let i = 0; i < 10; i ++) {
+    if (this.props.data.get("hit")) {
+      for (let i = 0; i < 6; i++) {
         setTimeout(this.changeColor.bind(this), i * 500)
       }
-      setTimeout(this.removeBackground.bind(this), 11 * 500)
+      setTimeout(this.removeBackground.bind(this), 7 * 500)
     }
     return true;
   }
 
-  removeBackground(){
-    $("#" + this.props.data.get("id")).css("background-color", "none");
+  removeBackground() {
+    $("#" + this.props.data.get("id")).animate({'backgroundColor': 'none'}, 250, 'linear', function() { });
   }
 
-  changeColor(){
-    if(this.green) {
-      $("#" + this.props.data.get("id")).css("background-color", "white");
+  changeColor() {
+    if (this.green) {
+      $("#" + this.props.data.get("id")).animate({'backgroundColor': 'white'}, 250, 'linear', function() { });
       this.green = false;
     }
     else {
-      $("#" + this.props.data.get("id")).css("background-color", "green");
+      $("#" + this.props.data.get("id")).animate({'backgroundColor': 'green'}, 250, 'linear', function() { });
       this.green = true;
     }
   }

@@ -26,24 +26,24 @@ class CacheTableRow extends React.Component {
 
   animateMiss() {
     if (this.props.data.get("miss")) {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 6; i++) {
         setTimeout(this.changeColor.bind(this), i * 500)
       }
-      setTimeout(this.removeBackground.bind(this), 11 * 500)
+      setTimeout(this.removeBackground.bind(this), 7 * 500)
     }
     return true;
   }
 
   removeBackground(){
-    $("#" + this.props.data.get("id")).css("background-color", "none");
+    $("#" + this.props.data.get("id")).animate({'backgroundColor': 'none'}, 250, 'linear', function() { });
   }
   changeColor() {
     if (this.red) {
-      $("#" + this.props.data.get("id")).css("background-color", "white");
+      $("#" + this.props.data.get("id")).animate({'backgroundColor': 'white'}, 250, 'linear', function() { });
       this.red = false;
     }
     else {
-      $("#" + this.props.data.get("id")).css("background-color", "red");
+      $("#" + this.props.data.get("id")).animate({'backgroundColor': 'red'}, 250, 'linear', function() { });
       this.red = true;
     }
   }

@@ -21,7 +21,8 @@ export default function cacheAndMemoryContent(state = initialState, action) {
     case  CACHE_AND_MEMORY_CONTENT_INIT:
       let newcache = initialCacheContent(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm)
       let newmemory = initialMemoryContent(action.fields.memorySize)
-      return state.set('cache', newcache).set('memory', newmemory);
+      let instructionResult = "";
+      return state.set('cache', newcache).set('memory', newmemory).set("instructionResult", instructionResult);
     case CACHE_CONTENT_UPDATE:
       return simulateInstruction(state, action.fields.fetchAddress, action.fields.operationType)
     case LINK_CLICKED:
