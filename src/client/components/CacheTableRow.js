@@ -35,7 +35,7 @@ class CacheTableRow extends React.Component {
   }
 
   removeBackground(){
-    $("#" + this.props.data.get("id")).css("background-color", "none");
+    $("#" + this.props.data.get("id")).css("background-color", "");
   }
   changeColor() {
     if (this.red) {

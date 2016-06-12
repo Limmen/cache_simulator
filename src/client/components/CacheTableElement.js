@@ -28,9 +28,7 @@ class CacheTableElement extends React.Component {
   }
 
   removeBackground() {
-    console.log("REMOVE BACKGROOUND");
-    $("#" + this.props.data.get("id")).css("background-color", "none");
-    $("#" + this.props.data.get("id")).animate({'backgroundColor': 'none'}, 250, 'linear', function() { });
+    $("#" + this.props.data.get("id")).css("background-color", "");
   }
 
   changeColor() {

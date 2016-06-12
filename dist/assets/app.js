@@ -38476,7 +38476,7 @@
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
-	      $("#" + this.props.data.get("id")).css("background-color", "none");
+	      $("#" + this.props.data.get("id")).css("background-color", "");
 	    }
 	  }, {
 	    key: 'changeColor',
@@ -38602,9 +38602,7 @@
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
-	      console.log("REMOVE BACKGROOUND");
-	      $("#" + this.props.data.get("id")).css("background-color", "none");
-	      $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'none' }, 250, 'linear', function () {});
+	      $("#" + this.props.data.get("id")).css("background-color", "");
 	    }
 	  }, {
 	    key: 'changeColor',
