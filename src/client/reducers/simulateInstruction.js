@@ -48,14 +48,14 @@ function getSetNr(state, index, tag) {
   let row;
   for (let i = 0; i < state.get("cache").get("sets").size; i++) {
     row = state.get("cache").get("sets").get(i).get("rows").get(index)
-    if(hit(row, tag)){
+    if (hit(row, tag)) {
       console.log("hit  setnr: " + i);
       return i;
     }
     rows = rows.push(row);
   }
-  for(let i = 0; i < rows.size; i++){
-    if(rows.get(i).get("validbit") === 0){
+  for (let i = 0; i < rows.size; i++) {
+    if (rows.get(i).get("validbit") === 0) {
       console.log("validbit setnr: " + i);
       return i;
     }
@@ -74,8 +74,8 @@ function LRU(rows) {
   let setNr = 0;
   let usedDate = rows.get(0).get("usedDate");
 
-  for(let i = 1; i < rows.size; i++){
-    if(rows.get(i).get("usedDate") < usedDate){
+  for (let i = 1; i < rows.size; i++) {
+    if (rows.get(i).get("usedDate") < usedDate) {
       setNr = i;
       usedDate = rows.get(i).get("usedDate");
     }
@@ -84,15 +84,24 @@ function LRU(rows) {
 }
 
 function FIFO(rows) {
+  let setNr = 0;
+  let loadedDate = rows.get(0).get("loadedDate");
 
+  for (let i = 1; i < rows.size; i++) {
+    if (rows.get(i).get("loadedDate") < loadedDate) {
+      setNr = i;
+      loadedDate = rows.get(i).get("usedDate");
+    }
+  }
+  return setNr;
 }
 
 function RANDOM(rows) {
-
+  return Math.floor((Math.random() * rows.size));
 }
 
 function getRowIndex(tag, blockCount, offsetBits, indexBits) {
-  if(blockCount === 1)
+  if (blockCount === 1)
     return 0;
   let binary = createBinaryString(Number(tag))
   let index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits)

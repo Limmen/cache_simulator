@@ -35564,9 +35564,22 @@
 	  return setNr;
 	}
 
-	function FIFO(rows) {}
+	function FIFO(rows) {
+	  var setNr = 0;
+	  var loadedDate = rows.get(0).get("loadedDate");
 
-	function RANDOM(rows) {}
+	  for (var i = 1; i < rows.size; i++) {
+	    if (rows.get(i).get("loadedDate") < loadedDate) {
+	      setNr = i;
+	      loadedDate = rows.get(i).get("usedDate");
+	    }
+	  }
+	  return setNr;
+	}
+
+	function RANDOM(rows) {
+	  return Math.floor(Math.random() * rows.size);
+	}
 
 	function getRowIndex(tag, blockCount, offsetBits, indexBits) {
 	  if (blockCount === 1) return 0;
