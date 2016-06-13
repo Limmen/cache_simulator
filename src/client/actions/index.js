@@ -3,8 +3,8 @@
  *
  * Created by kim on 2016-05-05.
  */
-import * as types from '../constants/ActionTypes'
 
+import * as types from '../constants/ActionTypes'
 
 
 export function cacheAndMemoryContentInitialization(fields) {

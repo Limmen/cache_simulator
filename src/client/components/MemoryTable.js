@@ -48,9 +48,8 @@ class MemoryTable extends React.Component {
 }
 
 MemoryTable.displayName = 'MemoryTable';
-/*
 MemoryTable.propTypes = {
   data: React.PropTypes.object.isRequired
 };
-*/
+
 export default Dimensions()(MemoryTable);

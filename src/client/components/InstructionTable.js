@@ -62,9 +62,9 @@ class InstructionTable extends React.Component {
 }
 
 InstructionTable.displayName = 'InstructionTable';
-/*
+
  InstructionTable.propTypes = {
  data: React.PropTypes.object.isRequired
  };
- */
+
 export default Dimensions()(InstructionTable);

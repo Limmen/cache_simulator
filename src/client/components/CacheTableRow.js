@@ -11,11 +11,22 @@ import CacheTableElement from './CacheTableElement'
 import ReactTooltip from 'react-tooltip'
 
 class CacheTableRow extends React.Component {
+  /**
+   * Class constructor. Called when instantiated.
+   *
+   * @param props
+   * @param context
+   */
   constructor(props, context) {
     super(props, context);
     this.red = false;
-  };
+  }
 
+  /**
+   * Function to create elements in the row based on the given props.
+   *
+   * @returns {Array}
+   */
   createElements() {
     let elements = [];
     for (let i = 0; i < this.props.data.get('elements').size; i++) {
@@ -24,6 +35,11 @@ class CacheTableRow extends React.Component {
     return elements;
   }
 
+  /**
+   * Visual effect for instruction miss
+   *
+   * @returns {boolean}
+   */
   animateMiss() {
     if (this.props.data.get("miss")) {
       for (let i = 0; i < 6; i++) {
@@ -34,9 +50,16 @@ class CacheTableRow extends React.Component {
     return true;
   }
 
+  /**
+   * Visual effect
+   */
   removeBackground(){
     $("#" + this.props.data.get("id")).css("background-color", "");
   }
+
+  /**
+   * Visual effect
+   */
   changeColor() {
     if (this.red) {
       $("#" + this.props.data.get("id")).animate({'backgroundColor': 'white'}, 250, 'linear', function() { });

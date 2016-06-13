@@ -1,9 +1,20 @@
 /**
+ * Exports a function to create a initial cache memory layout from given properties
+ *
  * Created by kim on 2016-05-21.
  */
 
 import {Map, List} from 'immutable'
 
+/**
+ * Returns initial cache layout with the specified cacheSize, blockSize, associativity and replacementAlgorithm.
+ *
+ * @param cacheSize
+ * @param blockSize
+ * @param associativity
+ * @param replacementAlgorithm
+ * @returns {*} cache layout
+ */
 export default function initialCacheContent(cacheSize, blockSize, associativity, replacementAlgorithm) {
   let blockCount = (cacheSize / associativity) / blockSize;
   let indexBits = bitSize(blockCount - 1)
@@ -62,6 +73,12 @@ export default function initialCacheContent(cacheSize, blockSize, associativity,
   return state;
 }
 
+/**
+ * Returns bitsize of a integer
+ *
+ * @param num integer
+ * @returns {*} bitsize
+ */
 function bitSize(num) {
   return num.toString(2).length;
 }

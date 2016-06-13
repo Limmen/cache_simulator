@@ -38,9 +38,25 @@ function mapStateToProps() {
   return {}
 }
 
+/**
+ * Maps the redux dispatcher to props that this container provides.
+ *
+ * @param dispatch redux-dispatcher
+ * @returns {{cacheHandleSubmit: cacheHandleSubmit}} - Object with action creators.
+ */
+/**
+ * Maps the redux dispatcher to props that this container provides.
+ *
+ * @param dispatch redux-dispatcher
+ * @returns {{linkClicked: linkClicked}}
+ */
 const mapDispatchToProps = (dispatch) => {
   return {
-    linkClicked: (fields) => {
+    /**
+     * Function to be called when links in the header are clicked
+     *
+     */
+    linkClicked: () => {
       dispatch(actions.linkClicked());
     }
   }

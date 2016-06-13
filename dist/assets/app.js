@@ -30262,6 +30262,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * Cache and Memory reducer
+	 *
 	 * Created by kim on 2016-05-20.
 	 */
 
@@ -30290,11 +30292,23 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	/**
+	 * Initialstate
+	 */
 	var initialState = (0, _immutable.Map)({
 	  memory: (0, _immutable.List)(),
 	  cache: (0, _immutable.Map)(),
-	  instructionHistory: (0, _immutable.List)()
+	  instructionHistory: (0, _immutable.List)(),
+	  instructionResult: ""
 	});
+
+	/**
+	 * Takes an action and a given state and returns a new state
+	 *
+	 * @param state old state
+	 * @param action action
+	 * @returns {*} new state
+	 */
 	function cacheAndMemoryContent() {
 	  var state = arguments.length <= 0 || arguments[0] === undefined ? initialState : arguments[0];
 	  var action = arguments[1];
@@ -30303,8 +30317,7 @@
 	    case _ActionTypes.CACHE_AND_MEMORY_CONTENT_INIT:
 	      var newcache = (0, _initialCacheContent2.default)(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm);
 	      var newmemory = (0, _initialMemoryContent2.default)(action.fields.memorySize);
-	      var instructionResult = "";
-	      return state.set('cache', newcache).set('memory', newmemory).set("instructionResult", instructionResult);
+	      return state.set('cache', newcache).set('memory', newmemory);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
 	      return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);
 	    case _ActionTypes.LINK_CLICKED:
@@ -30314,6 +30327,12 @@
 	  }
 	}
 
+	/**
+	 * Function that clears state for visual effects.
+	 *
+	 * @param state
+	 * @returns {*} updated state
+	 */
 	function clear(state) {
 	  var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
 	    return s.set("rows", s.get("rows").map(function (r) {
@@ -30360,6 +30379,15 @@
 
 	var _immutable = __webpack_require__(298);
 
+	/**
+	 * Returns initial cache layout with the specified cacheSize, blockSize, associativity and replacementAlgorithm.
+	 *
+	 * @param cacheSize
+	 * @param blockSize
+	 * @param associativity
+	 * @param replacementAlgorithm
+	 * @returns {*} cache layout
+	 */
 	function initialCacheContent(cacheSize, blockSize, associativity, replacementAlgorithm) {
 	  var blockCount = cacheSize / associativity / blockSize;
 	  var indexBits = bitSize(blockCount - 1);
@@ -30412,9 +30440,19 @@
 	    state = newState;
 	  }
 	  return state;
-	} /**
-	   * Created by kim on 2016-05-21.
-	   */
+	}
+
+	/**
+	 * Returns bitsize of a integer
+	 *
+	 * @param num integer
+	 * @returns {*} bitsize
+	 */
+	/**
+	 * Exports a function to create a initial cache memory layout from given properties
+	 *
+	 * Created by kim on 2016-05-21.
+	 */
 
 	function bitSize(num) {
 	  return num.toString(2).length;
@@ -35417,6 +35455,12 @@
 
 	var _immutable = __webpack_require__(298);
 
+	/**
+	 * Function that creates a initial memory layout
+	 *
+	 * @param memorySize size of the memory
+	 * @returns {*} memory layout
+	 */
 	function initialMemoryContent(memorySize) {
 
 	  var memory = (0, _immutable.List)();
@@ -35434,8 +35478,16 @@
 	  return memory;
 	}
 
-	// Returns a random number between min (inclusive) and max (exclusive)
 	/**
+	 * Returns a number between min (inclusive and max (exclusive)
+	 *
+	 * @param min
+	 * @param max
+	 * @returns {number}
+	 */
+	/**
+	 * Exports a function that returns a inital memory layout from a given memory size
+	 *
 	 * Created by kim on 2016-05-21.
 	 */
 
@@ -35454,6 +35506,8 @@
 	});
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; }; /**
+	                                                                                                                                                                                                                                                   * Exports a function to simulate a instruction in the cache.
+	                                                                                                                                                                                                                                                   *
 	                                                                                                                                                                                                                                                   * Created by kim on 2016-05-27.
 	                                                                                                                                                                                                                                                   */
 
@@ -35461,6 +35515,14 @@
 
 	var _immutable = __webpack_require__(298);
 
+	/**
+	 * Function that simulates a instruction in the cache.
+	 *
+	 * @param state state
+	 * @param address address entered by the user
+	 * @param operationType operationType entered by the user
+	 * @returns {*} new state1
+	 */
 	function simulateInstruction(state, address, operationType) {
 	  var tag = getTag(address, state.get("cache").get("blockSize"));
 	  state = clear(state);
@@ -35494,7 +35556,6 @@
 	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))));
 	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
 	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");
-	        ;
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	            return s.set('rows', s.get('rows').update(index, function () {
@@ -35512,6 +35573,12 @@
 	  }
 	}
 
+	/**
+	 * Function that clears state for visual effects.
+	 *
+	 * @param state state to be updated
+	 * @returns {*} new state
+	 */
 	function clear(state) {
 	  var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
 	    return s.set("rows", s.get("rows").map(function (r) {
@@ -35523,6 +35590,14 @@
 	  return newState;
 	}
 
+	/**
+	 * Function that calculates setNumber to be affected by the cache hit/miss
+	 *
+	 * @param state state
+	 * @param index row-index
+	 * @param tag tag of the block
+	 * @returns {number} set-number
+	 */
 	function getSetNr(state, index, tag) {
 	  var rows = (0, _immutable.List)();
 	  var algorithm = state.get('cache').get('replacementAlgorithm');
@@ -35530,28 +35605,32 @@
 	  for (var i = 0; i < state.get("cache").get("sets").size; i++) {
 	    row = state.get("cache").get("sets").get(i).get("rows").get(index);
 	    if (hit(row, tag)) {
-	      console.log("hit  setnr: " + i);
 	      return i;
 	    }
 	    rows = rows.push(row);
 	  }
 	  for (var _i = 0; _i < rows.size; _i++) {
 	    if (rows.get(_i).get("validbit") === 0) {
-	      console.log("validbit setnr: " + _i);
 	      return _i;
 	    }
 	  }
 	  switch (algorithm) {
 	    case "LRU":
-	      return LRU(rows);
+	      return lru(rows);
 	    case "FIFO":
-	      return FIFO(rows);
+	      return fifo(rows);
 	    case "RANDOM":
-	      return RANDOM(rows);
+	      return random(rows);
 	  }
 	}
 
-	function LRU(rows) {
+	/**
+	 * Simulates the LRU replacement algorithm
+	 *
+	 * @param rows rows with the same index from different sets
+	 * @returns {number} set-number
+	 */
+	function lru(rows) {
 	  var setNr = 0;
 	  var usedDate = rows.get(0).get("usedDate");
 
@@ -35564,7 +35643,13 @@
 	  return setNr;
 	}
 
-	function FIFO(rows) {
+	/**
+	 * Simulates  the FIFO replacement algorithm
+	 *
+	 * @param rows rows with the same index from different sets
+	 * @returns {number}set-number
+	 */
+	function fifo(rows) {
 	  var setNr = 0;
 	  var loadedDate = rows.get(0).get("loadedDate");
 
@@ -35577,10 +35662,25 @@
 	  return setNr;
 	}
 
-	function RANDOM(rows) {
+	/**
+	 * Simulates the RANDOM replacement algorithm
+	 *
+	 * @param rows rows with the same index from different sets
+	 * @returns {number} set-number
+	 */
+	function random(rows) {
 	  return Math.floor(Math.random() * rows.size);
 	}
 
+	/**
+	 * Returns row-index in the cache
+	 *
+	 * @param tag tag of the block to be fetched
+	 * @param blockCount number of blocks in each set
+	 * @param offsetBits number of offsetbits in the address
+	 * @param indexBits number of indexbits in the address
+	 * @returns {*} row-index
+	 */
 	function getRowIndex(tag, blockCount, offsetBits, indexBits) {
 	  if (blockCount === 1) return 0;
 	  var binary = createBinaryString(Number(tag));
@@ -35588,9 +35688,25 @@
 	  return parseInt(index, 2);
 	}
 
+	/**
+	 * Returns the tag of the block (a whole block is always fetched on cache miss)
+	 *
+	 * @param tag tag of the instruction
+	 * @param blockSize blocksize
+	 * @returns {number} tag of the block
+	 */
 	function getTag(tag, blockSize) {
 	  return Number(tag) - Number(Number(tag) % Number(blockSize));
 	}
+
+	/**
+	 * Fetches a block of data
+	 *
+	 * @param blockSize block-size in the cache memory
+	 * @param tag address-tag to be fetched
+	 * @param memory main memory
+	 * @returns {Array} block of data
+	 */
 	function getBlock(blockSize, tag, memory) {
 	  var data = [];
 	  for (var i = 0; i < blockSize; i++) {
@@ -35599,6 +35715,13 @@
 	  return data;
 	}
 
+	/**
+	 * Fetches the data from the specified main memory address
+	 *
+	 * @param tag address-tag
+	 * @param memory main memory
+	 * @returns {string} data
+	 */
 	function getData(tag, memory) {
 	  var data = "empty";
 	  memory.map(function (addr) {
@@ -35610,6 +35733,15 @@
 	  return data;
 	}
 
+	/**
+	 * Function that updates instructionhistory
+	 *
+	 * @param row row in the cache affected by the instruction simulation
+	 * @param tag tag of the instruction
+	 * @param operationType operation-type of the instruction
+	 * @param state state to update
+	 * @returns {*} new state with updated instructionHistory
+	 */
 	function updateInstructionHistory(row, tag, operationType, state) {
 	  var result = void 0;
 	  if (hit(row, tag)) {
@@ -35625,6 +35757,13 @@
 	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
 	}
 
+	/**
+	 * Checks wheter the instruction was a hit in the cache or not.
+	 *
+	 * @param row row calculated by replacementalgorithm and index-bits
+	 * @param tag address-tag of the instruction
+	 * @returns {boolean}
+	 */
 	function hit(row, tag) {
 	  if (row.get("validbit") === 1) {
 	    if (row.get("tag") === "0x" + tag) return true;else return false;
@@ -35633,10 +35772,23 @@
 	  }
 	}
 
+	/**
+	 * Checks if the address to be fetched is valid, i.e it can be found in the main memory
+	 *
+	 * @param tag address-tag
+	 * @param memory main memory
+	 * @returns {boolean}
+	 */
 	function memoryHit(tag, memory) {
 	  if (getData(tag, memory) !== "empty") return true;else return false;
 	}
 
+	/**
+	 * Creates binary string from integer
+	 *
+	 * @param nMask integer
+	 * @returns {string} binary string
+	 */
 	function createBinaryString(nMask) {
 	  // nMask must be between -2147483648 and 2147483647
 	  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
@@ -36865,9 +37017,25 @@
 	  return {};
 	}
 
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{cacheHandleSubmit: cacheHandleSubmit}} - Object with action creators.
+	 */
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{linkClicked: linkClicked}}
+	 */
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
-	    linkClicked: function linkClicked(fields) {
+	    /**
+	     * Function to be called when links in the header are clicked
+	     *
+	     */
+	    linkClicked: function linkClicked() {
 	      dispatch(actions.linkClicked());
 	    }
 	  };
@@ -36880,7 +37048,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Functional stateless Header component.
+	 * Header component.
 	 */
 	'use strict';
 
@@ -37133,7 +37301,6 @@
 	   * Created by kim on 2016-05-05.
 	   */
 
-
 	function cacheContentUpdate(fields) {
 	  return {
 	    type: types.CACHE_CONTENT_UPDATE,
@@ -37372,7 +37539,7 @@
 	};
 
 	/**
-	 * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
 	 * Its result must be a plain object*, and it will be merged into the component’s props.
 	 * If you omit it, the component will not be subscribed to the Redux store.
 	 *
@@ -38006,12 +38173,24 @@
 
 	  _createClass(CacheMem, [{
 	    key: 'instructionResult',
+
+
+	    /**
+	     * Visual effect after a instruction simulation
+	     */
 	    value: function instructionResult() {
 	      $("#fade").fadeIn("slow");
 	      setTimeout(function () {
 	        $("#fade").fadeOut("slow");
 	      }, 2000);
 	    }
+
+	    /**
+	     * Creates cache tables for the view by the given state properties
+	     *
+	     * @returns {Array} tables
+	     */
+
 	  }, {
 	    key: 'createTables',
 	    value: function createTables() {
@@ -38022,11 +38201,26 @@
 	      }
 	      return tables;
 	    }
+
+	    /**
+	     * Returns the bitsize of a given integer
+	     *
+	     * @param num integer
+	     * @returns {*} bitsize
+	     */
+
 	  }, {
 	    key: 'bitSize',
 	    value: function bitSize(num) {
 	      return num.toString(2).length;
 	    }
+
+	    /**
+	     * Returns the hitrate
+	     *
+	     * @returns {number}
+	     */
+
 	  }, {
 	    key: 'getHitRate',
 	    value: function getHitRate() {
@@ -38036,6 +38230,13 @@
 	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
 	      } else return 0;
 	    }
+
+	    /**
+	     * Returns the missrate
+	     *
+	     * @returns {number}
+	     */
+
 	  }, {
 	    key: 'getMissRate',
 	    value: function getMissRate() {
@@ -38457,6 +38658,13 @@
 	var CacheTableRow = function (_React$Component) {
 	  _inherits(CacheTableRow, _React$Component);
 
+	  /**
+	   * Class constructor. Called when instantiated.
+	   *
+	   * @param props
+	   * @param context
+	   */
+
 	  function CacheTableRow(props, context) {
 	    _classCallCheck(this, CacheTableRow);
 
@@ -38465,6 +38673,13 @@
 	    _this.red = false;
 	    return _this;
 	  }
+
+	  /**
+	   * Function to create elements in the row based on the given props.
+	   *
+	   * @returns {Array}
+	   */
+
 
 	  _createClass(CacheTableRow, [{
 	    key: 'createElements',
@@ -38475,6 +38690,13 @@
 	      }
 	      return elements;
 	    }
+
+	    /**
+	     * Visual effect for instruction miss
+	     *
+	     * @returns {boolean}
+	     */
+
 	  }, {
 	    key: 'animateMiss',
 	    value: function animateMiss() {
@@ -38486,11 +38708,21 @@
 	      }
 	      return true;
 	    }
+
+	    /**
+	     * Visual effect
+	     */
+
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
 	      $("#" + this.props.data.get("id")).css("background-color", "");
 	    }
+
+	    /**
+	     * Visual effect
+	     */
+
 	  }, {
 	    key: 'changeColor',
 	    value: function changeColor() {
@@ -38592,6 +38824,13 @@
 	var CacheTableElement = function (_React$Component) {
 	  _inherits(CacheTableElement, _React$Component);
 
+	  /**
+	   * Class constructor. Called when instantiated.
+	   *
+	   * @param props
+	   * @param context
+	   */
+
 	  function CacheTableElement(props, context) {
 	    _classCallCheck(this, CacheTableElement);
 
@@ -38600,6 +38839,12 @@
 	    _this.green = false;
 	    return _this;
 	  }
+
+	  /**
+	   * Visual effect when a instruction hit on this element occurs
+	   * @returns {boolean}
+	   */
+
 
 	  _createClass(CacheTableElement, [{
 	    key: 'animateHit',
@@ -38612,11 +38857,21 @@
 	      }
 	      return true;
 	    }
+
+	    /**
+	     * Visual effect
+	     */
+
 	  }, {
 	    key: 'removeBackground',
 	    value: function removeBackground() {
 	      $("#" + this.props.data.get("id")).css("background-color", "");
 	    }
+
+	    /**
+	     * Visual effect
+	     */
+
 	  }, {
 	    key: 'changeColor',
 	    value: function changeColor() {
@@ -39694,11 +39949,10 @@
 	}(_react2.default.Component);
 
 	MemoryTable.displayName = 'MemoryTable';
-	/*
 	MemoryTable.propTypes = {
-	  data: React.PropTypes.object.isRequired
+	  data: _react2.default.PropTypes.object.isRequired
 	};
-	*/
+
 	exports.default = (0, _reactDimensions2.default)()(MemoryTable);
 
 /***/ },
@@ -46729,6 +46983,13 @@
 
 	InstructionResultPanel.propTypes = {};
 
+	/**
+	 * Component subscribes to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 *
+	 * @param state app-state
+	 * @returns {{instructionHistory: *}}
+	 */
 	function mapStateToProps(state) {
 	  return {
 	    instructionHistory: state.cacheAndMemoryContent.get('instructionHistory')
@@ -46868,11 +47129,11 @@
 	}(_react2.default.Component);
 
 	InstructionTable.displayName = 'InstructionTable';
-	/*
-	 InstructionTable.propTypes = {
-	 data: React.PropTypes.object.isRequired
-	 };
-	 */
+
+	InstructionTable.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
 	exports.default = (0, _reactDimensions2.default)()(InstructionTable);
 
 /***/ },

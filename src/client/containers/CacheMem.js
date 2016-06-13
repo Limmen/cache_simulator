@@ -12,6 +12,9 @@ import Table from '../components/CacheTable'
 
 class CacheMem extends React.Component {
 
+  /**
+   * Visual effect after a instruction simulation
+   */
   instructionResult(){
     $("#fade").fadeIn("slow");
     setTimeout(() => {
@@ -19,6 +22,11 @@ class CacheMem extends React.Component {
     }, 2000);
   }
 
+  /**
+   * Creates cache tables for the view by the given state properties
+   *
+   * @returns {Array} tables
+   */
   createTables() {
     let tables = [];
     for (let i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
@@ -28,10 +36,21 @@ class CacheMem extends React.Component {
     return tables;
   }
 
+  /**
+   * Returns the bitsize of a given integer
+   *
+   * @param num integer
+   * @returns {*} bitsize
+   */
   bitSize(num) {
     return num.toString(2).length;
   }
 
+  /**
+   * Returns the hitrate
+   *
+   * @returns {number}
+   */
   getHitRate() {
     if (this.props.cachecontent.get("instructionHistory").size > 0) {
       return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "HIT").size / this.props.cachecontent.get("instructionHistory").size) * 100) / 100) * 100
@@ -39,6 +58,11 @@ class CacheMem extends React.Component {
     else return 0;
   }
 
+  /**
+   * Returns the missrate
+   *
+   * @returns {number}
+   */
   getMissRate() {
     if (this.props.cachecontent.get("instructionHistory").size > 0) {
       return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size / this.props.cachecontent.get("instructionHistory").size) * 100) / 100) * 100

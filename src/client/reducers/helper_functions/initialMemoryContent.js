@@ -1,9 +1,17 @@
 /**
+ * Exports a function that returns a inital memory layout from a given memory size
+ *
  * Created by kim on 2016-05-21.
  */
 
 import {Map, List} from 'immutable'
 
+/**
+ * Function that creates a initial memory layout
+ *
+ * @param memorySize size of the memory
+ * @returns {*} memory layout
+ */
 export default function initialMemoryContent(memorySize) {
 
   let memory = List()
@@ -23,7 +31,13 @@ export default function initialMemoryContent(memorySize) {
   return memory;
 }
 
-// Returns a random number between min (inclusive) and max (exclusive)
+/**
+ * Returns a number between min (inclusive and max (exclusive)
+ *
+ * @param min
+ * @param max
+ * @returns {number}
+ */
 function getRandomArbitrary(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }

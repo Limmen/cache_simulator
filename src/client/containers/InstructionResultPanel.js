@@ -25,6 +25,13 @@ InstructionResultPanel.propTypes = {
 
 }
 
+/**
+ * Component subscribes to Redux store updates. Any time it updates, mapStateToProps will be called.
+ * Its result must be a plain object*, and it will be merged into the component’s props.
+ *
+ * @param state app-state
+ * @returns {{instructionHistory: *}}
+ */
 function mapStateToProps(state) {
   return {
     instructionHistory: state.cacheAndMemoryContent.get('instructionHistory')

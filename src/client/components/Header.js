@@ -1,5 +1,5 @@
 /**
- * Functional stateless Header component.
+ * Header component.
  */
 'use strict';
 

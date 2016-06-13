@@ -11,12 +11,21 @@ import ReactTooltip from 'react-tooltip'
 
 
 class CacheTableElement extends React.Component {
+  /**
+   * Class constructor. Called when instantiated.
+   *
+   * @param props
+   * @param context
+   */
   constructor(props, context) {
     super(props, context);
     this.green = false;
-  };
+  }
 
-
+  /**
+   * Visual effect when a instruction hit on this element occurs
+   * @returns {boolean}
+   */
   animateHit() {
     if (this.props.data.get("hit")) {
       for (let i = 0; i < 6; i++) {
@@ -27,10 +36,16 @@ class CacheTableElement extends React.Component {
     return true;
   }
 
+  /**
+   * Visual effect
+   */
   removeBackground() {
     $("#" + this.props.data.get("id")).css("background-color", "");
   }
 
+  /**
+   * Visual effect
+   */
   changeColor() {
     if (this.green) {
       $("#" + this.props.data.get("id")).animate({'backgroundColor': 'white'}, 250, 'linear', function() { });

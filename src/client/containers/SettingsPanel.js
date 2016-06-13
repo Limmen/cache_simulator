@@ -33,7 +33,7 @@ SettingsPanel.propTypes = {
 }
 
 /**
- * f specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+ * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
  * Its result must be a plain object*, and it will be merged into the component’s props.
  * If you omit it, the component will not be subscribed to the Redux store.
  *
