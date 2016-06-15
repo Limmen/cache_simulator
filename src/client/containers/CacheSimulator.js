@@ -7,6 +7,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import SettingsPanel from './SettingsPanel';
 import InstructionPanel from './InstructionPanel';
+import AssemblyPanel from './AssemblyPanel';
 import CacheMemory from './CacheMem';
 import MemoryPanel from './MemoryPanel';
 import InstructionResultPanel from './InstructionResultPanel';
@@ -20,7 +21,10 @@ class CacheSimulator extends React.Component {
           <CacheMemory />
           <hr></hr>
           <h3 className="bold center_text">Simulate Processor Intructions</h3>
-          <InstructionPanel />
+          <div>
+            <InstructionPanel/>
+            <AssemblyPanel/>
+          </div>
           <hr></hr>
           <h3 className="bold center_text">Instruction Results</h3>
           <InstructionResultPanel />
