@@ -38272,6 +38272,43 @@
 
 	var fields = exports.fields = ['assembly'];
 
+	var validate = function validate(values) {
+	  var errors = {};
+	  if (!values.assembly) {
+	    errors.assembly = 'Required';
+	  }
+
+	  if (values.assembly !== undefined) {
+	    var rows = values.assembly.split("\n");
+	    var empty = true;
+	    console.log(JSON.stringify(rows));
+	    var row = void 0;
+	    for (var i = 0; i < rows.length; i++) {
+	      row = rows[i];
+	      if (row !== "") {
+	        empty = false;
+	        var tokens = row.split(" ");
+	        if (tokens.length !== 2) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> ADDRESS";
+	          return errors;
+	        }
+	        var operation = tokens[0];
+	        var address = tokens[1];
+	        if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
+	          return errors;
+	        }
+	        if (isNaN(address)) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
+	          return errors;
+	        }
+	      }
+	    }
+	  }
+
+	  return errors;
+	};
+
 	var AssemblyForm = function (_React$Component) {
 	  _inherits(AssemblyForm, _React$Component);
 
@@ -38286,12 +38323,57 @@
 	    value: function render() {
 	      var _props = this.props;
 	      var assembly = _props.fields.assembly;
+	      var resetForm = _props.resetForm;
 	      var handleSubmit = _props.handleSubmit;
 	      var submitting = _props.submitting;
 
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'fetchform-component row' },
+	        _react2.default.createElement(
+	          'div',
+	          { id: 'infoModal', className: 'modal fade', role: 'dialog' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'modal-dialog' },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'modal-content' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'modal-header' },
+	                _react2.default.createElement(
+	                  'button',
+	                  { type: 'button', className: 'close', 'data-dismiss': 'modal' },
+	                  '×'
+	                ),
+	                _react2.default.createElement(
+	                  'h4',
+	                  { className: 'modal-title' },
+	                  'Assembly Input Guidelines'
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'modal-body row' },
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  ' yo '
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'modal-footer' },
+	                _react2.default.createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-default', 'data-dismiss': 'modal' },
+	                  'Close'
+	                )
+	              )
+	            )
+	          )
+	        ),
 	        _react2.default.createElement(
 	          'form',
 	          { onSubmit: handleSubmit },
@@ -38303,16 +38385,35 @@
 	              { className: 'bold row' },
 	              'Assembly'
 	            ),
-	            _react2.default.createElement('textarea', _extends({ className: 'form-control', rows: '5', id: 'comment' }, assembly))
+	            _react2.default.createElement('textarea', _extends({ className: 'form-control', rows: '5', id: 'comment' }, assembly)),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              assembly.touched && assembly.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                assembly.error
+	              )
+	            )
 	          ),
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'form-group col-sm-12' },
+	            { className: 'form-group col-sm-6' },
 	            _react2.default.createElement(
 	              'button',
 	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
 	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
 	              ' Run'
+	            ),
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'btn btn-default', type: 'button', disabled: submitting, onClick: resetForm },
+	              'Clear'
+	            ),
+	            _react2.default.createElement(
+	              'button',
+	              { type: 'button', className: 'btn btn-default', 'data-toggle': 'modal', 'data-target': '#infoModal' },
+	              _react2.default.createElement('span', { className: 'glyphicon glyphicon-info-sign' })
 	            )
 	          )
 	        )
@@ -38333,7 +38434,8 @@
 
 	exports.default = (0, _reduxForm.reduxForm)({
 	  form: 'synchronousValidation',
-	  fields: fields
+	  fields: fields,
+	  validate: validate
 	})(AssemblyForm);
 
 /***/ },
