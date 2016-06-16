@@ -9,6 +9,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import Table from '../components/CacheTable'
+import * as actions from '../actions/'
 
 class CacheMem extends React.Component {
 
@@ -70,12 +71,12 @@ class CacheMem extends React.Component {
     else return 0;
   }
 
-  simulationMessage(simulating) {
+  simulationMessage(simulating, cancelSimulation) {
     if (simulating)
       return (
         <div className="center centering-block center_text">
           <label className="bold green">ONGOING SIMULATION </label>
-          <button className="btn btn-default margin-left" type="button">
+          <button className="btn btn-default margin-left" type="button" onClick={cancelSimulation}>
             Stop Simulation
           </button>
         </div>)
@@ -115,6 +116,14 @@ class CacheMem extends React.Component {
               <tr>
                 <td>Block Size</td>
                 <td>{this.props.cachecontent.get('cache').get('blockSize')} Bytes</td>
+              </tr>
+              <tr>
+                <td>Replacement Algorithm</td>
+                <td>{this.props.cachecontent.get('cache').get('replacementAlgorithm')}</td>
+              </tr>
+              <tr>
+                <td>Write Policy</td>
+                <td>Write-through</td>
               </tr>
               </tbody>
             </table>
@@ -160,8 +169,8 @@ class CacheMem extends React.Component {
           </h3>
           {this.createTables()}
         </div>
-        <div className="row centering-block">
-          {this.simulationMessage(this.props.cachecontent.get("simulating"))}
+        <div className="row centering-block margin-bottom">
+          {this.simulationMessage(this.props.cachecontent.get("simulating"),  this.props.cancelSimulation)}
         </div>
       </div>
     );
@@ -182,8 +191,12 @@ function mapStateToProps(state) {
   }
 }
 
-const mapDispatchToProps = () => {
-  return {}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    cancelSimulation: () => {
+      dispatch(actions.stopSimulation())
+    }
+  }
 }
 
 export default connect(

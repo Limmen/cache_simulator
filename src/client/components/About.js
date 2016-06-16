@@ -12,7 +12,8 @@ let About = () => (
   <div className="about-component">
     <h3 className="bold">What is this?</h3>
     <p>This is a cache simulator that can be used for educational purposes.</p>
-    <p>The simulator works under the assumption of address length and word size of 32 bits.
+    <p>The simulator works under the assumption of address length and word size of 32 bit. Also the simulated processor uses a load-store architecture.
+      Additionally, the cache uses a write-through policy for memory writes.
     The simulator lets you manually simulate a D-cache memory's behaviour
       by issuing LOAD/STORE intructions on a simulated cache and main memory.
     </p>

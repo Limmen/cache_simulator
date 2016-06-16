@@ -16,7 +16,7 @@ class AssemblyPanel extends React.Component {
   render() {
     return (
       <div>
-        <AssemblyForm onSubmit={this.props.fetchHandleSubmit}  />
+        <AssemblyForm onSubmit={this.props.fetchHandleSubmit} simulating={this.props.simulating}  />
       </div>
     );
   }
@@ -33,8 +33,9 @@ AssemblyPanel.propTypes = {
  *
  * @returns {{}}
  */
-function mapStateToProps() {
+function mapStateToProps(state) {
   return {
+    simulating: state.cacheAndMemoryContent.get("simulating")
   }
 }
 /**
@@ -53,7 +54,7 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(actions.startSimulation())
       let rows = fields.assembly.split("\n");
       let row = rows[0];
-      let tokens = row.split(" ");
+      let tokens = row.replace(/ +(?= )/g,'').split(" ");
       let operation = tokens[0];
       let address = tokens[1];
       fields = {
@@ -65,7 +66,7 @@ const mapDispatchToProps = (dispatch) => {
       for(let i = 1; i < rows.length; i++){
         console.log("sim assembly!");
         let row = rows[i];
-        let tokens = row.split(" ");
+        let tokens = row.replace(/ +(?= )/g,'').split(" ");
         let operation = tokens[0];
         let address = tokens[1];
         fields = {

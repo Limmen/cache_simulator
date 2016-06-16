@@ -22,19 +22,19 @@ const validate = values => {
       row = rows[i];
       if (row !== "") {
         empty = false;
-        let tokens = row.split(" ");
-        if(tokens.length !== 2 ){
-          errors.assembly = "Error on line " + (i+1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> ADDRESS";
+        let tokens = row.replace(/ +(?= )/g, '').split(" ");
+        if (tokens.length !== 2) {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> ADDRESS";
           return errors;
         }
         let operation = tokens[0];
         let address = tokens[1];
-        if(operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE"){
-          errors.assembly = "Error on line " + (i+1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
+        if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
           return errors;
         }
-        if(isNaN(address)){
-          errors.assembly = "Error on line " + (i+1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
+        if (isNaN(address)) {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
           return errors;
         }
       }
@@ -55,10 +55,30 @@ class AssemblyForm extends React.Component {
             <div className="modal-content">
               <div className="modal-header">
                 <button type="button" className="close" data-dismiss="modal">&times;</button>
-                <h4 className="modal-title">Assembly Input Guidelines</h4>
+                <h3 className="modal-title bold">Assembly Input Guidelines</h3>
               </div>
               <div className="modal-body row">
-                <p> yo </p>
+                <p>
+                  One statement on each row.
+                </p>
+                <p>
+                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Address&gt;</code>
+                </p>
+                <p>
+                  Allowed operations are: <code>LOAD</code> and <code>STORE</code>
+                </p>
+                <p className="bold">Example:</p>
+                <div>
+                  <code>LOAD 10 </code> <br/>
+                  <code>LOAD 10 </code> <br/>
+                  <code>STORE 19 </code> <br/>
+                  <code>LOAD 1 </code> <br/>
+                  <code>LOAD 0 </code> <br/>
+                  <code>LOAD 0 </code> <br/>
+                  <code>LOAD 1 </code> <br/>
+                  <code>STORE 26 </code> <br/>
+                  <code>LOAD 33 </code> <br/>
+                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
@@ -66,16 +86,27 @@ class AssemblyForm extends React.Component {
             </div>
           </div>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}>
           <div className="form-group col-sm-12">
-            <p className="bold row">Assembly</p>
-            <textarea className="form-control" rows="5" id="comment" {...assembly}/>
+            <p className="bold row">
+              Assembly
+            </p>
+      <textarea
+        className="form-control"
+        rows="5"
+        id="comment"
+        {...
+          assembly
+        }
+      />
             <div className="error">
-              {assembly.touched && assembly.error && <div>{assembly.error}</div>}
+              {assembly.touched && assembly.error && <div>{assembly.error}</div>
+              }
             </div>
           </div>
           <div className="form-group col-sm-6">
-            <button type="submit" disabled={submitting} className="btn btn-default">
+            <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
               {submitting ? <i/> : <i/>} Run
             </button>
             <button className="btn btn-default" type="button" disabled={submitting} onClick={resetForm}>

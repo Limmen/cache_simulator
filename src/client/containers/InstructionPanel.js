@@ -21,7 +21,7 @@ class InstructionPanel extends React.Component {
     }
     return (
       <div>
-        <FetchFormComponent onSubmit={this.props.fetchHandleSubmit} {...myInitialValues} />
+        <FetchFormComponent onSubmit={this.props.fetchHandleSubmit} {...myInitialValues} simulating={this.props.simulating} />
       </div>
     );
   }
@@ -38,8 +38,9 @@ InstructionPanel.propTypes = {
  *
  * @returns {{}}
  */
-function mapStateToProps() {
+function mapStateToProps(state) {
   return {
+    simulating: state.cacheAndMemoryContent.get("simulating")
   }
 }
 /**

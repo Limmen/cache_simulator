@@ -55,7 +55,7 @@ class FetchForm extends React.Component {
             </div>
           </div>
           <div className="form-group col-sm-12">
-            <button type="submit" disabled={submitting} className="btn btn-default">
+            <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
               {submitting ? <i/> : <i/>} Fetch
             </button>
           </div>

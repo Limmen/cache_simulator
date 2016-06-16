@@ -39,7 +39,10 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       let newmemory = initialMemoryContent(action.fields.memorySize)
       return state.set('cache', newcache).set('memory', newmemory);
     case CACHE_CONTENT_UPDATE:
-      return simulateInstruction(state, action.fields.fetchAddress, action.fields.operationType)
+      if (state.get("simulating"))
+        return simulateInstruction(state, action.fields.fetchAddress, action.fields.operationType)
+      else
+        return state;
     case LINK_CLICKED:
       return clear(state);
     case START_SIMULATION:

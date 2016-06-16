@@ -52,5 +52,10 @@ body
 
 .margin-left
 {
-  margin-left: 15px;
+  margin-left: 10%;
+}
+
+.margin-bottom
+{
+  margin-bottom: 10%;
 }

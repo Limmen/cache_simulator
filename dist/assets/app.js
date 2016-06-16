@@ -30320,7 +30320,7 @@
 	      var newmemory = (0, _initialMemoryContent2.default)(action.fields.memorySize);
 	      return state.set('cache', newcache).set('memory', newmemory);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
-	      return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);
+	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);else return state;
 	    case _ActionTypes.LINK_CLICKED:
 	      return clear(state);
 	    case _ActionTypes.START_SIMULATION:
@@ -37945,7 +37945,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues))
+	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues, { simulating: this.props.simulating }))
 	      );
 	    }
 	  }]);
@@ -37964,8 +37964,10 @@
 	 *
 	 * @returns {{}}
 	 */
-	function mapStateToProps() {
-	  return {};
+	function mapStateToProps(state) {
+	  return {
+	    simulating: state.cacheAndMemoryContent.get("simulating")
+	  };
 	}
 	/**
 	 * Maps the redux dispatcher to props that this container provides.
@@ -38131,7 +38133,7 @@
 	            { className: 'form-group col-sm-12' },
 	            _react2.default.createElement(
 	              'button',
-	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
+	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
 	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
 	              ' Fetch'
 	            )
@@ -38215,7 +38217,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_AssemblyForm2.default, { onSubmit: this.props.fetchHandleSubmit })
+	        _react2.default.createElement(_AssemblyForm2.default, { onSubmit: this.props.fetchHandleSubmit, simulating: this.props.simulating })
 	      );
 	    }
 	  }]);
@@ -38234,8 +38236,10 @@
 	 *
 	 * @returns {{}}
 	 */
-	function mapStateToProps() {
-	  return {};
+	function mapStateToProps(state) {
+	  return {
+	    simulating: state.cacheAndMemoryContent.get("simulating")
+	  };
 	}
 	/**
 	 * Maps the redux dispatcher to props that this container provides.
@@ -38253,7 +38257,7 @@
 	      dispatch(actions.startSimulation());
 	      var rows = fields.assembly.split("\n");
 	      var row = rows[0];
-	      var tokens = row.split(" ");
+	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
 	      var operation = tokens[0];
 	      var address = tokens[1];
 	      fields = {
@@ -38265,7 +38269,7 @@
 	      for (var i = 1; i < rows.length; i++) {
 	        console.log("sim assembly!");
 	        var _row = rows[i];
-	        var _tokens = _row.split(" ");
+	        var _tokens = _row.replace(/ +(?= )/g, '').split(" ");
 	        var _operation = _tokens[0];
 	        var _address = _tokens[1];
 	        fields = {
@@ -38334,7 +38338,7 @@
 	      row = rows[i];
 	      if (row !== "") {
 	        empty = false;
-	        var tokens = row.split(" ");
+	        var tokens = row.replace(/ +(?= )/g, '').split(" ");
 	        if (tokens.length !== 2) {
 	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> ADDRESS";
 	          return errors;
@@ -38395,8 +38399,8 @@
 	                  '×'
 	                ),
 	                _react2.default.createElement(
-	                  'h4',
-	                  { className: 'modal-title' },
+	                  'h3',
+	                  { className: 'modal-title bold' },
 	                  'Assembly Input Guidelines'
 	                )
 	              ),
@@ -38406,7 +38410,105 @@
 	                _react2.default.createElement(
 	                  'p',
 	                  null,
-	                  ' yo '
+	                  'One statement on each row.'
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'A statement has the following form: ',
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    '<Operation><space><Address>'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'Allowed operations are: ',
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD'
+	                  ),
+	                  ' and ',
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'STORE'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  { className: 'bold' },
+	                  'Example:'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  null,
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 10 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 10 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'STORE 19 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 1 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 0 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 0 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 1 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'STORE 26 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 33 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null)
 	                )
 	              ),
 	              _react2.default.createElement(
@@ -38423,7 +38525,8 @@
 	        ),
 	        _react2.default.createElement(
 	          'form',
-	          { onSubmit: handleSubmit },
+	          {
+	            onSubmit: handleSubmit },
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'form-group col-sm-12' },
@@ -38432,7 +38535,11 @@
 	              { className: 'bold row' },
 	              'Assembly'
 	            ),
-	            _react2.default.createElement('textarea', _extends({ className: 'form-control', rows: '5', id: 'comment' }, assembly)),
+	            _react2.default.createElement('textarea', _extends({
+	              className: 'form-control',
+	              rows: '5',
+	              id: 'comment'
+	            }, assembly)),
 	            _react2.default.createElement(
 	              'div',
 	              { className: 'error' },
@@ -38448,7 +38555,7 @@
 	            { className: 'form-group col-sm-6' },
 	            _react2.default.createElement(
 	              'button',
-	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
+	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
 	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
 	              ' Run'
 	            ),
@@ -38919,6 +39026,12 @@
 
 	var _CacheTable2 = _interopRequireDefault(_CacheTable);
 
+	var _actions = __webpack_require__(316);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39013,7 +39126,7 @@
 	    }
 	  }, {
 	    key: 'simulationMessage',
-	    value: function simulationMessage(simulating) {
+	    value: function simulationMessage(simulating, cancelSimulation) {
 	      if (simulating) return _react2.default.createElement(
 	        'div',
 	        { className: 'center centering-block center_text' },
@@ -39024,7 +39137,7 @@
 	        ),
 	        _react2.default.createElement(
 	          'button',
-	          { className: 'btn btn-default margin-left', type: 'button' },
+	          { className: 'btn btn-default margin-left', type: 'button', onClick: cancelSimulation },
 	          'Stop Simulation'
 	        )
 	      );else return _react2.default.createElement('div', null);
@@ -39143,6 +39256,34 @@
 	                    this.props.cachecontent.get('cache').get('blockSize'),
 	                    ' Bytes'
 	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Replacement Algorithm'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.get('cache').get('replacementAlgorithm')
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Write Policy'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Write-through'
+	                  )
 	                )
 	              )
 	            )
@@ -39255,8 +39396,8 @@
 	        ),
 	        _react2.default.createElement(
 	          'div',
-	          { className: 'row centering-block' },
-	          this.simulationMessage(this.props.cachecontent.get("simulating"))
+	          { className: 'row centering-block margin-bottom' },
+	          this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
 	        )
 	      );
 	    }
@@ -39279,8 +39420,12 @@
 	  };
 	}
 
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    cancelSimulation: function cancelSimulation() {
+	      dispatch(actions.stopSimulation());
+	    }
+	  };
 	};
 
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
@@ -48000,7 +48145,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The simulator works under the assumption of address length and word size of 32 bits. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
+	      'The simulator works under the assumption of address length and word size of 32 bit. Also the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
 	    ),
 	    _react2.default.createElement(
 	      'h4',
