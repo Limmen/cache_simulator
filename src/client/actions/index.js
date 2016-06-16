@@ -27,3 +27,16 @@ export function linkClicked() {
   }
 }
 
+export function startSimulation() {
+  return {
+    type: types.START_SIMULATION,
+  }
+}
+
+export function stopSimulation() {
+  return {
+    type: types.STOP_SIMULATION,
+  }
+}
+
+

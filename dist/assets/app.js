@@ -30299,7 +30299,8 @@
 	  memory: (0, _immutable.List)(),
 	  cache: (0, _immutable.Map)(),
 	  instructionHistory: (0, _immutable.List)(),
-	  instructionResult: ""
+	  instructionResult: "",
+	  simulating: false
 	});
 
 	/**
@@ -30322,6 +30323,10 @@
 	      return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);
 	    case _ActionTypes.LINK_CLICKED:
 	      return clear(state);
+	    case _ActionTypes.START_SIMULATION:
+	      return state.set("simulating", true);
+	    case _ActionTypes.STOP_SIMULATION:
+	      return clear(state);
 	    default:
 	      return state;
 	  }
@@ -30340,8 +30345,8 @@
 	        return e.set("hit", false);
 	      }));
 	    }));
-	  })));
-	  return newState.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	  }))).set("simulating", false).set("instructionResult", "");
+	  return newState.set("cache", state.get("cache").set("sets", newState.get("cache").get("sets").map(function (s) {
 	    return s.set("rows", s.get("rows").map(function (r) {
 	      return r.set("miss", false);
 	    }));
@@ -30365,6 +30370,8 @@
 	var CACHE_AND_MEMORY_CONTENT_INIT = exports.CACHE_AND_MEMORY_CONTENT_INIT = 'CACHE_AND_MEMORY_CONTENT_INIT';
 	var CACHE_CONTENT_UPDATE = exports.CACHE_CONTENT_UPDATE = 'CACHE_CONTENT_UPDATE';
 	var LINK_CLICKED = exports.LINK_CLICKED = 'LINK_CLICKED';
+	var START_SIMULATION = exports.START_SIMULATION = 'START_SIMULATION';
+	var STOP_SIMULATION = exports.STOP_SIMULATION = 'STOP_SIMULATION';
 
 /***/ },
 /* 297 */
@@ -37283,6 +37290,8 @@
 	exports.cacheAndMemoryContentInitialization = cacheAndMemoryContentInitialization;
 	exports.cacheContentUpdate = cacheContentUpdate;
 	exports.linkClicked = linkClicked;
+	exports.startSimulation = startSimulation;
+	exports.stopSimulation = stopSimulation;
 
 	var _ActionTypes = __webpack_require__(296);
 
@@ -37311,6 +37320,18 @@
 	function linkClicked() {
 	  return {
 	    type: types.LINK_CLICKED
+	  };
+	}
+
+	function startSimulation() {
+	  return {
+	    type: types.START_SIMULATION
+	  };
+	}
+
+	function stopSimulation() {
+	  return {
+	    type: types.STOP_SIMULATION
 	  };
 	}
 
@@ -37959,7 +37980,9 @@
 	     * @param fields of the action
 	     */
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	      dispatch(actions.startSimulation());
 	      dispatch(actions.cacheContentUpdate(fields));
+	      setTimeout(dispatch, 3600, actions.stopSimulation());
 	    }
 	  };
 	};
@@ -38227,7 +38250,32 @@
 	     * @param fields of the action
 	     */
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	      dispatch(actions.startSimulation());
+	      var rows = fields.assembly.split("\n");
+	      var row = rows[0];
+	      var tokens = row.split(" ");
+	      var operation = tokens[0];
+	      var address = tokens[1];
+	      fields = {
+	        fetchAddress: address,
+	        operationType: operation
+	      };
 	      dispatch(actions.cacheContentUpdate(fields));
+
+	      for (var i = 1; i < rows.length; i++) {
+	        console.log("sim assembly!");
+	        var _row = rows[i];
+	        var _tokens = _row.split(" ");
+	        var _operation = _tokens[0];
+	        var _address = _tokens[1];
+	        fields = {
+	          fetchAddress: _address,
+	          operationType: _operation
+	        };
+	        setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
+	      }
+	      setTimeout(dispatch, rows.length * 3600, actions.stopSimulation());
+	      //dispatch(actions.cacheContentUpdateAssembly(fields))
 	    }
 	  };
 	};
@@ -38281,7 +38329,6 @@
 	  if (values.assembly !== undefined) {
 	    var rows = values.assembly.split("\n");
 	    var empty = true;
-	    console.log(JSON.stringify(rows));
 	    var row = void 0;
 	    for (var i = 0; i < rows.length; i++) {
 	      row = rows[i];
@@ -38965,6 +39012,24 @@
 	      } else return 0;
 	    }
 	  }, {
+	    key: 'simulationMessage',
+	    value: function simulationMessage(simulating) {
+	      if (simulating) return _react2.default.createElement(
+	        'div',
+	        { className: 'center centering-block center_text' },
+	        _react2.default.createElement(
+	          'label',
+	          { className: 'bold green' },
+	          'ONGOING SIMULATION '
+	        ),
+	        _react2.default.createElement(
+	          'button',
+	          { className: 'btn btn-default margin-left', type: 'button' },
+	          'Stop Simulation'
+	        )
+	      );else return _react2.default.createElement('div', null);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      this.instructionResult();
@@ -39179,7 +39244,7 @@
 	          _react2.default.createElement(
 	            'h3',
 	            { className: 'bold center_text' },
-	            'Cache Memory ',
+	            'Cache Memory',
 	            _react2.default.createElement(
 	              'small',
 	              { id: 'fade' },
@@ -39187,6 +39252,11 @@
 	            )
 	          ),
 	          this.createTables()
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row centering-block' },
+	          this.simulationMessage(this.props.cachecontent.get("simulating"))
 	        )
 	      );
 	    }

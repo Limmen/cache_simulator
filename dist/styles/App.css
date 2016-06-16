@@ -44,3 +44,13 @@ body
   opacity: 0.01;
   transition: opacity 300ms ease-in;
 }
+
+.green
+{
+  color: limegreen;
+}
+
+.margin-left
+{
+  margin-left: 15px;
+}

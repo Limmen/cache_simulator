@@ -17,7 +17,6 @@ const validate = values => {
   if (values.assembly !== undefined) {
     let rows = values.assembly.split("\n");
     let empty = true;
-    console.log(JSON.stringify(rows));
     let row;
     for (let i = 0; i < rows.length; i++) {
       row = rows[i];

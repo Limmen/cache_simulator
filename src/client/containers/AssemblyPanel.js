@@ -50,7 +50,32 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields of the action
      */
     fetchHandleSubmit: (fields) => {
+      dispatch(actions.startSimulation())
+      let rows = fields.assembly.split("\n");
+      let row = rows[0];
+      let tokens = row.split(" ");
+      let operation = tokens[0];
+      let address = tokens[1];
+      fields = {
+        fetchAddress: address,
+        operationType : operation
+      }
       dispatch(actions.cacheContentUpdate(fields))
+
+      for(let i = 1; i < rows.length; i++){
+        console.log("sim assembly!");
+        let row = rows[i];
+        let tokens = row.split(" ");
+        let operation = tokens[0];
+        let address = tokens[1];
+        fields = {
+          fetchAddress: address,
+          operationType : operation
+        }
+        setTimeout(dispatch, i*3600, actions.cacheContentUpdate(fields))
+      }
+      setTimeout(dispatch, rows.length*3600, actions.stopSimulation())
+      //dispatch(actions.cacheContentUpdateAssembly(fields))
     }
   }
 }

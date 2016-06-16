@@ -55,7 +55,9 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields of the action
      */
     fetchHandleSubmit: (fields) => {
+      dispatch(actions.startSimulation())
       dispatch(actions.cacheContentUpdate(fields))
+      setTimeout(dispatch, 3600, actions.stopSimulation())
     }
   }
 }

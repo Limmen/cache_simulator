@@ -5,7 +5,8 @@
  */
 
 'use strict';
-import { CACHE_AND_MEMORY_CONTENT_INIT, CACHE_CONTENT_UPDATE, LINK_CLICKED } from '../constants/ActionTypes'
+import { CACHE_AND_MEMORY_CONTENT_INIT, CACHE_CONTENT_UPDATE, LINK_CLICKED,
+  START_SIMULATION, STOP_SIMULATION} from '../constants/ActionTypes'
 import initialCacheContent from './helper_functions/initialCacheContent'
 import initialMemoryContent from './helper_functions/initialMemoryContent'
 import simulateInstruction from './helper_functions/simulateInstruction'
@@ -19,7 +20,8 @@ const initialState = Map(
     memory: List(),
     cache: Map(),
     instructionHistory: List(),
-    instructionResult: ""
+    instructionResult: "",
+    simulating: false
   }
 )
 
@@ -40,6 +42,10 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       return simulateInstruction(state, action.fields.fetchAddress, action.fields.operationType)
     case LINK_CLICKED:
       return clear(state);
+    case START_SIMULATION:
+      return state.set("simulating", true)
+    case STOP_SIMULATION:
+      return clear(state)
     default:
       return state
   }
@@ -52,6 +58,6 @@ export default function cacheAndMemoryContent(state = initialState, action) {
  * @returns {*} updated state
  */
 function clear(state) {
-  let newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("elements", r.get("elements").map((e) => e.set("hit", false))))))))
-  return newState.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("miss", false))))))
+  let newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("elements", r.get("elements").map((e) => e.set("hit", false)))))))).set("simulating", false).set("instructionResult", "")
+  return newState.set("cache", state.get("cache").set("sets", newState.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("miss", false))))))
 }

@@ -15,7 +15,7 @@ class CacheMem extends React.Component {
   /**
    * Visual effect after a instruction simulation
    */
-  instructionResult(){
+  instructionResult() {
     $("#fade").fadeIn("slow");
     setTimeout(() => {
       $("#fade").fadeOut("slow");
@@ -68,6 +68,18 @@ class CacheMem extends React.Component {
       return (Math.round((this.props.cachecontent.get("instructionHistory").filter((i) => i.get("result") === "MISS").size / this.props.cachecontent.get("instructionHistory").size) * 100) / 100) * 100
     }
     else return 0;
+  }
+
+  simulationMessage(simulating) {
+    if (simulating)
+      return (
+        <div className="center centering-block center_text">
+          <label className="bold green">ONGOING SIMULATION </label>
+          <button className="btn btn-default margin-left" type="button">
+            Stop Simulation
+          </button>
+        </div>)
+    else return (<div></div>)
   }
 
   render() {
@@ -143,8 +155,13 @@ class CacheMem extends React.Component {
         </div>
         <hr></hr>
         <div className="row">
-          <h3 className="bold center_text">Cache Memory <small id="fade">{this.props.cachecontent.get("instructionResult")}</small></h3>
+          <h3 className="bold center_text">Cache Memory
+            <small id="fade">{this.props.cachecontent.get("instructionResult")}</small>
+          </h3>
           {this.createTables()}
+        </div>
+        <div className="row centering-block">
+          {this.simulationMessage(this.props.cachecontent.get("simulating"))}
         </div>
       </div>
     );
