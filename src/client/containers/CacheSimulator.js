@@ -10,6 +10,7 @@ import InstructionPanel from './InstructionPanel';
 import AssemblyPanel from './AssemblyPanel';
 import CacheMemory from './CacheMem';
 import MemoryPanel from './MemoryPanel';
+import RegisterPanel from './RegisterPanel';
 import InstructionResultPanel from './InstructionResultPanel';
 
 class CacheSimulator extends React.Component {
@@ -28,6 +29,9 @@ class CacheSimulator extends React.Component {
           <hr></hr>
           <h3 className="bold center_text">Instruction Results</h3>
           <InstructionResultPanel />
+          <hr></hr>
+          <h3 className="bold center_text">Registers</h3>
+          <RegisterPanel />
           <hr></hr>
           <h3 className="bold center_text">Main Memory</h3>
           <MemoryPanel />

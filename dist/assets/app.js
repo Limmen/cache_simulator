@@ -30284,6 +30284,10 @@
 
 	var _initialMemoryContent2 = _interopRequireDefault(_initialMemoryContent);
 
+	var _initialRegisterContent = __webpack_require__(393);
+
+	var _initialRegisterContent2 = _interopRequireDefault(_initialRegisterContent);
+
 	var _simulateInstruction = __webpack_require__(300);
 
 	var _simulateInstruction2 = _interopRequireDefault(_simulateInstruction);
@@ -30298,6 +30302,7 @@
 	var initialState = (0, _immutable.Map)({
 	  memory: (0, _immutable.List)(),
 	  cache: (0, _immutable.Map)(),
+	  register: (0, _immutable.Map)(),
 	  instructionHistory: (0, _immutable.List)(),
 	  instructionResult: "",
 	  simulating: false
@@ -30318,7 +30323,8 @@
 	    case _ActionTypes.CACHE_AND_MEMORY_CONTENT_INIT:
 	      var newcache = (0, _initialCacheContent2.default)(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm);
 	      var newmemory = (0, _initialMemoryContent2.default)(action.fields.memorySize);
-	      return state.set('cache', newcache).set('memory', newmemory);
+	      var newregister = (0, _initialRegisterContent2.default)();
+	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
 	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);else return state;
 	    case _ActionTypes.LINK_CLICKED:
@@ -37376,6 +37382,10 @@
 
 	var _MemoryPanel2 = _interopRequireDefault(_MemoryPanel);
 
+	var _RegisterPanel = __webpack_require__(394);
+
+	var _RegisterPanel2 = _interopRequireDefault(_RegisterPanel);
+
 	var _InstructionResultPanel = __webpack_require__(388);
 
 	var _InstructionResultPanel2 = _interopRequireDefault(_InstructionResultPanel);
@@ -37424,6 +37434,13 @@
 	            'Instruction Results'
 	          ),
 	          _react2.default.createElement(_InstructionResultPanel2.default, null),
+	          _react2.default.createElement('hr', null),
+	          _react2.default.createElement(
+	            'h3',
+	            { className: 'bold center_text' },
+	            'Registers'
+	          ),
+	          _react2.default.createElement(_RegisterPanel2.default, null),
 	          _react2.default.createElement('hr', null),
 	          _react2.default.createElement(
 	            'h3',
@@ -38023,7 +38040,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var fields = exports.fields = ['fetchAddress', 'operationType'];
+	var fields = exports.fields = ['fetchAddress', 'operationType', 'register'];
 
 	/**
 	 * Function to validate form input parameters.
@@ -38039,6 +38056,9 @@
 	  }
 	  if (!values.operationType) {
 	    errors.operationType = 'Required';
+	  }
+	  if (!values.register) {
+	    errors.register = 'Required';
 	  }
 	  return errors;
 	};
@@ -38059,6 +38079,7 @@
 	      var _props$fields = _props.fields;
 	      var fetchAddress = _props$fields.fetchAddress;
 	      var operationType = _props$fields.operationType;
+	      var register = _props$fields.register;
 	      var handleSubmit = _props.handleSubmit;
 	      var submitting = _props.submitting;
 
@@ -38070,34 +38091,11 @@
 	          { onSubmit: handleSubmit },
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'form-group col-sm-6' },
+	            { className: 'form-group col-sm-4' },
 	            _react2.default.createElement(
 	              'label',
 	              { className: 'bold' },
-	              'Address'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'fetch address' }, fetchAddress, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                fetchAddress.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-6' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Operation type'
+	              'Operation type (4-byte word operations)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
@@ -38130,12 +38128,58 @@
 	          ),
 	          _react2.default.createElement(
 	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Register'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory register' }, register, { className: 'form-control' }))
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              register.touched && register.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                register.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-4' },
+	            _react2.default.createElement(
+	              'label',
+	              { className: 'bold' },
+	              'Address'
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              null,
+	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory address' }, fetchAddress, { className: 'form-control' }))
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error' },
+	              fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                fetchAddress.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
 	            { className: 'form-group col-sm-12' },
 	            _react2.default.createElement(
 	              'button',
 	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
 	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Fetch'
+	              ' Run'
 	            )
 	          )
 	        )
@@ -48254,6 +48298,302 @@
 
 	Colophon.displayName = 'Colophon';
 	exports.default = Colophon;
+
+/***/ },
+/* 393 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = initialRegisterContent;
+
+	var _immutable = __webpack_require__(298);
+
+	function initialRegisterContent(registerSize) {
+
+	  var register = (0, _immutable.Map)({
+	    registers: (0, _immutable.List)()
+	  });
+
+	  for (var i = 0; i < 32; i++) {
+	    var data = "empty";
+	    var newRegisters = register.set("registers", register.get("registers").push((0, _immutable.Map)({
+	      data: data,
+	      number: i,
+	      id: "register_" + i
+	    })));
+	    register = newRegisters;
+	  }
+	  return register;
+	}
+
+/***/ },
+/* 394 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * RegisterPanel redux-container. Connects the instruction panel to the redux-store.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _RegisterTable = __webpack_require__(395);
+
+	var _RegisterTable2 = _interopRequireDefault(_RegisterTable);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RegisterPanel = function (_React$Component) {
+	  _inherits(RegisterPanel, _React$Component);
+
+	  function RegisterPanel() {
+	    _classCallCheck(this, RegisterPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterPanel).apply(this, arguments));
+	  }
+
+	  _createClass(RegisterPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_RegisterTable2.default, { data: this.props.register })
+	      );
+	    }
+	  }]);
+
+	  return RegisterPanel;
+	}(_react2.default.Component);
+
+	RegisterPanel.propTypes = {};
+
+	/**
+	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    register: state.cacheAndMemoryContent.get('register')
+	  };
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(RegisterPanel);
+
+/***/ },
+/* 395 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * RegisterTableComponent. A component displaying a table, that illustrates a cachememory.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _RegisterTableRow = __webpack_require__(396);
+
+	var _RegisterTableRow2 = _interopRequireDefault(_RegisterTableRow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RegisterTable = function (_React$Component) {
+	  _inherits(RegisterTable, _React$Component);
+
+	  function RegisterTable() {
+	    _classCallCheck(this, RegisterTable);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterTable).apply(this, arguments));
+	  }
+
+	  _createClass(RegisterTable, [{
+	    key: 'createRows',
+
+
+	    /**
+	     * Creates table rows.
+	     *
+	     * @returns {Array} array of rows.
+	     */
+	    value: function createRows() {
+	      var rows = [];
+	      for (var i = 0; i < this.props.data.get('registers').size; i++) {
+	        rows.push(_react2.default.createElement(_RegisterTableRow2.default, { data: this.props.data.get('registers').get(i), key: i }));
+	      }
+	      return rows;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'registertable-component' },
+	        _react2.default.createElement(
+	          'table',
+	          { className: 'table table-bordered cache center-table' },
+	          _react2.default.createElement(
+	            'caption',
+	            null,
+	            'Register'
+	          ),
+	          _react2.default.createElement(
+	            'thead',
+	            null,
+	            _react2.default.createElement(
+	              'tr',
+	              null,
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text cache_element' },
+	                'Register'
+	              ),
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text cache_element' },
+	                'Data'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'tbody',
+	            null,
+	            this.createRows()
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return RegisterTable;
+	}(_react2.default.Component);
+
+	RegisterTable.displayName = 'RegisterTable';
+
+	RegisterTable.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = RegisterTable;
+
+/***/ },
+/* 396 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * RegisterTableRow component. Constitutes as a row in a table.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactTooltip = __webpack_require__(330);
+
+	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RegisterTableRow = function (_React$Component) {
+	  _inherits(RegisterTableRow, _React$Component);
+
+	  function RegisterTableRow() {
+	    _classCallCheck(this, RegisterTableRow);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterTableRow).apply(this, arguments));
+	  }
+
+	  _createClass(RegisterTableRow, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'tr',
+	        { id: this.props.data.get('id'), className: 'cache_row registertablerow-component' },
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          this.props.data.get("number")
+	        ),
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          this.props.data.get("data")
+	        )
+	      );
+	    }
+	  }]);
+
+	  return RegisterTableRow;
+	}(_react2.default.Component);
+
+	RegisterTableRow.displayName = 'RegisterTableRow';
+	RegisterTableRow.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = RegisterTableRow;
 
 /***/ }
 /******/ ]);

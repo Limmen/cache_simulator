@@ -9,6 +9,7 @@ import { CACHE_AND_MEMORY_CONTENT_INIT, CACHE_CONTENT_UPDATE, LINK_CLICKED,
   START_SIMULATION, STOP_SIMULATION} from '../constants/ActionTypes'
 import initialCacheContent from './helper_functions/initialCacheContent'
 import initialMemoryContent from './helper_functions/initialMemoryContent'
+import initialRegisterContent from './helper_functions/initialRegisterContent'
 import simulateInstruction from './helper_functions/simulateInstruction'
 import {Map, List} from 'immutable'
 
@@ -19,6 +20,7 @@ const initialState = Map(
   {
     memory: List(),
     cache: Map(),
+    register: Map(),
     instructionHistory: List(),
     instructionResult: "",
     simulating: false
@@ -37,7 +39,8 @@ export default function cacheAndMemoryContent(state = initialState, action) {
     case  CACHE_AND_MEMORY_CONTENT_INIT:
       let newcache = initialCacheContent(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm)
       let newmemory = initialMemoryContent(action.fields.memorySize)
-      return state.set('cache', newcache).set('memory', newmemory);
+      let newregister = initialRegisterContent()
+      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
     case CACHE_CONTENT_UPDATE:
       if (state.get("simulating"))
         return simulateInstruction(state, action.fields.fetchAddress, action.fields.operationType)

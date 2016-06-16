@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
-export const fields = ['fetchAddress', 'operationType']
+export const fields = ['fetchAddress', 'operationType', 'register']
 
 /**
  * Function to validate form input parameters.
@@ -22,27 +22,21 @@ const validate = values => {
   if (!values.operationType) {
     errors.operationType = 'Required'
   }
+  if (!values.register) {
+    errors.register = 'Required'
+  }
   return errors
 }
 
 class FetchForm extends React.Component {
 
   render() {
-    const { fields: { fetchAddress, operationType }, handleSubmit, submitting } = this.props
+    const { fields: { fetchAddress, operationType, register }, handleSubmit, submitting } = this.props
     return (
       <div className="fetchform-component row">
         <form onSubmit={handleSubmit}>
-          <div className="form-group col-sm-6">
-            <label className="bold">Address</label>
-            <div>
-              <input type="text" placeholder="fetch address" {...fetchAddress} className="form-control"/>
-            </div>
-            <div className="error">
-            {fetchAddress.touched && fetchAddress.error && <div>{fetchAddress.error}</div>}
-              </div>
-          </div>
-          <div className="form-group col-sm-6">
-            <label className="bold">Operation type</label>
+          <div className="form-group col-sm-4">
+            <label className="bold">Operation type (4-byte word operations)</label>
             <div>
               <select className="form-control" {...operationType}>
                 <option></option>
@@ -54,9 +48,27 @@ class FetchForm extends React.Component {
               </div>
             </div>
           </div>
+          <div className="form-group col-sm-4">
+            <label className="bold">Register</label>
+            <div>
+              <input type="text" placeholder="memory register" {...register} className="form-control"/>
+            </div>
+            <div className="error">
+              {register.touched && register.error && <div>{register.error}</div>}
+            </div>
+          </div>
+          <div className="form-group col-sm-4">
+            <label className="bold">Address</label>
+            <div>
+              <input type="text" placeholder="memory address" {...fetchAddress} className="form-control"/>
+            </div>
+            <div className="error">
+              {fetchAddress.touched && fetchAddress.error && <div>{fetchAddress.error}</div>}
+            </div>
+          </div>
           <div className="form-group col-sm-12">
             <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
-              {submitting ? <i/> : <i/>} Fetch
+              {submitting ? <i/> : <i/>} Run
             </button>
           </div>
         </form>
