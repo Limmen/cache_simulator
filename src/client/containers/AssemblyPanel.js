@@ -56,22 +56,25 @@ const mapDispatchToProps = (dispatch) => {
       let row = rows[0];
       let tokens = row.replace(/ +(?= )/g,'').split(" ");
       let operation = tokens[0];
-      let address = tokens[1];
+      let register = tokens[1];
+      let address = tokens[2];
       fields = {
         fetchAddress: address,
-        operationType : operation
+        operationType : operation,
+        register: register
       }
       dispatch(actions.cacheContentUpdate(fields))
 
       for(let i = 1; i < rows.length; i++){
-        console.log("sim assembly!");
         let row = rows[i];
         let tokens = row.replace(/ +(?= )/g,'').split(" ");
         let operation = tokens[0];
-        let address = tokens[1];
+        let register = tokens[1];
+        let address = tokens[2];
         fields = {
           fetchAddress: address,
-          operationType : operation
+          operationType : operation,
+          register: register
         }
         setTimeout(dispatch, i*3600, actions.cacheContentUpdate(fields))
       }

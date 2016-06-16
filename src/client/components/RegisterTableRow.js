@@ -7,18 +7,17 @@
 'use strict';
 
 import React from 'react';
-import ReactTooltip from 'react-tooltip'
 
 class RegisterTableRow extends React.Component {
 
 
   render() {
     return (
-      <tr id={this.props.data.get('id')} className="cache_row registertablerow-component">
-        <td>
+      <tr id={this.props.data.get('id')} className="registertablerow-component">
+        <td className="center_text">
           {this.props.data.get("number")}
         </td>
-        <td>
+        <td className="center_text">
           {this.props.data.get("data")}
         </td>
       </tr>

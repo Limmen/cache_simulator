@@ -1,6 +1,6 @@
 import {Map, List} from 'immutable'
 
-export default function initialRegisterContent(registerSize) {
+export default function initialRegisterContent() {
 
   let register = Map(
     {

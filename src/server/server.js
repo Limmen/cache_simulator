@@ -61,4 +61,4 @@ function handleRender(req, res) {
   })
 }
 server.listen(port)
-console.log('Server listening on port: ' + port)
+logger.info('Server listening on port: ' + port);

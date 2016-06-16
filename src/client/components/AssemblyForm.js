@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { reduxForm } from 'redux-form'
-import Textarea from 'react-textarea-autosize';
 export const fields = ['assembly']
 
 const validate = values => {
@@ -16,29 +15,39 @@ const validate = values => {
 
   if (values.assembly !== undefined) {
     let rows = values.assembly.split("\n");
-    let empty = true;
     let row;
     for (let i = 0; i < rows.length; i++) {
       row = rows[i];
       if (row !== "") {
-        empty = false;
         let tokens = row.replace(/ +(?= )/g, '').split(" ");
-        if (tokens.length !== 2) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> ADDRESS";
+        if (tokens.length !== 3) {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
           return errors;
         }
         let operation = tokens[0];
-        let address = tokens[1];
+        let register = tokens[1];
+        let address = tokens[2];
         if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
           errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
+          return errors;
+        }
+        if(isNaN(register)){
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+          return errors;
+        }
+        if(register < 0 || register > 31){
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
           return errors;
         }
         if (isNaN(address)) {
           errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
           return errors;
         }
+        if(Number(address) % 4 !== 0) {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4'
+          return errors;
+        }
       }
-
     }
   }
 
@@ -62,22 +71,22 @@ class AssemblyForm extends React.Component {
                   One statement on each row.
                 </p>
                 <p>
-                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Address&gt;</code>
+                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;space&gt;&lt;Address&gt;</code>
                 </p>
                 <p>
                   Allowed operations are: <code>LOAD</code> and <code>STORE</code>
                 </p>
                 <p className="bold">Example:</p>
                 <div>
-                  <code>LOAD 10 </code> <br/>
-                  <code>LOAD 10 </code> <br/>
-                  <code>STORE 19 </code> <br/>
-                  <code>LOAD 1 </code> <br/>
-                  <code>LOAD 0 </code> <br/>
-                  <code>LOAD 0 </code> <br/>
-                  <code>LOAD 1 </code> <br/>
-                  <code>STORE 26 </code> <br/>
-                  <code>LOAD 33 </code> <br/>
+                  <code>LOAD 1 10 </code> <br/>
+                  <code>LOAD 2 10 </code> <br/>
+                  <code>STORE 2 19 </code> <br/>
+                  <code>LOAD 4 1 </code> <br/>
+                  <code>LOAD 23 0 </code> <br/>
+                  <code>LOAD 17 0 </code> <br/>
+                  <code>LOAD 9 1 </code> <br/>
+                  <code>STORE 2 26 </code> <br/>
+                  <code>LOAD 2 33 </code> <br/>
                 </div>
               </div>
               <div className="modal-footer">
@@ -90,7 +99,7 @@ class AssemblyForm extends React.Component {
           onSubmit={handleSubmit}>
           <div className="form-group col-sm-12">
             <p className="bold row">
-              Assembly
+              Assembly input
             </p>
       <textarea
         className="form-control"

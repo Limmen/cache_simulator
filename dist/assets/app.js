@@ -35551,6 +35551,16 @@
 	        } else return e;
 	      })).set("usedDate", Date.now());
 	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
+	      if (operationType === "STORE") {
+	        var storeData = state.get("register").get("registers").get(register).get("data");
+	        var bytes = wordToBytes(storeData);
+	        state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
+	      }
+	      var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
+	      var word = bytesToWord(data);
+	      state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
+	        return reg.set("data", word);
+	      })));
 	      return {
 	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	          return s.set('rows', s.get('rows').update(index, function () {
@@ -35576,7 +35586,6 @@
 	        if (operationType === "LOAD") {
 	          (function () {
 	            var word = bytesToWord(data);
-	            console.log("word: " + JSON.stringify(word));
 	            state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
 	              return reg.set("data", word);
 	            })));
@@ -35761,25 +35770,20 @@
 	}
 
 	function storeWord(bytes, tag, memory) {
-	  console.log("storeWord: " + JSON.stringify(bytes));
 	  var newMemory = void 0;
 	  for (var i = 0; i < bytes.length; i++) {
 	    newMemory = storeByte(bytes[i], Number(tag) + i, memory);
 	    memory = newMemory;
 	  }
-	  console.log("Stored word: " + JSON.stringify(memory));
 	  return memory;
 	}
 
 	function storeByte(byte, tag, memory) {
-	  console.log("STore Byte tag:  " + tag);
 	  return memory.update(Number(tag), function (m) {
-	    console.log("m" + JSON.stringify(m));
 	    if (byte === "empty") {
 	      return m.set("data_string", byte).set("data_number", byte);
 	    } else {
-	      var hex = byte.slice(2, byte.size);
-	      return m.set("data_string", byte).set("data_number", parseInt(hex, 16));
+	      return m.set("data_string", "0x" + byte.toString(16)).set("data_number", byte);
 	    }
 	  });
 	}
@@ -35851,18 +35855,16 @@
 	  var byte3 = createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
 	  var byte4 = createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
 	  var word = byte4 + byte3 + byte2 + byte1;
-	  console.log("BINARY WORD :  " + word);
 	  return "0x" + parseInt(word, 2).toString(16);
 	}
 
 	function wordToBytes(word) {
-	  console.log("Word to bytes : " + word);
 	  if (word === "empty") return ["empty", "empty", "empty", "empty"];else {
 	    var binaryWord = createBinaryString(parseInt(word.slice(2, word.length), 16));
-	    var byte1 = binaryWord.slice(0, 8);
-	    var byte2 = binaryWord.slice(8, 16);
-	    var byte3 = binaryWord.slice(16, 24);
-	    var byte4 = binaryWord.slice(24, 32);
+	    var byte4 = binaryWord.slice(0, 8);
+	    var byte3 = binaryWord.slice(8, 16);
+	    var byte2 = binaryWord.slice(16, 24);
+	    var byte1 = binaryWord.slice(24, 32);
 	    var data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)];
 	    return data;
 	  }
@@ -38113,12 +38115,23 @@
 
 	  if (!values.fetchAddress) {
 	    errors.fetchAddress = 'Required';
+	  } else if (isNaN(values.fetchAddress)) {
+	    errors.fetchAddress = "address needs to be a number";
+	    return errors;
+	  } else if (Number(values.fetchAddress) % 4 !== 0) {
+	    errors.fetchAddress = 'Address needs to be a multipel of 4';
 	  }
 	  if (!values.operationType) {
 	    errors.operationType = 'Required';
 	  }
 	  if (!values.register) {
 	    errors.register = 'Required';
+	  } else if (isNaN(values.register)) {
+	    errors.register = "register needs to be a number between 0 - 31";
+	    return errors;
+	  } else if (values.register < 0 || values.register > 31) {
+	    errors.register = "register needs to be a number between 0 - 31";
+	    return errors;
 	  }
 	  return errors;
 	};
@@ -38363,22 +38376,25 @@
 	      var row = rows[0];
 	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
 	      var operation = tokens[0];
-	      var address = tokens[1];
+	      var register = tokens[1];
+	      var address = tokens[2];
 	      fields = {
 	        fetchAddress: address,
-	        operationType: operation
+	        operationType: operation,
+	        register: register
 	      };
 	      dispatch(actions.cacheContentUpdate(fields));
 
 	      for (var i = 1; i < rows.length; i++) {
-	        console.log("sim assembly!");
 	        var _row = rows[i];
 	        var _tokens = _row.replace(/ +(?= )/g, '').split(" ");
 	        var _operation = _tokens[0];
-	        var _address = _tokens[1];
+	        var _register = _tokens[1];
+	        var _address = _tokens[2];
 	        fields = {
 	          fetchAddress: _address,
-	          operationType: _operation
+	          operationType: _operation,
+	          register: _register
 	        };
 	        setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
 	      }
@@ -38414,10 +38430,6 @@
 
 	var _reduxForm = __webpack_require__(251);
 
-	var _reactTextareaAutosize = __webpack_require__(324);
-
-	var _reactTextareaAutosize2 = _interopRequireDefault(_reactTextareaAutosize);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38436,25 +38448,36 @@
 
 	  if (values.assembly !== undefined) {
 	    var rows = values.assembly.split("\n");
-	    var empty = true;
 	    var row = void 0;
 	    for (var i = 0; i < rows.length; i++) {
 	      row = rows[i];
 	      if (row !== "") {
-	        empty = false;
 	        var tokens = row.replace(/ +(?= )/g, '').split(" ");
-	        if (tokens.length !== 2) {
-	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> ADDRESS";
+	        if (tokens.length !== 3) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
 	          return errors;
 	        }
 	        var operation = tokens[0];
-	        var address = tokens[1];
+	        var register = tokens[1];
+	        var address = tokens[2];
 	        if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
 	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
 	          return errors;
 	        }
+	        if (isNaN(register)) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+	          return errors;
+	        }
+	        if (register < 0 || register > 31) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+	          return errors;
+	        }
 	        if (isNaN(address)) {
 	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
+	          return errors;
+	        }
+	        if (Number(address) % 4 !== 0) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4';
 	          return errors;
 	        }
 	      }
@@ -38523,7 +38546,7 @@
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    '<Operation><space><Address>'
+	                    '<Operation><space><Register><space><Address>'
 	                  )
 	                ),
 	                _react2.default.createElement(
@@ -38553,63 +38576,63 @@
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 10 '
+	                    'LOAD 1 10 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 10 '
+	                    'LOAD 2 10 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'STORE 19 '
+	                    'STORE 2 19 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 1 '
+	                    'LOAD 4 1 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 0 '
+	                    'LOAD 23 0 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 0 '
+	                    'LOAD 17 0 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 1 '
+	                    'LOAD 9 1 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'STORE 26 '
+	                    'STORE 2 26 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 33 '
+	                    'LOAD 2 33 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null)
@@ -38637,7 +38660,7 @@
 	            _react2.default.createElement(
 	              'p',
 	              { className: 'bold row' },
-	              'Assembly'
+	              'Assembly input'
 	            ),
 	            _react2.default.createElement('textarea', _extends({
 	              className: 'form-control',
@@ -38697,412 +38720,8 @@
 	})(AssemblyForm);
 
 /***/ },
-/* 324 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = undefined;
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _class, _temp; /**
-	                    * <TextareaAutosize />
-	                    */
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _calculateNodeHeight = __webpack_require__(325);
-
-	var _calculateNodeHeight2 = _interopRequireDefault(_calculateNodeHeight);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var emptyFunction = function emptyFunction() {};
-
-	var TextareaAutosize = (_temp = _class = function (_React$Component) {
-	  _inherits(TextareaAutosize, _React$Component);
-
-	  function TextareaAutosize(props) {
-	    _classCallCheck(this, TextareaAutosize);
-
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TextareaAutosize).call(this, props));
-
-	    _this.state = {
-	      height: null,
-	      minHeight: -Infinity,
-	      maxHeight: Infinity
-	    };
-	    _this._onNextFrameActionId = null;
-	    _this._rootDOMNode = null;
-	    _this._onChange = _this._onChange.bind(_this);
-	    _this._resizeComponent = _this._resizeComponent.bind(_this);
-	    _this._onRootDOMNode = _this._onRootDOMNode.bind(_this);
-	    return _this;
-	  }
-
-	  _createClass(TextareaAutosize, [{
-	    key: 'render',
-	    value: function render() {
-	      var _props = this.props;
-	      var valueLink = _props.valueLink;
-
-	      var props = _objectWithoutProperties(_props, ['valueLink']);
-
-	      props = _extends({}, props);
-	      if ((typeof valueLink === 'undefined' ? 'undefined' : _typeof(valueLink)) === 'object') {
-	        props.value = this.props.valueLink.value;
-	      }
-	      props.style = _extends({}, props.style, {
-	        height: this.state.height || 0
-	      });
-	      var maxHeight = Math.max(props.style.maxHeight ? props.style.maxHeight : Infinity, this.state.maxHeight);
-	      if (maxHeight < this.state.height) {
-	        props.style.overflow = 'hidden';
-	      }
-	      return _react2.default.createElement('textarea', _extends({}, props, {
-	        onChange: this._onChange,
-	        ref: this._onRootDOMNode
-	      }));
-	    }
-	  }, {
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      this._resizeComponent();
-	      window.addEventListener('resize', this._resizeComponent);
-	    }
-	  }, {
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps() {
-	      // Re-render with the new content then recalculate the height as required.
-	      this._clearNextFrame();
-	      this._onNextFrameActionId = onNextFrame(this._resizeComponent);
-	    }
-	  }, {
-	    key: 'componentDidUpdate',
-	    value: function componentDidUpdate(prevProps, prevState) {
-	      // Invoke callback when old height does not equal to new one.
-	      if (this.state.height !== prevState.height) {
-	        this.props.onHeightChange(this.state.height);
-	      }
-	    }
-	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
-	      // Remove any scheduled events to prevent manipulating the node after it's
-	      // been unmounted.
-	      this._clearNextFrame();
-	      window.removeEventListener('resize', this._resizeComponent);
-	    }
-	  }, {
-	    key: '_clearNextFrame',
-	    value: function _clearNextFrame() {
-	      if (this._onNextFrameActionId) {
-	        clearNextFrameAction(this._onNextFrameActionId);
-	      }
-	    }
-	  }, {
-	    key: '_onRootDOMNode',
-	    value: function _onRootDOMNode(node) {
-	      this._rootDOMNode = node;
-	    }
-	  }, {
-	    key: '_onChange',
-	    value: function _onChange(e) {
-	      this._resizeComponent();
-	      var _props2 = this.props;
-	      var valueLink = _props2.valueLink;
-	      var onChange = _props2.onChange;
-
-	      if (valueLink) {
-	        valueLink.requestChange(e.target.value);
-	      } else {
-	        onChange(e);
-	      }
-	    }
-	  }, {
-	    key: '_resizeComponent',
-	    value: function _resizeComponent() {
-	      var useCacheForDOMMeasurements = this.props.useCacheForDOMMeasurements;
-
-	      this.setState((0, _calculateNodeHeight2.default)(this._rootDOMNode, useCacheForDOMMeasurements, this.props.rows || this.props.minRows, this.props.maxRows));
-	    }
-
-	    /**
-	     * Read the current value of <textarea /> from DOM.
-	     */
-
-	  }, {
-	    key: 'focus',
-
-
-	    /**
-	     * Put focus on a <textarea /> DOM element.
-	     */
-	    value: function focus() {
-	      this._rootDOMNode.focus();
-	    }
-
-	    /**
-	     * Shifts focus away from a <textarea /> DOM element.
-	     */
-
-	  }, {
-	    key: 'blur',
-	    value: function blur() {
-	      this._rootDOMNode.blur();
-	    }
-	  }, {
-	    key: 'value',
-	    get: function get() {
-	      return this._rootDOMNode.value;
-	    }
-
-	    /**
-	     * Set the current value of <textarea /> DOM node.
-	     */
-	    ,
-	    set: function set(val) {
-	      this._rootDOMNode.value = val;
-	    }
-
-	    /**
-	     * Read the current selectionStart of <textarea /> from DOM.
-	     */
-
-	  }, {
-	    key: 'selectionStart',
-	    get: function get() {
-	      return this._rootDOMNode.selectionStart;
-	    }
-
-	    /**
-	     * Set the current selectionStart of <textarea /> DOM node.
-	     */
-	    ,
-	    set: function set(selectionStart) {
-	      this._rootDOMNode.selectionStart = selectionStart;
-	    }
-
-	    /**
-	     * Read the current selectionEnd of <textarea /> from DOM.
-	     */
-
-	  }, {
-	    key: 'selectionEnd',
-	    get: function get() {
-	      return this._rootDOMNode.selectionEnd;
-	    }
-
-	    /**
-	     * Set the current selectionEnd of <textarea /> DOM node.
-	     */
-	    ,
-	    set: function set(selectionEnd) {
-	      this._rootDOMNode.selectionEnd = selectionEnd;
-	    }
-	  }]);
-
-	  return TextareaAutosize;
-	}(_react2.default.Component), _class.propTypes = {
-	  /**
-	   * Current textarea value.
-	   */
-	  value: _react2.default.PropTypes.string,
-
-	  /**
-	   * Callback on value change.
-	   */
-	  onChange: _react2.default.PropTypes.func,
-
-	  /**
-	   * Callback on height changes.
-	   */
-	  onHeightChange: _react2.default.PropTypes.func,
-
-	  /**
-	   * Try to cache DOM measurements performed by component so that we don't
-	   * touch DOM when it's not needed.
-	   *
-	   * This optimization doesn't work if we dynamically style <textarea />
-	   * component.
-	   */
-	  useCacheForDOMMeasurements: _react2.default.PropTypes.bool,
-
-	  /**
-	   * Minimal numbder of rows to show.
-	   */
-	  rows: _react2.default.PropTypes.number,
-
-	  /**
-	   * Alias for `rows`.
-	   */
-	  minRows: _react2.default.PropTypes.number,
-
-	  /**
-	   * Maximum number of rows to show.
-	   */
-	  maxRows: _react2.default.PropTypes.number
-	}, _class.defaultProps = {
-	  onChange: emptyFunction,
-	  onHeightChange: emptyFunction,
-	  useCacheForDOMMeasurements: false
-	}, _temp);
-	exports.default = TextareaAutosize;
-
-
-	function onNextFrame(cb) {
-	  if (window.requestAnimationFrame) {
-	    return window.requestAnimationFrame(cb);
-	  }
-	  return window.setTimeout(cb, 1);
-	}
-
-	function clearNextFrameAction(nextFrameId) {
-	  if (window.cancelAnimationFrame) {
-	    window.cancelAnimationFrame(nextFrameId);
-	  } else {
-	    window.clearTimeout(nextFrameId);
-	  }
-	}
-
-
-/***/ },
-/* 325 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = calculateNodeHeight;
-	/**
-	 * calculateNodeHeight(uiTextNode, useCache = false)
-	 */
-
-	var HIDDEN_TEXTAREA_STYLE = '\n  min-height:0 !important;\n  max-height:none !important;\n  height:0 !important;\n  visibility:hidden !important;\n  overflow:hidden !important;\n  position:absolute !important;\n  z-index:-1000 !important;\n  top:0 !important;\n  right:0 !important\n';
-
-	var SIZING_STYLE = ['letter-spacing', 'line-height', 'padding-top', 'padding-bottom', 'font-family', 'font-weight', 'font-size', 'text-rendering', 'text-transform', 'width', 'text-indent', 'padding-left', 'padding-right', 'border-width', 'box-sizing'];
-
-	var computedStyleCache = {};
-	var hiddenTextarea = void 0;
-
-	function calculateNodeHeight(uiTextNode) {
-	  var useCache = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-	  var minRows = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-	  var maxRows = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
-
-	  if (!hiddenTextarea) {
-	    hiddenTextarea = document.createElement('textarea');
-	    document.body.appendChild(hiddenTextarea);
-	  }
-
-	  // Copy all CSS properties that have an impact on the height of the content in
-	  // the textbox
-
-	  var _calculateNodeStyling = calculateNodeStyling(uiTextNode, useCache);
-
-	  var paddingSize = _calculateNodeStyling.paddingSize;
-	  var borderSize = _calculateNodeStyling.borderSize;
-	  var boxSizing = _calculateNodeStyling.boxSizing;
-	  var sizingStyle = _calculateNodeStyling.sizingStyle;
-
-	  // Need to have the overflow attribute to hide the scrollbar otherwise
-	  // text-lines will not calculated properly as the shadow will technically be
-	  // narrower for content
-
-	  hiddenTextarea.setAttribute('style', sizingStyle + ';' + HIDDEN_TEXTAREA_STYLE);
-	  hiddenTextarea.value = uiTextNode.value || uiTextNode.placeholder || '';
-
-	  var minHeight = -Infinity;
-	  var maxHeight = Infinity;
-	  var height = hiddenTextarea.scrollHeight;
-
-	  if (boxSizing === 'border-box') {
-	    // border-box: add border, since height = content + padding + border
-	    height = height + borderSize;
-	  } else if (boxSizing === 'content-box') {
-	    // remove padding, since height = content
-	    height = height - paddingSize;
-	  }
-
-	  if (minRows !== null || maxRows !== null) {
-	    // measure height of a textarea with a single row
-	    hiddenTextarea.value = '';
-	    var singleRowHeight = hiddenTextarea.scrollHeight - paddingSize;
-	    if (minRows !== null) {
-	      minHeight = singleRowHeight * minRows;
-	      if (boxSizing === 'border-box') {
-	        minHeight = minHeight + paddingSize + borderSize;
-	      }
-	      height = Math.max(minHeight, height);
-	    }
-	    if (maxRows !== null) {
-	      maxHeight = singleRowHeight * maxRows;
-	      if (boxSizing === 'border-box') {
-	        maxHeight = maxHeight + paddingSize + borderSize;
-	      }
-	      height = Math.min(maxHeight, height);
-	    }
-	  }
-	  return { height: height, minHeight: minHeight, maxHeight: maxHeight };
-	}
-
-	function calculateNodeStyling(node) {
-	  var useCache = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-	  var nodeRef = node.getAttribute('id') || node.getAttribute('data-reactid') || node.getAttribute('name');
-
-	  if (useCache && computedStyleCache[nodeRef]) {
-	    return computedStyleCache[nodeRef];
-	  }
-
-	  var style = window.getComputedStyle(node);
-
-	  var boxSizing = style.getPropertyValue('box-sizing') || style.getPropertyValue('-moz-box-sizing') || style.getPropertyValue('-webkit-box-sizing');
-
-	  var paddingSize = parseFloat(style.getPropertyValue('padding-bottom')) + parseFloat(style.getPropertyValue('padding-top'));
-
-	  var borderSize = parseFloat(style.getPropertyValue('border-bottom-width')) + parseFloat(style.getPropertyValue('border-top-width'));
-
-	  var sizingStyle = SIZING_STYLE.map(function (name) {
-	    return name + ':' + style.getPropertyValue(name);
-	  }).join(';');
-
-	  var nodeInfo = {
-	    sizingStyle: sizingStyle,
-	    paddingSize: paddingSize,
-	    borderSize: borderSize,
-	    boxSizing: boxSizing
-	  };
-
-	  if (useCache && nodeRef) {
-	    computedStyleCache[nodeRef] = nodeInfo;
-	  }
-
-	  return nodeInfo;
-	}
-
-
-/***/ },
+/* 324 */,
+/* 325 */,
 /* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -48372,7 +47991,7 @@
 
 	var _immutable = __webpack_require__(298);
 
-	function initialRegisterContent(registerSize) {
+	function initialRegisterContent() {
 
 	  var register = (0, _immutable.Map)({
 	    registers: (0, _immutable.List)()
@@ -48551,13 +48170,13 @@
 	              null,
 	              _react2.default.createElement(
 	                'td',
-	                { className: 'bold center_text cache_element' },
+	                { className: 'bold center_text' },
 	                'Register'
 	              ),
 	              _react2.default.createElement(
 	                'td',
-	                { className: 'bold center_text cache_element' },
-	                'Data'
+	                { className: 'bold center_text' },
+	                'Data (4-byte word)'
 	              )
 	            )
 	          ),
@@ -48604,10 +48223,6 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactTooltip = __webpack_require__(330);
-
-	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -48630,15 +48245,15 @@
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'tr',
-	        { id: this.props.data.get('id'), className: 'cache_row registertablerow-component' },
+	        { id: this.props.data.get('id'), className: 'registertablerow-component' },
 	        _react2.default.createElement(
 	          'td',
-	          null,
+	          { className: 'center_text' },
 	          this.props.data.get("number")
 	        ),
 	        _react2.default.createElement(
 	          'td',
-	          null,
+	          { className: 'center_text' },
 	          this.props.data.get("data")
 	        )
 	      );

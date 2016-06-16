@@ -32,8 +32,8 @@ class RegisterTable extends React.Component {
           <caption>Register</caption>
           <thead>
           <tr>
-            <td className="bold center_text cache_element">Register</td>
-            <td className="bold center_text cache_element">Data</td>
+            <td className="bold center_text">Register</td>
+            <td className="bold center_text">Data (4-byte word)</td>
           </tr>
           </thead>
           <tbody>

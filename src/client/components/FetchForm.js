@@ -18,12 +18,23 @@ const validate = values => {
 
   if (!values.fetchAddress) {
     errors.fetchAddress = 'Required'
+  } else if (isNaN(values.fetchAddress)) {
+    errors.fetchAddress = "address needs to be a number";
+    return errors;
+  }  else if(Number(values.fetchAddress) % 4 !== 0) {
+    errors.fetchAddress = 'Address needs to be a multipel of 4'
   }
   if (!values.operationType) {
     errors.operationType = 'Required'
   }
   if (!values.register) {
     errors.register = 'Required'
+  } else if (isNaN(values.register)) {
+    errors.register = "register needs to be a number between 0 - 31";
+    return errors;
+  } else if (values.register < 0 || values.register > 31) {
+    errors.register = "register needs to be a number between 0 - 31";
+    return errors;
   }
   return errors
 }
