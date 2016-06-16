@@ -30326,7 +30326,7 @@
 	      var newregister = (0, _initialRegisterContent2.default)();
 	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
-	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType);else return state;
+	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType, action.fields.register);else return state;
 	    case _ActionTypes.LINK_CLICKED:
 	      return clear(state);
 	    case _ActionTypes.START_SIMULATION:
@@ -35536,7 +35536,7 @@
 	 * @param operationType operationType entered by the user
 	 * @returns {*} new state1
 	 */
-	function simulateInstruction(state, address, operationType) {
+	function simulateInstruction(state, address, operationType, register) {
 	  var tag = getTag(address, state.get("cache").get("blockSize"));
 	  state = clear(state);
 	  var index = getRowIndex(tag, state.get('cache').get('blockCount'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
@@ -35562,12 +35562,26 @@
 
 	    if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
 	  } else {
+	    if (operationType === "STORE") {
+	      var storeData = state.get("register").get("registers").get(register).get("data");
+	      var bytes = wordToBytes(storeData);
+	      state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
+	    }
 	    if (memoryHit(tag, state.get('memory'))) {
 	      var _ret2 = function () {
 	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))));
 	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
+	        if (operationType === "LOAD") {
+	          (function () {
+	            var word = bytesToWord(data);
+	            console.log("word: " + JSON.stringify(word));
+	            state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
+	              return reg.set("data", word);
+	            })));
+	          })();
+	        }
 	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
@@ -35736,7 +35750,7 @@
 	 * @returns {string} data
 	 */
 	function getData(tag, memory) {
-	  var data = "empty";
+	  var data = "invalid_address";
 	  memory.map(function (addr) {
 	    if (Number(addr.get('address_number')) === Number(tag)) {
 	      data = addr.get('data_string');
@@ -35746,6 +35760,29 @@
 	  return data;
 	}
 
+	function storeWord(bytes, tag, memory) {
+	  console.log("storeWord: " + JSON.stringify(bytes));
+	  var newMemory = void 0;
+	  for (var i = 0; i < bytes.length; i++) {
+	    newMemory = storeByte(bytes[i], Number(tag) + i, memory);
+	    memory = newMemory;
+	  }
+	  console.log("Stored word: " + JSON.stringify(memory));
+	  return memory;
+	}
+
+	function storeByte(byte, tag, memory) {
+	  console.log("STore Byte tag:  " + tag);
+	  return memory.update(Number(tag), function (m) {
+	    console.log("m" + JSON.stringify(m));
+	    if (byte === "empty") {
+	      return m.set("data_string", byte).set("data_number", byte);
+	    } else {
+	      var hex = byte.slice(2, byte.size);
+	      return m.set("data_string", byte).set("data_number", parseInt(hex, 16));
+	    }
+	  });
+	}
 	/**
 	 * Function that updates instructionhistory
 	 *
@@ -35793,7 +35830,7 @@
 	 * @returns {boolean}
 	 */
 	function memoryHit(tag, memory) {
-	  if (getData(tag, memory) !== "empty") return true;else return false;
+	  if (getData(tag, memory) !== "invalid_address") return true;else return false;
 	}
 
 	/**
@@ -35806,6 +35843,29 @@
 	  // nMask must be between -2147483648 and 2147483647
 	  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
 	  return sMask;
+	}
+
+	function bytesToWord(data) {
+	  var byte1 = createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
+	  var byte2 = createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
+	  var byte3 = createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
+	  var byte4 = createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
+	  var word = byte4 + byte3 + byte2 + byte1;
+	  console.log("BINARY WORD :  " + word);
+	  return "0x" + parseInt(word, 2).toString(16);
+	}
+
+	function wordToBytes(word) {
+	  console.log("Word to bytes : " + word);
+	  if (word === "empty") return ["empty", "empty", "empty", "empty"];else {
+	    var binaryWord = createBinaryString(parseInt(word.slice(2, word.length), 16));
+	    var byte1 = binaryWord.slice(0, 8);
+	    var byte2 = binaryWord.slice(8, 16);
+	    var byte3 = binaryWord.slice(16, 24);
+	    var byte4 = binaryWord.slice(24, 32);
+	    var data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)];
+	    return data;
+	  }
 	}
 
 /***/ },

@@ -14,7 +14,7 @@ import {Map, List} from 'immutable'
  * @param operationType operationType entered by the user
  * @returns {*} new state1
  */
-export default function simulateInstruction(state, address, operationType) {
+export default function simulateInstruction(state, address, operationType, register) {
   let tag = getTag(address, state.get("cache").get("blockSize"))
   state = clear(state)
   let index = getRowIndex(tag, state.get('cache').get('blockCount'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
@@ -32,11 +32,21 @@ export default function simulateInstruction(state, address, operationType) {
     return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
   }
   else {
+    if (operationType === "STORE") {
+      let storeData = state.get("register").get("registers").get(register).get("data");
+      let bytes = wordToBytes(storeData);
+      state = state.set("memory", storeWord(bytes, tag, state.get("memory")))
+    }
     if (memoryHit(tag, state.get('memory'))) {
       let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
       let newRow = row.set('elements', row.get('elements').map((e) => {
         return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))))
       })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
+      if(operationType === "LOAD"){
+        let word = bytesToWord(data);
+        console.log("word: " + JSON.stringify(word));
+        state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
+      }
       state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");
       return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
     } else {
@@ -192,7 +202,7 @@ function getBlock(blockSize, tag, memory) {
  * @returns {string} data
  */
 function getData(tag, memory) {
-  let data = "empty"
+  let data = "invalid_address"
   memory.map(function (addr) {
     if (Number(addr.get('address_number')) === Number(tag)) {
       data = addr.get('data_string');
@@ -202,6 +212,30 @@ function getData(tag, memory) {
   return data;
 }
 
+function storeWord(bytes, tag, memory) {
+  console.log("storeWord: " + JSON.stringify(bytes))
+  let newMemory;
+  for (let i = 0; i < bytes.length; i++) {
+    newMemory = storeByte(bytes[i], Number(tag) + i ,memory);
+    memory = newMemory;
+  }
+  console.log("Stored word: " + JSON.stringify(memory));
+  return memory;
+}
+
+function storeByte(byte, tag, memory) {
+  console.log("STore Byte tag:  " + tag)
+  return memory.update(Number(tag), (m) => {
+    console.log("m" + JSON.stringify(m))
+    if (byte === "empty") {
+      return m.set("data_string", byte).set("data_number", byte);
+    }
+    else {
+      let hex = byte.slice(2, byte.size)
+      return m.set("data_string", byte).set("data_number", parseInt(hex, 16))
+    }
+  })
+}
 /**
  * Function that updates instructionhistory
  *
@@ -255,7 +289,7 @@ function hit(row, tag) {
  * @returns {boolean}
  */
 function memoryHit(tag, memory) {
-  if (getData(tag, memory) !== "empty")
+  if (getData(tag, memory) !== "invalid_address")
     return true;
   else
     return false;
@@ -272,4 +306,29 @@ function createBinaryString(nMask) {
   for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32;
        nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1);
   return sMask;
+}
+
+function bytesToWord(data) {
+  let byte1 = createBinaryString(parseInt(data[0].slice(2,data[0].length),16)).slice(24,32);
+  let byte2 = createBinaryString(parseInt(data[1].slice(2,data[1].length),16)).slice(24,32);
+  let byte3 = createBinaryString(parseInt(data[2].slice(2,data[2].length),16)).slice(24,32);
+  let byte4 = createBinaryString(parseInt(data[3].slice(2,data[3].length),16)).slice(24,32);
+  let word = byte4 + byte3 + byte2 + byte1;
+  console.log("BINARY WORD :  " + word);
+  return "0x" + parseInt(word, 2).toString(16);
+}
+
+function wordToBytes(word) {
+  console.log("Word to bytes : " + word);
+  if(word === "empty")
+    return ["empty", "empty", "empty", "empty"]
+  else {
+    let binaryWord = createBinaryString(parseInt(word.slice(2,word.length), 16));
+    let byte1 = binaryWord.slice(0, 8)
+    let byte2 = binaryWord.slice(8, 16)
+    let byte3 = binaryWord.slice(16, 24)
+    let byte4 = binaryWord.slice(24, 32)
+    let data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)]
+    return data;
+  }
 }
