@@ -1,5 +1,16 @@
+/**
+ * Exports a function that returns a inital register layout
+ *
+ * Created by kim on 2016-06-16.
+ */
+
 import {Map, List} from 'immutable'
 
+/**
+ * Function that creates an initial empty register layout.
+ *
+ * @returns {*} Register layout
+ */
 export default function initialRegisterContent() {
 
   let register = Map(

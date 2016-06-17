@@ -1,7 +1,7 @@
 /**
  * AssemblyPanel redux-container. Connects the assembly panel to the redux-store.
  *
- * Created by kim on 2016-05-11.
+ * Created by kim on 2016-06-16.
  */
 
 'use strict';
@@ -27,11 +27,10 @@ AssemblyPanel.propTypes = {
 }
 
 /**
- * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
- * Its result must be a plain object*, and it will be merged into the component’s props.
- * If you omit it, the component will not be subscribed to the Redux store.
+ * Maps application state that is used in this container to props.
  *
- * @returns {{}}
+ * @param state
+ * @returns {{simulating: *}} object with props
  */
 function mapStateToProps(state) {
   return {
@@ -47,7 +46,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = (dispatch) => {
   return {
     /**
-     * Function to handle submission of the fetchform. Dispatches a action.
+     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
      * @param fields of the action
      */
     fetchHandleSubmit: (fields) => {
@@ -79,7 +78,6 @@ const mapDispatchToProps = (dispatch) => {
         setTimeout(dispatch, i*3600, actions.cacheContentUpdate(fields))
       }
       setTimeout(dispatch, rows.length*3600, actions.stopSimulation())
-      //dispatch(actions.cacheContentUpdateAssembly(fields))
     }
   }
 }

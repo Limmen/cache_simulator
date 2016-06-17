@@ -1,5 +1,5 @@
 /**
- * RegisterTableComponent. A component displaying a table, that illustrates a cachememory.
+ * RegisterTableComponent. A component displaying a table, that illustrates a register memory.
  *
  * Created by kim on 2016-05-12.
  */

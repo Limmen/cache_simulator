@@ -1,7 +1,7 @@
 /**
  * RegisterTableRow component. Constitutes as a row in a table.
  *
- * Created by kim on 2016-05-12.
+ * Created by kim on 2016-06-16.
  */
 
 'use strict';

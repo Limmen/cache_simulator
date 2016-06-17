@@ -71,6 +71,13 @@ class CacheMem extends React.Component {
     else return 0;
   }
 
+  /**
+   * Returns a ui-component to display when simulation is ongoing.
+   *
+   * @param simulating boolean
+   * @param cancelSimulation function to for cancelling simulation.
+   * @returns {XML}
+   */
   simulationMessage(simulating, cancelSimulation) {
     if (simulating)
       return (
@@ -170,7 +177,7 @@ class CacheMem extends React.Component {
           {this.createTables()}
         </div>
         <div className="row centering-block margin-bottom">
-          {this.simulationMessage(this.props.cachecontent.get("simulating"),  this.props.cancelSimulation)}
+          {this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)}
         </div>
       </div>
     );

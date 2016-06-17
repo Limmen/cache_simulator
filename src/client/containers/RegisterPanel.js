@@ -1,7 +1,7 @@
 /**
- * RegisterPanel redux-container. Connects the instruction panel to the redux-store.
+ * RegisterPanel redux-container. Connects the register panel to the redux-store.
  *
- * Created by kim on 2016-05-11.
+ * Created by kim on 2016-06-16.
  */
 
 'use strict';

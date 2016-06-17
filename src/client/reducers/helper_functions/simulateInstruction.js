@@ -21,6 +21,12 @@ export default function simulateInstruction(state, address, operationType, regis
   let setNr = getSetNr(state, index, tag);
   let row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
 
+  if(operationType === "STORE") {
+    let storeData = state.get("register").get("registers").get(register).get("data");
+    let bytes = wordToBytes(storeData);
+    state = state.set("memory", storeWord(bytes, tag, state.get("memory")))
+  }
+
   if (hit(row, tag)) {
     let newRow = row.set('elements', row.get('elements').map((e) => {
       if ((Number(e.get("byte"))) === (Number(address) - Number(tag))) {
@@ -29,22 +35,12 @@ export default function simulateInstruction(state, address, operationType, regis
         return e
     })).set("usedDate", Date.now())
     state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
-    if(operationType === "STORE") {
-      let storeData = state.get("register").get("registers").get(register).get("data");
-      let bytes = wordToBytes(storeData);
-      state = state.set("memory", storeWord(bytes, tag, state.get("memory")))
-    }
     let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
     let word = bytesToWord(data);
     state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
     return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
   }
   else {
-    if (operationType === "STORE") {
-      let storeData = state.get("register").get("registers").get(register).get("data");
-      let bytes = wordToBytes(storeData);
-      state = state.set("memory", storeWord(bytes, tag, state.get("memory")))
-    }
     if (memoryHit(tag, state.get('memory'))) {
       let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
       let newRow = row.set('elements', row.get('elements').map((e) => {
@@ -219,6 +215,14 @@ function getData(tag, memory) {
   return data;
 }
 
+/**
+ * Stores a word in main memory at the specified tag
+ *
+ * @param bytes 4 bytes to store
+ * @param tag memory address to store at
+ * @param memory memory to store in
+ * @returns {*} updated memory
+ */
 function storeWord(bytes, tag, memory) {
   let newMemory;
   for (let i = 0; i < bytes.length; i++) {
@@ -228,6 +232,14 @@ function storeWord(bytes, tag, memory) {
   return memory;
 }
 
+/**
+ * Stores a byte in memory at the specified tag
+ *
+ * @param byte byte to store
+ * @param tag memory address to store at
+ * @param memory memory to store in
+ * @returns {*} updated memory
+ */
 function storeByte(byte, tag, memory) {
   return memory.update(Number(tag), (m) => {
     if (byte === "empty") {
@@ -265,7 +277,7 @@ function updateInstructionHistory(row, tag, operationType, state) {
 }
 
 /**
- * Checks wheter the instruction was a hit in the cache or not.
+ * Checks whether the instruction was a hit in the cache or not.
  *
  * @param row row calculated by replacementalgorithm and index-bits
  * @param tag address-tag of the instruction
@@ -310,6 +322,11 @@ function createBinaryString(nMask) {
   return sMask;
 }
 
+/**
+ * Function that converts 4 bytes in hex format to a word in hex format
+ * @param data bytes to convert
+ * @returns {string} hexadecimal string of the word
+ */
 function bytesToWord(data) {
   let byte1 = createBinaryString(parseInt(data[0].slice(2,data[0].length),16)).slice(24,32);
   let byte2 = createBinaryString(parseInt(data[1].slice(2,data[1].length),16)).slice(24,32);
@@ -319,6 +336,12 @@ function bytesToWord(data) {
   return "0x" + parseInt(word, 2).toString(16);
 }
 
+/**
+ * Function that converts a hexadecimal word to 4 bytes in decimal
+ *
+ * @param word word to convert
+ * @returns {*} array of 4 bytes.
+ */
 function wordToBytes(word) {
   if(word === "empty")
     return ["empty", "empty", "empty", "empty"]
