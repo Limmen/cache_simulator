@@ -64,7 +64,7 @@
 
 	var _configureStore2 = _interopRequireDefault(_configureStore);
 
-	var _index = __webpack_require__(310);
+	var _index = __webpack_require__(311);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -27169,15 +27169,15 @@
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _reduxThunk = __webpack_require__(301);
+	var _reduxThunk = __webpack_require__(302);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _reduxPromise = __webpack_require__(302);
+	var _reduxPromise = __webpack_require__(303);
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxLogger = __webpack_require__(309);
+	var _reduxLogger = __webpack_require__(310);
 
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 
@@ -30284,11 +30284,11 @@
 
 	var _initialMemoryContent2 = _interopRequireDefault(_initialMemoryContent);
 
-	var _initialRegisterContent = __webpack_require__(393);
+	var _initialRegisterContent = __webpack_require__(300);
 
 	var _initialRegisterContent2 = _interopRequireDefault(_initialRegisterContent);
 
-	var _simulateInstruction = __webpack_require__(300);
+	var _simulateInstruction = __webpack_require__(301);
 
 	var _simulateInstruction2 = _interopRequireDefault(_simulateInstruction);
 
@@ -35517,6 +35517,46 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.default = initialRegisterContent;
+
+	var _immutable = __webpack_require__(298);
+
+	/**
+	 * Function that creates an initial empty register layout.
+	 *
+	 * @returns {*} Register layout
+	 */
+	function initialRegisterContent() {
+
+	  var register = (0, _immutable.Map)({
+	    registers: (0, _immutable.List)()
+	  });
+
+	  for (var i = 0; i < 32; i++) {
+	    var data = "empty";
+	    var newRegisters = register.set("registers", register.get("registers").push((0, _immutable.Map)({
+	      data: data,
+	      number: i,
+	      id: "register_" + i
+	    })));
+	    register = newRegisters;
+	  }
+	  return register;
+	} /**
+	   * Exports a function that returns a inital register layout
+	   *
+	   * Created by kim on 2016-06-16.
+	   */
+
+/***/ },
+/* 301 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; }; /**
 	                                                                                                                                                                                                                                                   * Exports a function to simulate a instruction in the cache.
@@ -35556,11 +35596,16 @@
 	        var bytes = wordToBytes(storeData);
 	        state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
 	      }
-	      var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
-	      var word = bytesToWord(data);
-	      state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
-	        return reg.set("data", word);
-	      })));
+	      if (operationType === "LOAD") {
+	        (function () {
+	          var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
+	          var word = bytesToWord(data);
+	          console.log("data: " + JSON.stringify(data) + "\n \n word: " + JSON.stringify(word));
+	          state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
+	            return reg.set("data", word);
+	          })));
+	        })();
+	      }
 	      return {
 	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	          return s.set('rows', s.get('rows').update(index, function () {
@@ -35578,7 +35623,7 @@
 	      state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
 	    }
 	    if (memoryHit(tag, state.get('memory'))) {
-	      var _ret2 = function () {
+	      var _ret3 = function () {
 	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))));
@@ -35586,6 +35631,7 @@
 	        if (operationType === "LOAD") {
 	          (function () {
 	            var word = bytesToWord(data);
+	            console.log("data: " + JSON.stringify(data) + "\n \n word: " + JSON.stringify(word));
 	            state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
 	              return reg.set("data", word);
 	            })));
@@ -35601,7 +35647,7 @@
 	        };
 	      }();
 
-	      if ((typeof _ret2 === "undefined" ? "undefined" : _typeof(_ret2)) === "object") return _ret2.v;
+	      if ((typeof _ret3 === "undefined" ? "undefined" : _typeof(_ret3)) === "object") return _ret3.v;
 	    } else {
 	      state = updateInstructionHistory(row, tag, operationType, state);
 	      return state.set("instructionResult", "MISS! Address not found in Main Memory");
@@ -35769,6 +35815,14 @@
 	  return data;
 	}
 
+	/**
+	 * Stores a word in main memory at the specified tag
+	 *
+	 * @param bytes 4 bytes to store
+	 * @param tag memory address to store at
+	 * @param memory memory to store in
+	 * @returns {*} updated memory
+	 */
 	function storeWord(bytes, tag, memory) {
 	  var newMemory = void 0;
 	  for (var i = 0; i < bytes.length; i++) {
@@ -35778,6 +35832,14 @@
 	  return memory;
 	}
 
+	/**
+	 * Stores a byte in memory at the specified tag
+	 *
+	 * @param byte byte to store
+	 * @param tag memory address to store at
+	 * @param memory memory to store in
+	 * @returns {*} updated memory
+	 */
 	function storeByte(byte, tag, memory) {
 	  return memory.update(Number(tag), function (m) {
 	    if (byte === "empty") {
@@ -35812,7 +35874,7 @@
 	}
 
 	/**
-	 * Checks wheter the instruction was a hit in the cache or not.
+	 * Checks whether the instruction was a hit in the cache or not.
 	 *
 	 * @param row row calculated by replacementalgorithm and index-bits
 	 * @param tag address-tag of the instruction
@@ -35849,7 +35911,13 @@
 	  return sMask;
 	}
 
+	/**
+	 * Function that converts 4 bytes in hex format to a word in hex format
+	 * @param data bytes to convert
+	 * @returns {string} hexadecimal string of the word
+	 */
 	function bytesToWord(data) {
+	  if (data[0] === "empty" && data[1] === "empty" && data[2] === "empty" && data[3] === "empty") return "empty";
 	  var byte1 = createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
 	  var byte2 = createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
 	  var byte3 = createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
@@ -35858,6 +35926,12 @@
 	  return "0x" + parseInt(word, 2).toString(16);
 	}
 
+	/**
+	 * Function that converts a hexadecimal word to 4 bytes in decimal
+	 *
+	 * @param word word to convert
+	 * @returns {*} array of 4 bytes.
+	 */
 	function wordToBytes(word) {
 	  if (word === "empty") return ["empty", "empty", "empty", "empty"];else {
 	    var binaryWord = createBinaryString(parseInt(word.slice(2, word.length), 16));
@@ -35871,7 +35945,7 @@
 	}
 
 /***/ },
-/* 301 */
+/* 302 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -35899,7 +35973,7 @@
 	exports['default'] = thunk;
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35910,7 +35984,7 @@
 
 	exports['default'] = promiseMiddleware;
 
-	var _fluxStandardAction = __webpack_require__(303);
+	var _fluxStandardAction = __webpack_require__(304);
 
 	function isPromise(val) {
 	  return val && typeof val.then === 'function';
@@ -35937,7 +36011,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35948,7 +36022,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodashIsplainobject = __webpack_require__(304);
+	var _lodashIsplainobject = __webpack_require__(305);
 
 	var _lodashIsplainobject2 = _interopRequireDefault(_lodashIsplainobject);
 
@@ -35967,7 +36041,7 @@
 	}
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -35978,9 +36052,9 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var baseFor = __webpack_require__(305),
-	    isArguments = __webpack_require__(306),
-	    keysIn = __webpack_require__(307);
+	var baseFor = __webpack_require__(306),
+	    isArguments = __webpack_require__(307),
+	    keysIn = __webpack_require__(308);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -36076,7 +36150,7 @@
 
 
 /***/ },
-/* 305 */
+/* 306 */
 /***/ function(module, exports) {
 
 	/**
@@ -36130,7 +36204,7 @@
 
 
 /***/ },
-/* 306 */
+/* 307 */
 /***/ function(module, exports) {
 
 	/**
@@ -36379,7 +36453,7 @@
 
 
 /***/ },
-/* 307 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -36390,8 +36464,8 @@
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
-	var isArguments = __webpack_require__(306),
-	    isArray = __webpack_require__(308);
+	var isArguments = __webpack_require__(307),
+	    isArray = __webpack_require__(309);
 
 	/** Used to detect unsigned integer values. */
 	var reIsUint = /^\d+$/;
@@ -36517,7 +36591,7 @@
 
 
 /***/ },
-/* 308 */
+/* 309 */
 /***/ function(module, exports) {
 
 	/**
@@ -36703,7 +36777,7 @@
 
 
 /***/ },
-/* 309 */
+/* 310 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -36936,7 +37010,7 @@
 	module.exports = createLogger;
 
 /***/ },
-/* 310 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36951,23 +37025,23 @@
 
 	var _reactRouter = __webpack_require__(159);
 
-	var _App = __webpack_require__(311);
+	var _App = __webpack_require__(312);
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _CacheSimulator = __webpack_require__(317);
+	var _CacheSimulator = __webpack_require__(318);
 
 	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
 
-	var _ = __webpack_require__(390);
+	var _ = __webpack_require__(392);
 
 	var _2 = _interopRequireDefault(_);
 
-	var _About = __webpack_require__(391);
+	var _About = __webpack_require__(393);
 
 	var _About2 = _interopRequireDefault(_About);
 
-	var _Colophon = __webpack_require__(392);
+	var _Colophon = __webpack_require__(394);
 
 	var _Colophon2 = _interopRequireDefault(_Colophon);
 
@@ -37001,7 +37075,7 @@
 	    */
 
 /***/ },
-/* 311 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37021,15 +37095,15 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _Header = __webpack_require__(312);
+	var _Header = __webpack_require__(313);
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Footer = __webpack_require__(315);
+	var _Footer = __webpack_require__(316);
 
 	var _Footer2 = _interopRequireDefault(_Footer);
 
-	var _actions = __webpack_require__(316);
+	var _actions = __webpack_require__(317);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -37119,7 +37193,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
 
 /***/ },
-/* 312 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37137,7 +37211,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _NavBar = __webpack_require__(313);
+	var _NavBar = __webpack_require__(314);
 
 	var _NavBar2 = _interopRequireDefault(_NavBar);
 
@@ -37184,7 +37258,7 @@
 	exports.default = Header;
 
 /***/ },
-/* 313 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37205,7 +37279,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _NavLink = __webpack_require__(314);
+	var _NavLink = __webpack_require__(315);
 
 	var _NavLink2 = _interopRequireDefault(_NavLink);
 
@@ -37274,7 +37348,7 @@
 	exports.default = NavBar;
 
 /***/ },
-/* 314 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37305,7 +37379,7 @@
 	});
 
 /***/ },
-/* 315 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37347,7 +37421,7 @@
 	exports.default = Footer;
 
 /***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37404,7 +37478,7 @@
 	}
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37424,31 +37498,31 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _SettingsPanel = __webpack_require__(318);
+	var _SettingsPanel = __webpack_require__(319);
 
 	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
 
-	var _InstructionPanel = __webpack_require__(320);
+	var _InstructionPanel = __webpack_require__(321);
 
 	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
 
-	var _AssemblyPanel = __webpack_require__(322);
+	var _AssemblyPanel = __webpack_require__(323);
 
 	var _AssemblyPanel2 = _interopRequireDefault(_AssemblyPanel);
 
-	var _CacheMem = __webpack_require__(326);
+	var _CacheMem = __webpack_require__(325);
 
 	var _CacheMem2 = _interopRequireDefault(_CacheMem);
 
-	var _MemoryPanel = __webpack_require__(334);
+	var _MemoryPanel = __webpack_require__(333);
 
 	var _MemoryPanel2 = _interopRequireDefault(_MemoryPanel);
 
-	var _RegisterPanel = __webpack_require__(394);
+	var _RegisterPanel = __webpack_require__(387);
 
 	var _RegisterPanel2 = _interopRequireDefault(_RegisterPanel);
 
-	var _InstructionResultPanel = __webpack_require__(388);
+	var _InstructionResultPanel = __webpack_require__(390);
 
 	var _InstructionResultPanel2 = _interopRequireDefault(_InstructionResultPanel);
 
@@ -37567,7 +37641,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheSimulator);
 
 /***/ },
-/* 318 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37592,11 +37666,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheForm = __webpack_require__(319);
+	var _CacheForm = __webpack_require__(320);
 
 	var _CacheForm2 = _interopRequireDefault(_CacheForm);
 
-	var _actions = __webpack_require__(316);
+	var _actions = __webpack_require__(317);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -37678,7 +37752,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(SettingsPanel);
 
 /***/ },
-/* 319 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37961,7 +38035,7 @@
 	})(CacheForm);
 
 /***/ },
-/* 320 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -37986,11 +38060,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _FetchForm = __webpack_require__(321);
+	var _FetchForm = __webpack_require__(322);
 
 	var _FetchForm2 = _interopRequireDefault(_FetchForm);
 
-	var _actions = __webpack_require__(316);
+	var _actions = __webpack_require__(317);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -38071,7 +38145,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
 
 /***/ },
-/* 321 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -38278,13 +38352,13 @@
 	})(FetchForm);
 
 /***/ },
-/* 322 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * AssemblyPanel redux-container. Connects the assembly panel to the redux-store.
 	 *
-	 * Created by kim on 2016-05-11.
+	 * Created by kim on 2016-06-16.
 	 */
 
 	'use strict';
@@ -38301,11 +38375,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _AssemblyForm = __webpack_require__(323);
+	var _AssemblyForm = __webpack_require__(324);
 
 	var _AssemblyForm2 = _interopRequireDefault(_AssemblyForm);
 
-	var _actions = __webpack_require__(316);
+	var _actions = __webpack_require__(317);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -38347,11 +38421,10 @@
 	};
 
 	/**
-	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
-	 * Its result must be a plain object*, and it will be merged into the component’s props.
-	 * If you omit it, the component will not be subscribed to the Redux store.
+	 * Maps application state that is used in this container to props.
 	 *
-	 * @returns {{}}
+	 * @param state
+	 * @returns {{simulating: *}} object with props
 	 */
 	function mapStateToProps(state) {
 	  return {
@@ -38367,7 +38440,7 @@
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
 	    /**
-	     * Function to handle submission of the fetchform. Dispatches a action.
+	     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
 	     * @param fields of the action
 	     */
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
@@ -38399,7 +38472,6 @@
 	        setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
 	      }
 	      setTimeout(dispatch, rows.length * 3600, actions.stopSimulation());
-	      //dispatch(actions.cacheContentUpdateAssembly(fields))
 	    }
 	  };
 	};
@@ -38407,7 +38479,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(AssemblyPanel);
 
 /***/ },
-/* 323 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -38720,9 +38792,7 @@
 	})(AssemblyForm);
 
 /***/ },
-/* 324 */,
-/* 325 */,
-/* 326 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -38745,11 +38815,11 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _CacheTable = __webpack_require__(327);
+	var _CacheTable = __webpack_require__(326);
 
 	var _CacheTable2 = _interopRequireDefault(_CacheTable);
 
-	var _actions = __webpack_require__(316);
+	var _actions = __webpack_require__(317);
 
 	var actions = _interopRequireWildcard(_actions);
 
@@ -38847,6 +38917,15 @@
 	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
 	      } else return 0;
 	    }
+
+	    /**
+	     * Returns a ui-component to display when simulation is ongoing.
+	     *
+	     * @param simulating boolean
+	     * @param cancelSimulation function to for cancelling simulation.
+	     * @returns {XML}
+	     */
+
 	  }, {
 	    key: 'simulationMessage',
 	    value: function simulationMessage(simulating, cancelSimulation) {
@@ -39154,7 +39233,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
 
 /***/ },
-/* 327 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -39175,7 +39254,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _CacheTableRow = __webpack_require__(328);
+	var _CacheTableRow = __webpack_require__(327);
 
 	var _CacheTableRow2 = _interopRequireDefault(_CacheTableRow);
 
@@ -39272,7 +39351,7 @@
 	exports.default = CacheTable;
 
 /***/ },
-/* 328 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -39295,11 +39374,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _CacheTableElement = __webpack_require__(329);
+	var _CacheTableElement = __webpack_require__(328);
 
 	var _CacheTableElement2 = _interopRequireDefault(_CacheTableElement);
 
-	var _reactTooltip = __webpack_require__(330);
+	var _reactTooltip = __webpack_require__(329);
 
 	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
 
@@ -39442,7 +39521,7 @@
 	exports.default = CacheTableRow;
 
 /***/ },
-/* 329 */
+/* 328 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -39465,7 +39544,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactTooltip = __webpack_require__(330);
+	var _reactTooltip = __webpack_require__(329);
 
 	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
 
@@ -39578,16 +39657,16 @@
 	exports.default = CacheTableElement;
 
 /***/ },
-/* 330 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	module.exports = __webpack_require__(331)
+	module.exports = __webpack_require__(330)
 
 
 /***/ },
-/* 331 */
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39602,11 +39681,11 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _classnames = __webpack_require__(332);
+	var _classnames = __webpack_require__(331);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _style = __webpack_require__(333);
+	var _style = __webpack_require__(332);
 
 	var _style2 = _interopRequireDefault(_style);
 
@@ -40358,7 +40437,7 @@
 
 
 /***/ },
-/* 332 */
+/* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -40412,7 +40491,7 @@
 
 
 /***/ },
-/* 333 */
+/* 332 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40424,7 +40503,7 @@
 
 
 /***/ },
-/* 334 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40447,7 +40526,7 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _MemoryTable = __webpack_require__(335);
+	var _MemoryTable = __webpack_require__(334);
 
 	var _MemoryTable2 = _interopRequireDefault(_MemoryTable);
 
@@ -40504,7 +40583,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(MemoryPanel);
 
 /***/ },
-/* 335 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40525,9 +40604,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _fixedDataTable = __webpack_require__(336);
+	var _fixedDataTable = __webpack_require__(335);
 
-	var _reactDimensions = __webpack_require__(386);
+	var _reactDimensions = __webpack_require__(385);
 
 	var _reactDimensions2 = _interopRequireDefault(_reactDimensions);
 
@@ -40612,14 +40691,14 @@
 	exports.default = (0, _reactDimensions2.default)()(MemoryTable);
 
 /***/ },
-/* 336 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(337);
+	module.exports = __webpack_require__(336);
 
 
 /***/ },
-/* 337 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40635,10 +40714,10 @@
 
 	'use strict';
 
-	var FixedDataTable = __webpack_require__(338);
-	var FixedDataTableCellDefault = __webpack_require__(375);
-	var FixedDataTableColumn = __webpack_require__(373);
-	var FixedDataTableColumnGroup = __webpack_require__(372);
+	var FixedDataTable = __webpack_require__(337);
+	var FixedDataTableCellDefault = __webpack_require__(374);
+	var FixedDataTableColumn = __webpack_require__(372);
+	var FixedDataTableColumnGroup = __webpack_require__(371);
 
 	var FixedDataTableRoot = {
 	  Cell: FixedDataTableCellDefault,
@@ -40650,7 +40729,7 @@
 	module.exports = FixedDataTableRoot;
 
 /***/ },
-/* 338 */
+/* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -40676,19 +40755,19 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
 	var ReactChildren = React.Children;
 
 	var PropTypes = React.PropTypes;
 
 	// New Table API
-	var Table = __webpack_require__(340);
-	var Column = __webpack_require__(383);
-	var ColumnGroup = __webpack_require__(384);
+	var Table = __webpack_require__(339);
+	var Column = __webpack_require__(382);
+	var ColumnGroup = __webpack_require__(383);
 
 	// Transition Cell
-	var TransitionCell = __webpack_require__(385);
+	var TransitionCell = __webpack_require__(384);
 
 	var NEXT_VERSION = '0.7.0';
 	var DOCUMENTATION_URL = 'https://fburl.com/FixedDataTable-v0.6';
@@ -41173,7 +41252,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 339 */
+/* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -41192,7 +41271,7 @@
 	module.exports = __webpack_require__(1);
 
 /***/ },
-/* 340 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -41214,23 +41293,23 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var React = __webpack_require__(339);
-	var ReactComponentWithPureRenderMixin = __webpack_require__(341);
-	var ReactWheelHandler = __webpack_require__(342);
-	var Scrollbar = __webpack_require__(350);
-	var FixedDataTableBufferedRows = __webpack_require__(363);
-	var FixedDataTableColumnResizeHandle = __webpack_require__(377);
-	var FixedDataTableRow = __webpack_require__(368);
-	var FixedDataTableScrollHelper = __webpack_require__(378);
-	var FixedDataTableWidthHelper = __webpack_require__(380);
+	var React = __webpack_require__(338);
+	var ReactComponentWithPureRenderMixin = __webpack_require__(340);
+	var ReactWheelHandler = __webpack_require__(341);
+	var Scrollbar = __webpack_require__(349);
+	var FixedDataTableBufferedRows = __webpack_require__(362);
+	var FixedDataTableColumnResizeHandle = __webpack_require__(376);
+	var FixedDataTableRow = __webpack_require__(367);
+	var FixedDataTableScrollHelper = __webpack_require__(377);
+	var FixedDataTableWidthHelper = __webpack_require__(379);
 
-	var cx = __webpack_require__(357);
-	var debounceCore = __webpack_require__(381);
-	var emptyFunction = __webpack_require__(343);
-	var invariant = __webpack_require__(362);
-	var joinClasses = __webpack_require__(376);
-	var shallowEqual = __webpack_require__(382);
-	var translateDOMPositionXY = __webpack_require__(358);
+	var cx = __webpack_require__(356);
+	var debounceCore = __webpack_require__(380);
+	var emptyFunction = __webpack_require__(342);
+	var invariant = __webpack_require__(361);
+	var joinClasses = __webpack_require__(375);
+	var shallowEqual = __webpack_require__(381);
+	var translateDOMPositionXY = __webpack_require__(357);
 
 	var PropTypes = React.PropTypes;
 
@@ -42152,7 +42231,7 @@
 	// avaialble
 
 /***/ },
-/* 341 */
+/* 340 */
 /***/ function(module, exports) {
 
 	/**
@@ -42228,7 +42307,7 @@
 	module.exports = ReactComponentWithPureRenderMixin;
 
 /***/ },
-/* 342 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -42252,9 +42331,9 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var emptyFunction = __webpack_require__(343);
-	var normalizeWheel = __webpack_require__(344);
-	var requestAnimationFramePolyfill = __webpack_require__(348);
+	var emptyFunction = __webpack_require__(342);
+	var normalizeWheel = __webpack_require__(343);
+	var requestAnimationFramePolyfill = __webpack_require__(347);
 
 	var ReactWheelHandler = (function () {
 	  /**
@@ -42338,7 +42417,7 @@
 	module.exports = ReactWheelHandler;
 
 /***/ },
-/* 343 */
+/* 342 */
 /***/ function(module, exports) {
 
 	/**
@@ -42381,7 +42460,7 @@
 	module.exports = emptyFunction;
 
 /***/ },
-/* 344 */
+/* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -42398,9 +42477,9 @@
 
 	'use strict';
 
-	var UserAgent_DEPRECATED = __webpack_require__(345);
+	var UserAgent_DEPRECATED = __webpack_require__(344);
 
-	var isEventSupported = __webpack_require__(346);
+	var isEventSupported = __webpack_require__(345);
 
 	// Reasonable defaults
 	var PIXEL_STEP = 10;
@@ -42582,7 +42661,7 @@
 	module.exports = normalizeWheel;
 
 /***/ },
-/* 345 */
+/* 344 */
 /***/ function(module, exports) {
 
 	/**
@@ -42865,7 +42944,7 @@
 	module.exports = UserAgent_DEPRECATED;
 
 /***/ },
-/* 346 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -42881,7 +42960,7 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(347);
+	var ExecutionEnvironment = __webpack_require__(346);
 
 	var useHasFeature;
 	if (ExecutionEnvironment.canUseDOM) {
@@ -42930,7 +43009,7 @@
 	module.exports = isEventSupported;
 
 /***/ },
-/* 347 */
+/* 346 */
 /***/ function(module, exports) {
 
 	/**
@@ -42973,7 +43052,7 @@
 	module.exports = ExecutionEnvironment;
 
 /***/ },
-/* 348 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -42989,8 +43068,8 @@
 
 	'use strict';
 
-	var emptyFunction = __webpack_require__(343);
-	var nativeRequestAnimationFrame = __webpack_require__(349);
+	var emptyFunction = __webpack_require__(342);
+	var nativeRequestAnimationFrame = __webpack_require__(348);
 
 	var lastTime = 0;
 
@@ -43014,7 +43093,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 349 */
+/* 348 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -43036,7 +43115,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 350 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -43053,17 +43132,17 @@
 
 	'use strict';
 
-	var DOMMouseMoveTracker = __webpack_require__(351);
-	var Keys = __webpack_require__(354);
-	var React = __webpack_require__(339);
-	var ReactDOM = __webpack_require__(355);
-	var ReactComponentWithPureRenderMixin = __webpack_require__(341);
-	var ReactWheelHandler = __webpack_require__(342);
+	var DOMMouseMoveTracker = __webpack_require__(350);
+	var Keys = __webpack_require__(353);
+	var React = __webpack_require__(338);
+	var ReactDOM = __webpack_require__(354);
+	var ReactComponentWithPureRenderMixin = __webpack_require__(340);
+	var ReactWheelHandler = __webpack_require__(341);
 
-	var cssVar = __webpack_require__(356);
-	var cx = __webpack_require__(357);
-	var emptyFunction = __webpack_require__(343);
-	var translateDOMPositionXY = __webpack_require__(358);
+	var cssVar = __webpack_require__(355);
+	var cx = __webpack_require__(356);
+	var emptyFunction = __webpack_require__(342);
+	var translateDOMPositionXY = __webpack_require__(357);
 
 	var PropTypes = React.PropTypes;
 
@@ -43477,7 +43556,7 @@
 	// pass
 
 /***/ },
-/* 351 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -43505,10 +43584,10 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var EventListener = __webpack_require__(352);
+	var EventListener = __webpack_require__(351);
 
-	var cancelAnimationFramePolyfill = __webpack_require__(353);
-	var requestAnimationFramePolyfill = __webpack_require__(348);
+	var cancelAnimationFramePolyfill = __webpack_require__(352);
+	var requestAnimationFramePolyfill = __webpack_require__(347);
 
 	var DOMMouseMoveTracker = (function () {
 	  /**
@@ -43641,7 +43720,7 @@
 	module.exports = DOMMouseMoveTracker;
 
 /***/ },
-/* 352 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -43658,7 +43737,7 @@
 
 	'use strict';
 
-	var emptyFunction = __webpack_require__(343);
+	var emptyFunction = __webpack_require__(342);
 
 	/**
 	 * Upstream version of event listener. Does not take into account specific
@@ -43724,7 +43803,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 353 */
+/* 352 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -43750,7 +43829,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 354 */
+/* 353 */
 /***/ function(module, exports) {
 
 	/**
@@ -43792,7 +43871,7 @@
 	};
 
 /***/ },
-/* 355 */
+/* 354 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -43811,7 +43890,7 @@
 	module.exports = __webpack_require__(158);
 
 /***/ },
-/* 356 */
+/* 355 */
 /***/ function(module, exports) {
 
 	/**
@@ -43855,7 +43934,7 @@
 	module.exports = cssVar;
 
 /***/ },
-/* 357 */
+/* 356 */
 /***/ function(module, exports) {
 
 	/**
@@ -43914,7 +43993,7 @@
 	module.exports = cx;
 
 /***/ },
-/* 358 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -43931,9 +44010,9 @@
 
 	'use strict';
 
-	var BrowserSupportCore = __webpack_require__(359);
+	var BrowserSupportCore = __webpack_require__(358);
 
-	var getVendorPrefixedName = __webpack_require__(360);
+	var getVendorPrefixedName = __webpack_require__(359);
 
 	var TRANSFORM = getVendorPrefixedName('transform');
 	var BACKFACE_VISIBILITY = getVendorPrefixedName('backfaceVisibility');
@@ -43968,7 +44047,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 359 */
+/* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -43984,7 +44063,7 @@
 
 	'use strict';
 
-	var getVendorPrefixedName = __webpack_require__(360);
+	var getVendorPrefixedName = __webpack_require__(359);
 
 	var BrowserSupportCore = {
 	  /**
@@ -44018,7 +44097,7 @@
 	module.exports = BrowserSupportCore;
 
 /***/ },
-/* 360 */
+/* 359 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -44035,10 +44114,10 @@
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(347);
+	var ExecutionEnvironment = __webpack_require__(346);
 
-	var camelize = __webpack_require__(361);
-	var invariant = __webpack_require__(362);
+	var camelize = __webpack_require__(360);
+	var invariant = __webpack_require__(361);
 
 	var memoized = {};
 	var prefixes = ['Webkit', 'ms', 'Moz', 'O'];
@@ -44075,7 +44154,7 @@
 	module.exports = getVendorPrefixedName;
 
 /***/ },
-/* 361 */
+/* 360 */
 /***/ function(module, exports) {
 
 	/**
@@ -44112,7 +44191,7 @@
 	module.exports = camelize;
 
 /***/ },
-/* 362 */
+/* 361 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -44167,7 +44246,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 363 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -44184,14 +44263,14 @@
 
 	'use strict';
 
-	var React = __webpack_require__(339);
-	var FixedDataTableRowBuffer = __webpack_require__(364);
-	var FixedDataTableRow = __webpack_require__(368);
+	var React = __webpack_require__(338);
+	var FixedDataTableRowBuffer = __webpack_require__(363);
+	var FixedDataTableRow = __webpack_require__(367);
 
-	var cx = __webpack_require__(357);
-	var emptyFunction = __webpack_require__(343);
-	var joinClasses = __webpack_require__(376);
-	var translateDOMPositionXY = __webpack_require__(358);
+	var cx = __webpack_require__(356);
+	var emptyFunction = __webpack_require__(342);
+	var joinClasses = __webpack_require__(375);
+	var translateDOMPositionXY = __webpack_require__(357);
 
 	var PropTypes = React.PropTypes;
 
@@ -44320,7 +44399,7 @@
 	module.exports = FixedDataTableBufferedRows;
 
 /***/ },
-/* 364 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -44341,10 +44420,10 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var IntegerBufferSet = __webpack_require__(365);
+	var IntegerBufferSet = __webpack_require__(364);
 
-	var clamp = __webpack_require__(367);
-	var invariant = __webpack_require__(362);
+	var clamp = __webpack_require__(366);
+	var invariant = __webpack_require__(361);
 	var MIN_BUFFER_ROWS = 3;
 	var MAX_BUFFER_ROWS = 6;
 
@@ -44448,7 +44527,7 @@
 	module.exports = FixedDataTableRowBuffer;
 
 /***/ },
-/* 365 */
+/* 364 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -44469,9 +44548,9 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var Heap = __webpack_require__(366);
+	var Heap = __webpack_require__(365);
 
-	var invariant = __webpack_require__(362);
+	var invariant = __webpack_require__(361);
 
 	// Data structure that allows to store values and assign positions to them
 	// in a way to minimize changing positions of stored values when new ones are
@@ -44632,7 +44711,7 @@
 	module.exports = IntegerBufferSet;
 
 /***/ },
-/* 366 */
+/* 365 */
 /***/ function(module, exports) {
 
 	/**
@@ -44815,7 +44894,7 @@
 	module.exports = Heap;
 
 /***/ },
-/* 367 */
+/* 366 */
 /***/ function(module, exports) {
 
 	/**
@@ -44852,7 +44931,7 @@
 	module.exports = clamp;
 
 /***/ },
-/* 368 */
+/* 367 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -44871,12 +44950,12 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var React = __webpack_require__(339);
-	var FixedDataTableCellGroup = __webpack_require__(369);
+	var React = __webpack_require__(338);
+	var FixedDataTableCellGroup = __webpack_require__(368);
 
-	var cx = __webpack_require__(357);
-	var joinClasses = __webpack_require__(376);
-	var translateDOMPositionXY = __webpack_require__(358);
+	var cx = __webpack_require__(356);
+	var joinClasses = __webpack_require__(375);
+	var translateDOMPositionXY = __webpack_require__(357);
 
 	var PropTypes = React.PropTypes;
 
@@ -45098,7 +45177,7 @@
 	module.exports = FixedDataTableRow;
 
 /***/ },
-/* 369 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -45119,12 +45198,12 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var FixedDataTableHelper = __webpack_require__(370);
-	var React = __webpack_require__(339);
-	var FixedDataTableCell = __webpack_require__(374);
+	var FixedDataTableHelper = __webpack_require__(369);
+	var React = __webpack_require__(338);
+	var FixedDataTableCell = __webpack_require__(373);
 
-	var cx = __webpack_require__(357);
-	var translateDOMPositionXY = __webpack_require__(358);
+	var cx = __webpack_require__(356);
+	var translateDOMPositionXY = __webpack_require__(357);
 
 	var PropTypes = React.PropTypes;
 
@@ -45303,7 +45382,7 @@
 	module.exports = FixedDataTableCellGroup;
 
 /***/ },
-/* 370 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -45320,10 +45399,10 @@
 
 	'use strict';
 
-	var Locale = __webpack_require__(371);
-	var React = __webpack_require__(339);
-	var FixedDataTableColumnGroup = __webpack_require__(372);
-	var FixedDataTableColumn = __webpack_require__(373);
+	var Locale = __webpack_require__(370);
+	var React = __webpack_require__(338);
+	var FixedDataTableColumnGroup = __webpack_require__(371);
+	var FixedDataTableColumn = __webpack_require__(372);
 
 	var DIR_SIGN = Locale.isRTL() ? -1 : +1;
 	// A cell up to 5px outside of the visible area will still be considered visible
@@ -45410,7 +45489,7 @@
 	module.exports = FixedDataTableHelper;
 
 /***/ },
-/* 371 */
+/* 370 */
 /***/ function(module, exports) {
 
 	/**
@@ -45439,7 +45518,7 @@
 	module.exports = Locale;
 
 /***/ },
-/* 372 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -45463,7 +45542,7 @@
 
 	'use strict';
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
 	var TransitionColumnGroup = React.createClass({
 	  displayName: 'TransitionColumnGroup',
@@ -45483,7 +45562,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 373 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -45507,7 +45586,7 @@
 
 	'use strict';
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
 	var TransitionColumn = React.createClass({
 	  displayName: 'TransitionColumn',
@@ -45528,7 +45607,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 374 */
+/* 373 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -45547,11 +45626,11 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var FixedDataTableCellDefault = __webpack_require__(375);
-	var FixedDataTableHelper = __webpack_require__(370);
-	var React = __webpack_require__(339);
-	var cx = __webpack_require__(357);
-	var joinClasses = __webpack_require__(376);
+	var FixedDataTableCellDefault = __webpack_require__(374);
+	var FixedDataTableHelper = __webpack_require__(369);
+	var React = __webpack_require__(338);
+	var cx = __webpack_require__(356);
+	var joinClasses = __webpack_require__(375);
 
 	var DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
 
@@ -45698,7 +45777,7 @@
 	module.exports = FixedDataTableCell;
 
 /***/ },
-/* 375 */
+/* 374 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -45719,10 +45798,10 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
-	var cx = __webpack_require__(357);
-	var joinClasses = __webpack_require__(376);
+	var cx = __webpack_require__(356);
+	var joinClasses = __webpack_require__(375);
 
 	var PropTypes = React.PropTypes;
 
@@ -45810,7 +45889,7 @@
 	module.exports = FixedDataTableCellDefault;
 
 /***/ },
-/* 376 */
+/* 375 */
 /***/ function(module, exports) {
 
 	/**
@@ -45854,7 +45933,7 @@
 	module.exports = joinClasses;
 
 /***/ },
-/* 377 */
+/* 376 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -45875,13 +45954,13 @@
 
 	'use strict';
 
-	var DOMMouseMoveTracker = __webpack_require__(351);
-	var Locale = __webpack_require__(371);
-	var React = __webpack_require__(339);
-	var ReactComponentWithPureRenderMixin = __webpack_require__(341);
+	var DOMMouseMoveTracker = __webpack_require__(350);
+	var Locale = __webpack_require__(370);
+	var React = __webpack_require__(338);
+	var ReactComponentWithPureRenderMixin = __webpack_require__(340);
 
-	var clamp = __webpack_require__(367);
-	var cx = __webpack_require__(357);
+	var clamp = __webpack_require__(366);
+	var cx = __webpack_require__(356);
 
 	var PropTypes = React.PropTypes;
 
@@ -46015,7 +46094,7 @@
 	module.exports = FixedDataTableColumnResizeHandle;
 
 /***/ },
-/* 378 */
+/* 377 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -46036,8 +46115,8 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var PrefixIntervalTree = __webpack_require__(379);
-	var clamp = __webpack_require__(367);
+	var PrefixIntervalTree = __webpack_require__(378);
+	var clamp = __webpack_require__(366);
 
 	var BUFFER_ROWS = 5;
 	var NO_ROWS_SCROLL_RESULT = {
@@ -46316,7 +46395,7 @@
 	module.exports = FixedDataTableScrollHelper;
 
 /***/ },
-/* 379 */
+/* 378 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -46338,7 +46417,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var invariant = __webpack_require__(362);
+	var invariant = __webpack_require__(361);
 
 	var parent = function parent(node) {
 	  return Math.floor(node / 2);
@@ -46580,7 +46659,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 380 */
+/* 379 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -46597,7 +46676,7 @@
 
 	'use strict';
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
 	function getTotalWidth( /*array*/columns) /*number*/{
 	  var totalWidth = 0;
@@ -46714,7 +46793,7 @@
 	module.exports = FixedDataTableWidthHelper;
 
 /***/ },
-/* 381 */
+/* 380 */
 /***/ function(module, exports) {
 
 	/**
@@ -46786,7 +46865,7 @@
 	module.exports = debounce;
 
 /***/ },
-/* 382 */
+/* 381 */
 /***/ function(module, exports) {
 
 	/**
@@ -46841,7 +46920,7 @@
 	module.exports = shallowEqual;
 
 /***/ },
-/* 383 */
+/* 382 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -46858,7 +46937,7 @@
 
 	'use strict';
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
 	var PropTypes = React.PropTypes;
 
@@ -47023,7 +47102,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 384 */
+/* 383 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -47040,7 +47119,7 @@
 
 	'use strict';
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 
 	var PropTypes = React.PropTypes;
 
@@ -47101,7 +47180,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 385 */
+/* 384 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47127,14 +47206,14 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var React = __webpack_require__(339);
+	var React = __webpack_require__(338);
 	var PropTypes = React.PropTypes;
 
-	var cx = __webpack_require__(357);
-	var joinClasses = __webpack_require__(376);
-	var shallowEqual = __webpack_require__(382);
+	var cx = __webpack_require__(356);
+	var joinClasses = __webpack_require__(375);
+	var shallowEqual = __webpack_require__(381);
 
-	var CellDefault = __webpack_require__(375);
+	var CellDefault = __webpack_require__(374);
 
 	var TransitionCell = React.createClass({
 	  displayName: 'TransitionCell',
@@ -47299,7 +47378,7 @@
 	// footer
 
 /***/ },
-/* 386 */
+/* 385 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -47315,7 +47394,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var React = __webpack_require__(1);
-	var onElementResize = __webpack_require__(387);
+	var onElementResize = __webpack_require__(386);
 
 	var defaultContainerStyle = {
 	  width: '100%',
@@ -47494,7 +47573,7 @@
 
 
 /***/ },
-/* 387 */
+/* 386 */
 /***/ function(module, exports) {
 
 	var exports = function exports(element, fn) {
@@ -47579,7 +47658,268 @@
 
 
 /***/ },
+/* 387 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * RegisterPanel redux-container. Connects the register panel to the redux-store.
+	 *
+	 * Created by kim on 2016-06-16.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _RegisterTable = __webpack_require__(388);
+
+	var _RegisterTable2 = _interopRequireDefault(_RegisterTable);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RegisterPanel = function (_React$Component) {
+	  _inherits(RegisterPanel, _React$Component);
+
+	  function RegisterPanel() {
+	    _classCallCheck(this, RegisterPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterPanel).apply(this, arguments));
+	  }
+
+	  _createClass(RegisterPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_RegisterTable2.default, { data: this.props.register })
+	      );
+	    }
+	  }]);
+
+	  return RegisterPanel;
+	}(_react2.default.Component);
+
+	RegisterPanel.propTypes = {};
+
+	/**
+	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    register: state.cacheAndMemoryContent.get('register')
+	  };
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps() {
+	  return {};
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(RegisterPanel);
+
+/***/ },
 /* 388 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * RegisterTableComponent. A component displaying a table, that illustrates a register memory.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _RegisterTableRow = __webpack_require__(389);
+
+	var _RegisterTableRow2 = _interopRequireDefault(_RegisterTableRow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RegisterTable = function (_React$Component) {
+	  _inherits(RegisterTable, _React$Component);
+
+	  function RegisterTable() {
+	    _classCallCheck(this, RegisterTable);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterTable).apply(this, arguments));
+	  }
+
+	  _createClass(RegisterTable, [{
+	    key: 'createRows',
+
+
+	    /**
+	     * Creates table rows.
+	     *
+	     * @returns {Array} array of rows.
+	     */
+	    value: function createRows() {
+	      var rows = [];
+	      for (var i = 0; i < this.props.data.get('registers').size; i++) {
+	        rows.push(_react2.default.createElement(_RegisterTableRow2.default, { data: this.props.data.get('registers').get(i), key: i }));
+	      }
+	      return rows;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'registertable-component' },
+	        _react2.default.createElement(
+	          'table',
+	          { className: 'table table-bordered cache center-table' },
+	          _react2.default.createElement(
+	            'caption',
+	            null,
+	            'Register'
+	          ),
+	          _react2.default.createElement(
+	            'thead',
+	            null,
+	            _react2.default.createElement(
+	              'tr',
+	              null,
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text' },
+	                'Register'
+	              ),
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text' },
+	                'Data (4-byte word)'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'tbody',
+	            null,
+	            this.createRows()
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return RegisterTable;
+	}(_react2.default.Component);
+
+	RegisterTable.displayName = 'RegisterTable';
+
+	RegisterTable.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = RegisterTable;
+
+/***/ },
+/* 389 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * RegisterTableRow component. Constitutes as a row in a table.
+	 *
+	 * Created by kim on 2016-06-16.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RegisterTableRow = function (_React$Component) {
+	  _inherits(RegisterTableRow, _React$Component);
+
+	  function RegisterTableRow() {
+	    _classCallCheck(this, RegisterTableRow);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterTableRow).apply(this, arguments));
+	  }
+
+	  _createClass(RegisterTableRow, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'tr',
+	        { id: this.props.data.get('id'), className: 'registertablerow-component' },
+	        _react2.default.createElement(
+	          'td',
+	          { className: 'center_text' },
+	          this.props.data.get("number")
+	        ),
+	        _react2.default.createElement(
+	          'td',
+	          { className: 'center_text' },
+	          this.props.data.get("data")
+	        )
+	      );
+	    }
+	  }]);
+
+	  return RegisterTableRow;
+	}(_react2.default.Component);
+
+	RegisterTableRow.displayName = 'RegisterTableRow';
+	RegisterTableRow.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = RegisterTableRow;
+
+/***/ },
+/* 390 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47602,7 +47942,7 @@
 
 	var _reactRedux = __webpack_require__(220);
 
-	var _InstructionTable = __webpack_require__(389);
+	var _InstructionTable = __webpack_require__(391);
 
 	var _InstructionTable2 = _interopRequireDefault(_InstructionTable);
 
@@ -47659,7 +47999,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionResultPanel);
 
 /***/ },
-/* 389 */
+/* 391 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47680,9 +48020,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _fixedDataTable = __webpack_require__(336);
+	var _fixedDataTable = __webpack_require__(335);
 
-	var _reactDimensions = __webpack_require__(386);
+	var _reactDimensions = __webpack_require__(385);
 
 	var _reactDimensions2 = _interopRequireDefault(_reactDimensions);
 
@@ -47793,7 +48133,7 @@
 	exports.default = (0, _reactDimensions2.default)()(InstructionTable);
 
 /***/ },
-/* 390 */
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47830,7 +48170,7 @@
 	exports.default = NotFound;
 
 /***/ },
-/* 391 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47912,7 +48252,7 @@
 	exports.default = About;
 
 /***/ },
-/* 392 */
+/* 394 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47977,298 +48317,6 @@
 
 	Colophon.displayName = 'Colophon';
 	exports.default = Colophon;
-
-/***/ },
-/* 393 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = initialRegisterContent;
-
-	var _immutable = __webpack_require__(298);
-
-	function initialRegisterContent() {
-
-	  var register = (0, _immutable.Map)({
-	    registers: (0, _immutable.List)()
-	  });
-
-	  for (var i = 0; i < 32; i++) {
-	    var data = "empty";
-	    var newRegisters = register.set("registers", register.get("registers").push((0, _immutable.Map)({
-	      data: data,
-	      number: i,
-	      id: "register_" + i
-	    })));
-	    register = newRegisters;
-	  }
-	  return register;
-	}
-
-/***/ },
-/* 394 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * RegisterPanel redux-container. Connects the instruction panel to the redux-store.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _RegisterTable = __webpack_require__(395);
-
-	var _RegisterTable2 = _interopRequireDefault(_RegisterTable);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var RegisterPanel = function (_React$Component) {
-	  _inherits(RegisterPanel, _React$Component);
-
-	  function RegisterPanel() {
-	    _classCallCheck(this, RegisterPanel);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterPanel).apply(this, arguments));
-	  }
-
-	  _createClass(RegisterPanel, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_RegisterTable2.default, { data: this.props.register })
-	      );
-	    }
-	  }]);
-
-	  return RegisterPanel;
-	}(_react2.default.Component);
-
-	RegisterPanel.propTypes = {};
-
-	/**
-	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
-	 * Its result must be a plain object*, and it will be merged into the component’s props.
-	 * If you omit it, the component will not be subscribed to the Redux store.
-	 *
-	 * @returns {{}}
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    register: state.cacheAndMemoryContent.get('register')
-	  };
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps() {
-	  return {};
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(RegisterPanel);
-
-/***/ },
-/* 395 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * RegisterTableComponent. A component displaying a table, that illustrates a cachememory.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _RegisterTableRow = __webpack_require__(396);
-
-	var _RegisterTableRow2 = _interopRequireDefault(_RegisterTableRow);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var RegisterTable = function (_React$Component) {
-	  _inherits(RegisterTable, _React$Component);
-
-	  function RegisterTable() {
-	    _classCallCheck(this, RegisterTable);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterTable).apply(this, arguments));
-	  }
-
-	  _createClass(RegisterTable, [{
-	    key: 'createRows',
-
-
-	    /**
-	     * Creates table rows.
-	     *
-	     * @returns {Array} array of rows.
-	     */
-	    value: function createRows() {
-	      var rows = [];
-	      for (var i = 0; i < this.props.data.get('registers').size; i++) {
-	        rows.push(_react2.default.createElement(_RegisterTableRow2.default, { data: this.props.data.get('registers').get(i), key: i }));
-	      }
-	      return rows;
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'registertable-component' },
-	        _react2.default.createElement(
-	          'table',
-	          { className: 'table table-bordered cache center-table' },
-	          _react2.default.createElement(
-	            'caption',
-	            null,
-	            'Register'
-	          ),
-	          _react2.default.createElement(
-	            'thead',
-	            null,
-	            _react2.default.createElement(
-	              'tr',
-	              null,
-	              _react2.default.createElement(
-	                'td',
-	                { className: 'bold center_text' },
-	                'Register'
-	              ),
-	              _react2.default.createElement(
-	                'td',
-	                { className: 'bold center_text' },
-	                'Data (4-byte word)'
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'tbody',
-	            null,
-	            this.createRows()
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return RegisterTable;
-	}(_react2.default.Component);
-
-	RegisterTable.displayName = 'RegisterTable';
-
-	RegisterTable.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-
-	exports.default = RegisterTable;
-
-/***/ },
-/* 396 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * RegisterTableRow component. Constitutes as a row in a table.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var RegisterTableRow = function (_React$Component) {
-	  _inherits(RegisterTableRow, _React$Component);
-
-	  function RegisterTableRow() {
-	    _classCallCheck(this, RegisterTableRow);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterTableRow).apply(this, arguments));
-	  }
-
-	  _createClass(RegisterTableRow, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'tr',
-	        { id: this.props.data.get('id'), className: 'registertablerow-component' },
-	        _react2.default.createElement(
-	          'td',
-	          { className: 'center_text' },
-	          this.props.data.get("number")
-	        ),
-	        _react2.default.createElement(
-	          'td',
-	          { className: 'center_text' },
-	          this.props.data.get("data")
-	        )
-	      );
-	    }
-	  }]);
-
-	  return RegisterTableRow;
-	}(_react2.default.Component);
-
-	RegisterTableRow.displayName = 'RegisterTableRow';
-	RegisterTableRow.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-
-	exports.default = RegisterTableRow;
 
 /***/ }
 /******/ ]);
