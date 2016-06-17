@@ -17,11 +17,6 @@ let About = () => (
     The simulator lets you manually simulate a D-cache memory's behaviour
       by issuing LOAD/STORE intructions on a simulated cache and main memory.
     </p>
-    <h4 className="bold">Future developments</h4>
-    <p>
-      Possibilites to simulate cache behaviour by
-      specifying a program in assembly, and possibly using both I and D-caches for the simulation.
-    </p>
     <h4 className="bold">Can i use this for teaching?</h4>
     <p>Yes. It is distributed under the MIT license and you can use it however you like
      as long as you don't violate the license or copyright.</p>

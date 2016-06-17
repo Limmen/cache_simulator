@@ -56,7 +56,7 @@ function handleRender(req, res) {
       // Send the rendered page back to the client
       res.render('index', { html, initialState});
     } else {
-      res.status(404).send('Not found')
+      res.status(404).render('notfound')
     }
   })
 }

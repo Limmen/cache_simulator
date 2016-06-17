@@ -9,7 +9,6 @@ import {Router, Route, IndexRedirect} from 'react-router'
 
 import App from './../client/containers/App';
 import CacheSimulator from './../client/containers/CacheSimulator';
-import NotFound from './../client/components/404';
 import About from './../client/components/About';
 import Colophon from './../client/components/Colophon';
 
@@ -27,7 +26,6 @@ export default (history) => {
         <Route path="simulator" component={CacheSimulator}/>
         <Route path="about" component={About}/>
         <Route path="colophon" component={Colophon}/>
-        <Route path="*" component={NotFound}/>
       </Route>
     </Router>
   );

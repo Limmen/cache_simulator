@@ -12,7 +12,6 @@ import About from '../../src/client/components/About';
 
 describe('About', () => {
   let component;
-  let renderedAbout;
 
   beforeEach(() => {
     component = render(<About />)

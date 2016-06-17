@@ -37,7 +37,6 @@ export default function simulateInstruction(state, address, operationType, regis
     if(operationType === "LOAD"){
       let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
       let word = bytesToWord(data);
-      console.log("data: " + JSON.stringify(data) + "\n \n word: " + JSON.stringify(word))
       state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
     }
     return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
@@ -55,7 +54,6 @@ export default function simulateInstruction(state, address, operationType, regis
       })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
       if(operationType === "LOAD"){
         let word = bytesToWord(data);
-        console.log("data: " + JSON.stringify(data) + "\n \n word: " + JSON.stringify(word))
         state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
       }
       state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");

@@ -35600,7 +35600,6 @@
 	        (function () {
 	          var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	          var word = bytesToWord(data);
-	          console.log("data: " + JSON.stringify(data) + "\n \n word: " + JSON.stringify(word));
 	          state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
 	            return reg.set("data", word);
 	          })));
@@ -35631,7 +35630,6 @@
 	        if (operationType === "LOAD") {
 	          (function () {
 	            var word = bytesToWord(data);
-	            console.log("data: " + JSON.stringify(data) + "\n \n word: " + JSON.stringify(word));
 	            state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
 	              return reg.set("data", word);
 	            })));
@@ -37033,10 +37031,6 @@
 
 	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
 
-	var _ = __webpack_require__(392);
-
-	var _2 = _interopRequireDefault(_);
-
 	var _About = __webpack_require__(393);
 
 	var _About2 = _interopRequireDefault(_About);
@@ -37053,6 +37047,11 @@
 	 * @param history
 	 * @returns {XML}
 	 */
+	/**
+	 * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
 
 	exports.default = function (history) {
 	  return _react2.default.createElement(
@@ -37064,15 +37063,10 @@
 	      _react2.default.createElement(_reactRouter.IndexRedirect, { from: '', to: 'simulator' }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'simulator', component: _CacheSimulator2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
+	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default })
 	    )
 	  );
-	}; /**
-	    * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
-	    *
-	    * Created by kim on 2016-05-11.
-	    */
+	};
 
 /***/ },
 /* 312 */
@@ -37560,7 +37554,17 @@
 	          _react2.default.createElement(
 	            'div',
 	            null,
+	            _react2.default.createElement(
+	              'h5',
+	              { className: 'bold  center_text' },
+	              'Run single instruction'
+	            ),
 	            _react2.default.createElement(_InstructionPanel2.default, null),
+	            _react2.default.createElement(
+	              'h5',
+	              { className: 'bold  center_text' },
+	              'Run multiple instructions'
+	            ),
 	            _react2.default.createElement(_AssemblyPanel2.default, null)
 	          ),
 	          _react2.default.createElement('hr', null),
@@ -48133,43 +48137,7 @@
 	exports.default = (0, _reactDimensions2.default)()(InstructionTable);
 
 /***/ },
-/* 392 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for 404s - when page is not found.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NotFound = function NotFound() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: '404-component' },
-	    _react2.default.createElement(
-	      'h3',
-	      { className: 'bolder' },
-	      '404 - PAGE NOT FOUND'
-	    )
-	  );
-	};
-
-	NotFound.displayName = 'NotFound';
-	exports.default = NotFound;
-
-/***/ },
+/* 392 */,
 /* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -48209,16 +48177,6 @@
 	      'p',
 	      null,
 	      'The simulator works under the assumption of address length and word size of 32 bit. Also the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
-	    ),
-	    _react2.default.createElement(
-	      'h4',
-	      { className: 'bold' },
-	      'Future developments'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'Possibilites to simulate cache behaviour by specifying a program in assembly, and possibly using both I and D-caches for the simulation.'
 	    ),
 	    _react2.default.createElement(
 	      'h4',

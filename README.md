@@ -20,9 +20,21 @@ Table of Contents
 
 Cache Simulator for educational purposes. 
 
-The simulator lets you create D-caches and main memories by your preferences and then simulate their behaviour by performing intstructions manually.
+The simulator lets you create D-caches and main memories by your preferences and then simulate their behaviour by performing instructions manually or by entering a assembly-like program.
 
 ## Screenshots
+
+![Screen 1](./screenshots/1.png?raw=true "Screen 1")
+
+![Screen 2](./screenshots/2.png?raw=true "Screen 2")
+
+![Screen 3](./screenshots/2.png?raw=true "Screen 3")
+
+![Screen 4](./screenshots/4.png?raw=true "Screen 3")
+
+## Prerequisites
+
+To run and install the app locally you need node.js >= v0.10.25 and npm (node package manager).
 
 ## Installation
 
@@ -30,14 +42,6 @@ The simulator lets you create D-caches and main memories by your preferences and
 2. `cd cache_simulator`
 3. `npm install`
 4. `npm start`
-
-## Current State
-
-Lacking alot of functionalities still
-
-## Future Developments
-
-Possibilites to simulate cache behaviour by specifying a program in assembly, and possibly using both I and D-caches for the simulation.
 
 ## Usage
 The following commands are available in the project:
@@ -56,6 +60,20 @@ $ npm run lint
 
 
 ```
+
+## Built with
+
+* React.js - Framework for client-side JavaScript
+* Node.js - Framework for server-side JavaScript
+* Jest - JavaScript unit testing framework
+* Babel - JavaScript compiler for ES6
+* Webpack - Module bundler for JavaScript
+* EsLint - Linting utility for JavaScript
+* TravisCi - Continous integration service
+
+## Versioning
+
+[Semantic Versioning](http://semver.org/). For the versions available, see the [tags on this repository](https://github.com/Limmen/cache_simulator/tags). 
 
 ## Contributions
 
