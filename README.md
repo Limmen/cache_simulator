@@ -22,16 +22,6 @@ Cache Simulator for educational purposes.
 
 The simulator lets you create D-caches and main memories by your preferences and then simulate their behaviour by performing instructions manually or by entering a assembly-like program.
 
-## Screenshots
-
-![Screen 1](./screenshots/1.png?raw=true "Screen 1")
-
-![Screen 2](./screenshots/2.png?raw=true "Screen 2")
-
-![Screen 3](./screenshots/2.png?raw=true "Screen 3")
-
-![Screen 4](./screenshots/4.png?raw=true "Screen 3")
-
 ## Prerequisites
 
 To run and install the app locally you need node.js >= v0.10.25 and npm (node package manager).
