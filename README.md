@@ -33,6 +33,10 @@ To run and install the app locally you need node.js >= v0.10.25 and npm (node pa
 3. `npm install`
 4. `npm start`
 
+## Example
+
+![](./doc/demo.gif)
+
 ## Usage
 The following commands are available in the project:
 ```bash
