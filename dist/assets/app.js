@@ -38860,7 +38860,7 @@
 	      $("#fade").fadeIn("slow");
 	      setTimeout(function () {
 	        $("#fade").fadeOut("slow");
-	      }, 2000);
+	      }, 2500);
 	    }
 
 	    /**

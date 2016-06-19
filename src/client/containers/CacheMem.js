@@ -20,7 +20,7 @@ class CacheMem extends React.Component {
     $("#fade").fadeIn("slow");
     setTimeout(() => {
       $("#fade").fadeOut("slow");
-    }, 2000);
+    }, 2500);
   }
 
   /**
