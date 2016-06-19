@@ -2,7 +2,7 @@
 .idea
 
 # Logs
-logs
+src/server/logs
 *.log
 
 # Runtime data
