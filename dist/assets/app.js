@@ -30305,6 +30305,7 @@
 	  register: (0, _immutable.Map)(),
 	  instructionHistory: (0, _immutable.List)(),
 	  instructionResult: "",
+	  instruction: "",
 	  simulating: false
 	});
 
@@ -30326,7 +30327,7 @@
 	      var newregister = (0, _initialRegisterContent2.default)();
 	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
-	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, action.fields.fetchAddress, action.fields.operationType, action.fields.register);else return state;
+	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType, action.fields.register);else return state;
 	    case _ActionTypes.LINK_CLICKED:
 	      return clear(state);
 	    case _ActionTypes.START_SIMULATION:
@@ -30351,7 +30352,7 @@
 	        return e.set("hit", false);
 	      }));
 	    }));
-	  }))).set("simulating", false).set("instructionResult", "");
+	  }))).set("simulating", false).set("instructionResult", "").set("instruction", "");
 	  return newState.set("cache", state.get("cache").set("sets", newState.get("cache").get("sets").map(function (s) {
 	    return s.set("rows", s.get("rows").map(function (r) {
 	      return r.set("miss", false);
@@ -30427,7 +30428,7 @@
 	    for (var j = 0; j < cacheSize / associativity / blockSize; j++) {
 	      var row = (0, _immutable.Map)({
 	        id: "row_id" + i + j,
-	        tag: "empty",
+	        tag: "0x00",
 	        index: j,
 	        validbit: 0,
 	        miss: false,
@@ -30439,8 +30440,8 @@
 	        var element = (0, _immutable.Map)({
 	          id: "element_id" + i + j + k,
 	          byte: k,
-	          address: 'empty',
-	          data: 'empty',
+	          address: '0x00',
+	          data: '0x00',
 	          hit: false
 	        });
 	        var newRow = row.set('elements', row.get('elements').push(element));
@@ -35481,9 +35482,9 @@
 	  for (var i = 0; i < memorySize; i++) {
 	    var data = getRandomArbitrary(0, 256);
 	    var newMemory = memory.push((0, _immutable.Map)({
-	      address_string: "0x" + i.toString(16),
+	      address_string: "0x" + i.toString(16).toUpperCase(),
 	      address_number: i,
-	      data_string: "0x" + Number(data).toString(16),
+	      data_string: "0x" + Number(data).toString(16).toUpperCase(),
 	      data_number: data
 	    }));
 	    memory = newMemory;
@@ -35533,7 +35534,7 @@
 	  });
 
 	  for (var i = 0; i < 32; i++) {
-	    var data = "empty";
+	    var data = "0x00";
 	    var newRegisters = register.set("registers", register.get("registers").push((0, _immutable.Map)({
 	      data: data,
 	      number: i,
@@ -35590,7 +35591,7 @@
 	          return e.set("hit", true);
 	        } else return e;
 	      })).set("usedDate", Date.now());
-	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
+	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
 	      if (operationType === "STORE") {
 	        var storeData = state.get("register").get("registers").get(register).get("data");
 	        var bytes = wordToBytes(storeData);
@@ -35625,8 +35626,8 @@
 	      var _ret3 = function () {
 	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
-	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))));
-	        })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
+	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	        })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
 	        if (operationType === "LOAD") {
 	          (function () {
 	            var word = bytesToWord(data);
@@ -35635,7 +35636,7 @@
 	            })));
 	          })();
 	        }
-	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");
+	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
 	        return {
 	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
 	            return s.set('rows', s.get('rows').update(index, function () {
@@ -35648,7 +35649,7 @@
 	      if ((typeof _ret3 === "undefined" ? "undefined" : _typeof(_ret3)) === "object") return _ret3.v;
 	    } else {
 	      state = updateInstructionHistory(row, tag, operationType, state);
-	      return state.set("instructionResult", "MISS! Address not found in Main Memory");
+	      return state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
 	    }
 	  }
 	}
@@ -35840,11 +35841,7 @@
 	 */
 	function storeByte(byte, tag, memory) {
 	  return memory.update(Number(tag), function (m) {
-	    if (byte === "empty") {
-	      return m.set("data_string", byte).set("data_number", byte);
-	    } else {
-	      return m.set("data_string", "0x" + byte.toString(16)).set("data_number", byte);
-	    }
+	    return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte);
 	  });
 	}
 	/**
@@ -35865,7 +35862,7 @@
 	  }
 	  var instruction = (0, _immutable.Map)({
 	    operationType: operationType,
-	    address: "0x" + tag,
+	    address: "0x" + tag.toString(16).toUpperCase(),
 	    result: result
 	  });
 	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
@@ -35880,7 +35877,7 @@
 	 */
 	function hit(row, tag) {
 	  if (row.get("validbit") === 1) {
-	    if (row.get("tag") === "0x" + tag) return true;else return false;
+	    if (row.get("tag") === "0x" + tag.toString(16).toUpperCase()) return true;else return false;
 	  } else {
 	    return false;
 	  }
@@ -35915,13 +35912,12 @@
 	 * @returns {string} hexadecimal string of the word
 	 */
 	function bytesToWord(data) {
-	  if (data[0] === "empty" && data[1] === "empty" && data[2] === "empty" && data[3] === "empty") return "empty";
 	  var byte1 = createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
 	  var byte2 = createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
 	  var byte3 = createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
 	  var byte4 = createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
 	  var word = byte4 + byte3 + byte2 + byte1;
-	  return "0x" + parseInt(word, 2).toString(16);
+	  return "0x" + parseInt(word, 2).toString(16).toUpperCase();
 	}
 
 	/**
@@ -35931,15 +35927,13 @@
 	 * @returns {*} array of 4 bytes.
 	 */
 	function wordToBytes(word) {
-	  if (word === "empty") return ["empty", "empty", "empty", "empty"];else {
-	    var binaryWord = createBinaryString(parseInt(word.slice(2, word.length), 16));
-	    var byte4 = binaryWord.slice(0, 8);
-	    var byte3 = binaryWord.slice(8, 16);
-	    var byte2 = binaryWord.slice(16, 24);
-	    var byte1 = binaryWord.slice(24, 32);
-	    var data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)];
-	    return data;
-	  }
+	  var binaryWord = createBinaryString(parseInt(word.slice(2, word.length), 16));
+	  var byte4 = binaryWord.slice(0, 8);
+	  var byte3 = binaryWord.slice(8, 16);
+	  var byte2 = binaryWord.slice(16, 24);
+	  var byte1 = binaryWord.slice(24, 32);
+	  var data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)];
+	  return data;
 	}
 
 /***/ },
@@ -37031,11 +37025,11 @@
 
 	var _CacheSimulator2 = _interopRequireDefault(_CacheSimulator);
 
-	var _About = __webpack_require__(393);
+	var _About = __webpack_require__(392);
 
 	var _About2 = _interopRequireDefault(_About);
 
-	var _Colophon = __webpack_require__(394);
+	var _Colophon = __webpack_require__(393);
 
 	var _Colophon2 = _interopRequireDefault(_Colophon);
 
@@ -38193,12 +38187,17 @@
 
 	  if (!values.fetchAddress) {
 	    errors.fetchAddress = 'Required';
-	  } else if (isNaN(values.fetchAddress)) {
-	    errors.fetchAddress = "address needs to be a number";
+	  } else if (!new RegExp("[0-9A-Fa-f]+").test(values.fetchAddress)) {
+	    errors.fetchAddress = 'Address needs to be a valid hexadecimal number';
 	    return errors;
-	  } else if (Number(values.fetchAddress) % 4 !== 0) {
+	  } else if (isNaN(parseInt(values.fetchAddress, 16))) {
+	    errors.fetchAddress = "address needs to be a hexadecimal number";
+	    return errors;
+	  } else if (parseInt(values.fetchAddress, 16) % 4 !== 0) {
 	    errors.fetchAddress = 'Address needs to be a multipel of 4';
+	    return errors;
 	  }
+
 	  if (!values.operationType) {
 	    errors.operationType = 'Required';
 	  }
@@ -38283,7 +38282,7 @@
 	            _react2.default.createElement(
 	              'label',
 	              { className: 'bold' },
-	              'Register'
+	              'Register (0-31)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
@@ -38306,7 +38305,7 @@
 	            _react2.default.createElement(
 	              'label',
 	              { className: 'bold' },
-	              'Address'
+	              'Address (hexadecimal)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
@@ -38548,11 +38547,15 @@
 	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
 	          return errors;
 	        }
-	        if (isNaN(address)) {
-	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
+	        if (!new RegExp("[0-9A-Fa-f]+").test(address)) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
 	          return errors;
 	        }
-	        if (Number(address) % 4 !== 0) {
+	        if (isNaN(parseInt(address, 16))) {
+	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
+	          return errors;
+	        }
+	        if (parseInt(address, 16) % 4 !== 0) {
 	          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4';
 	          return errors;
 	        }
@@ -38673,7 +38676,7 @@
 	                  _react2.default.createElement(
 	                    'code',
 	                    null,
-	                    'LOAD 4 1 '
+	                    'LOAD C 1 '
 	                  ),
 	                  ' ',
 	                  _react2.default.createElement('br', null),
@@ -39191,11 +39194,21 @@
 	          _react2.default.createElement(
 	            'h3',
 	            { className: 'bold center_text' },
-	            'Cache Memory',
+	            'Cache Memory'
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'instructionResult' },
 	            _react2.default.createElement(
-	              'small',
-	              { id: 'fade' },
-	              this.props.cachecontent.get("instructionResult")
+	              'p',
+	              { id: 'fade', className: 'center_text' },
+	              this.props.cachecontent.get("instructionResult"),
+	              _react2.default.createElement('br', null),
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                this.props.cachecontent.get("instruction")
+	              )
 	            )
 	          ),
 	          this.createTables()
@@ -48137,8 +48150,7 @@
 	exports.default = (0, _reactDimensions2.default)()(InstructionTable);
 
 /***/ },
-/* 392 */,
-/* 393 */
+/* 392 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -48210,7 +48222,7 @@
 	exports.default = About;
 
 /***/ },
-/* 394 */
+/* 393 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**

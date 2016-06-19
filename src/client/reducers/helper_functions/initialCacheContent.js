@@ -44,7 +44,7 @@ export default function initialCacheContent(cacheSize, blockSize, associativity,
       let row = Map(
         {
           id: "row_id" + i + j,
-          tag: "empty",
+          tag: "0x00",
           index: j,
           validbit: 0,
           miss: false,
@@ -57,8 +57,8 @@ export default function initialCacheContent(cacheSize, blockSize, associativity,
           {
             id: "element_id" + i + j + k,
             byte: k,
-            address: 'empty',
-            data: 'empty',
+            address: '0x00',
+            data: '0x00',
             hit: false
           })
         let newRow = row.set('elements', row.get('elements').push(element))

@@ -172,8 +172,14 @@ class CacheMem extends React.Component {
         <hr></hr>
         <div className="row">
           <h3 className="bold center_text">Cache Memory
-            <small id="fade">{this.props.cachecontent.get("instructionResult")}</small>
           </h3>
+          <div className="instructionResult">
+            <p id="fade" className="center_text">
+              {this.props.cachecontent.get("instructionResult")}
+              <br/>
+              <code>{this.props.cachecontent.get("instruction")}</code>
+            </p>
+          </div>
           {this.createTables()}
         </div>
         <div className="row centering-block margin-bottom">

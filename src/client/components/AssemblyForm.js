@@ -39,11 +39,15 @@ const validate = values => {
           errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
           return errors;
         }
-        if (isNaN(address)) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a number";
+        if (!new RegExp("[0-9A-Fa-f]+").test(address)) {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
           return errors;
         }
-        if(Number(address) % 4 !== 0) {
+        if (isNaN(parseInt(address,16))) {
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
+          return errors;
+        }
+        if(parseInt(address,16) % 4 !== 0) {
           errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4'
           return errors;
         }
@@ -81,7 +85,7 @@ class AssemblyForm extends React.Component {
                   <code>LOAD 1 10 </code> <br/>
                   <code>LOAD 2 10 </code> <br/>
                   <code>STORE 2 19 </code> <br/>
-                  <code>LOAD 4 1 </code> <br/>
+                  <code>LOAD C 1 </code> <br/>
                   <code>LOAD 23 0 </code> <br/>
                   <code>LOAD 17 0 </code> <br/>
                   <code>LOAD 9 1 </code> <br/>

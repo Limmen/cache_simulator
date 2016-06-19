@@ -28,7 +28,7 @@ export default function simulateInstruction(state, address, operationType, regis
       } else
         return e
     })).set("usedDate", Date.now())
-    state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!");
+    state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
     if(operationType === "STORE") {
       let storeData = state.get("register").get("registers").get(register).get("data");
       let bytes = wordToBytes(storeData);
@@ -50,21 +50,20 @@ export default function simulateInstruction(state, address, operationType, regis
     if (memoryHit(tag, state.get('memory'))) {
       let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
       let newRow = row.set('elements', row.get('elements').map((e) => {
-        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))))
-      })).set("validbit", 1).set("tag", "0x" + tag).set("miss", true).set("loadedDate", Date.now());
+        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase())
+      })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
       if(operationType === "LOAD"){
         let word = bytesToWord(data);
         state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
       }
-      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated");
+      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
       return state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, (s) => s.set('rows', s.get('rows').update(index, () => newRow)))))
     } else {
       state = updateInstructionHistory(row, tag, operationType, state);
-      return state.set("instructionResult", "MISS! Address not found in Main Memory");
+      return state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
     }
   }
 }
-
 
 /**
  * Function that clears state for visual effects.
@@ -248,12 +247,7 @@ function storeWord(bytes, tag, memory) {
  */
 function storeByte(byte, tag, memory) {
   return memory.update(Number(tag), (m) => {
-    if (byte === "empty") {
-      return m.set("data_string", byte).set("data_number", byte);
-    }
-    else {
-      return m.set("data_string", "0x" + byte.toString(16)).set("data_number", byte)
-    }
+    return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte)
   })
 }
 /**
@@ -276,7 +270,7 @@ function updateInstructionHistory(row, tag, operationType, state) {
   let instruction = Map(
     {
       operationType: operationType,
-      address: "0x" + tag,
+      address: "0x" + tag.toString(16).toUpperCase(),
       result: result
     })
   return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
@@ -291,7 +285,7 @@ function updateInstructionHistory(row, tag, operationType, state) {
  */
 function hit(row, tag) {
   if (row.get("validbit") === 1) {
-    if (row.get("tag") === "0x" + tag)
+    if (row.get("tag") === "0x" + tag.toString(16).toUpperCase())
       return true;
     else
       return false;
@@ -334,14 +328,12 @@ function createBinaryString(nMask) {
  * @returns {string} hexadecimal string of the word
  */
 function bytesToWord(data) {
-  if(data[0] === "empty" && data[1] === "empty" && data[2] === "empty" && data[3] === "empty")
-    return "empty"
   let byte1 = createBinaryString(parseInt(data[0].slice(2,data[0].length),16)).slice(24,32);
   let byte2 = createBinaryString(parseInt(data[1].slice(2,data[1].length),16)).slice(24,32);
   let byte3 = createBinaryString(parseInt(data[2].slice(2,data[2].length),16)).slice(24,32);
   let byte4 = createBinaryString(parseInt(data[3].slice(2,data[3].length),16)).slice(24,32);
   let word = byte4 + byte3 + byte2 + byte1;
-  return "0x" + parseInt(word, 2).toString(16);
+  return "0x" + parseInt(word, 2).toString(16).toUpperCase();
 }
 
 /**
@@ -351,15 +343,11 @@ function bytesToWord(data) {
  * @returns {*} array of 4 bytes.
  */
 function wordToBytes(word) {
-  if(word === "empty")
-    return ["empty", "empty", "empty", "empty"]
-  else {
-    let binaryWord = createBinaryString(parseInt(word.slice(2,word.length), 16));
-    let byte4 = binaryWord.slice(0, 8)
-    let byte3 = binaryWord.slice(8, 16)
-    let byte2 = binaryWord.slice(16, 24)
-    let byte1 = binaryWord.slice(24, 32)
-    let data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)]
-    return data;
-  }
+  let binaryWord = createBinaryString(parseInt(word.slice(2,word.length), 16));
+  let byte4 = binaryWord.slice(0, 8)
+  let byte3 = binaryWord.slice(8, 16)
+  let byte2 = binaryWord.slice(16, 24)
+  let byte1 = binaryWord.slice(24, 32)
+  let data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)]
+  return data;
 }

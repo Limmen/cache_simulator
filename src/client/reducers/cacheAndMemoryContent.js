@@ -23,6 +23,7 @@ const initialState = Map(
     register: Map(),
     instructionHistory: List(),
     instructionResult: "",
+    instruction: "",
     simulating: false
   }
 )
@@ -43,7 +44,7 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
     case CACHE_CONTENT_UPDATE:
       if (state.get("simulating"))
-        return simulateInstruction(state, action.fields.fetchAddress, action.fields.operationType, action.fields.register)
+        return simulateInstruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType, action.fields.register)
       else
         return state;
     case LINK_CLICKED:
@@ -64,6 +65,6 @@ export default function cacheAndMemoryContent(state = initialState, action) {
  * @returns {*} updated state
  */
 function clear(state) {
-  let newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("elements", r.get("elements").map((e) => e.set("hit", false)))))))).set("simulating", false).set("instructionResult", "")
+  let newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("elements", r.get("elements").map((e) => e.set("hit", false)))))))).set("simulating", false).set("instructionResult", "").set("instruction", "")
   return newState.set("cache", state.get("cache").set("sets", newState.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("miss", false))))))
 }

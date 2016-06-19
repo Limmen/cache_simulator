@@ -59,3 +59,8 @@ body
 {
   margin-bottom: 10%;
 }
+.instructionResult
+{
+  height: 30px;
+  width: 100%;
+}

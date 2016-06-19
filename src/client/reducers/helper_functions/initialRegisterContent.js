@@ -19,7 +19,7 @@ export default function initialRegisterContent() {
     });
 
   for (let i = 0; i < 32; i++) {
-    let data = "empty"
+    let data = "0x00"
     let newRegisters = register.set("registers", register.get("registers").push(Map(
       {
         data: data,

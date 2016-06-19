@@ -20,9 +20,9 @@ export default function initialMemoryContent(memorySize) {
     let data = getRandomArbitrary(0, 256);
     let newMemory = memory.push(Map(
       {
-        address_string: "0x" + i.toString(16),
+        address_string: "0x" + i.toString(16).toUpperCase(),
         address_number: i,
-        data_string: "0x" + Number(data).toString(16),
+        data_string: "0x" + Number(data).toString(16).toUpperCase(),
         data_number: data
       }
     ))

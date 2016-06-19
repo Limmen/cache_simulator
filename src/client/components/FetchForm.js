@@ -18,12 +18,17 @@ const validate = values => {
 
   if (!values.fetchAddress) {
     errors.fetchAddress = 'Required'
-  } else if (isNaN(values.fetchAddress)) {
-    errors.fetchAddress = "address needs to be a number";
+  } else if(!new RegExp("[0-9A-Fa-f]+").test(values.fetchAddress)) {
+    errors.fetchAddress = 'Address needs to be a valid hexadecimal number'
     return errors;
-  }  else if(Number(values.fetchAddress) % 4 !== 0) {
+  } else if (isNaN(parseInt(values.fetchAddress,16))) {
+    errors.fetchAddress = "address needs to be a hexadecimal number";
+    return errors;
+  }  else if(parseInt(values.fetchAddress, 16) % 4 !== 0) {
     errors.fetchAddress = 'Address needs to be a multipel of 4'
+    return errors;
   }
+
   if (!values.operationType) {
     errors.operationType = 'Required'
   }
@@ -60,7 +65,7 @@ class FetchForm extends React.Component {
             </div>
           </div>
           <div className="form-group col-sm-4">
-            <label className="bold">Register</label>
+            <label className="bold">Register (0-31)</label>
             <div>
               <input type="text" placeholder="memory register" {...register} className="form-control"/>
             </div>
@@ -69,7 +74,7 @@ class FetchForm extends React.Component {
             </div>
           </div>
           <div className="form-group col-sm-4">
-            <label className="bold">Address</label>
+            <label className="bold">Address (hexadecimal)</label>
             <div>
               <input type="text" placeholder="memory address" {...fetchAddress} className="form-control"/>
             </div>

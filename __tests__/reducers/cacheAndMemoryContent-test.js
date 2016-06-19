@@ -60,15 +60,15 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(cache.get("sets").size).toBe(2)
     expect(cache.get("sets").get(0).get("rows").size).toBe(1)
     expect(cache.get("sets").get(0).get("rows").get(0).get("id")).toBe("row_id00")
-    expect(cache.get("sets").get(0).get("rows").get(0).get("tag")).toBe("empty")
+    expect(cache.get("sets").get(0).get("rows").get(0).get("tag")).toBe("0x00")
     expect(cache.get("sets").get(0).get("rows").get(0).get("index")).toBe(0)
     expect(cache.get("sets").get(0).get("rows").get(0).get("validbit")).toBe(0)
     expect(cache.get("sets").get(0).get("rows").get(0).get("miss")).toBe(false)
     expect(cache.get("sets").get(0).get("rows").get(0).get("elements").size).toBe(4)
     expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("id")).toBe("element_id000")
     expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("byte")).toBe(0)
-    expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("address")).toBe("empty")
-    expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("data")).toBe("empty")
+    expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("address")).toBe("0x00")
+    expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("data")).toBe("0x00")
     expect(cache.get("sets").get(0).get("rows").get(0).get("elements").get(0).get("hit")).toBe(false)
   })
 
@@ -100,7 +100,6 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(result1.get("instructionHistory").get(0).get("operationType")).toBe("LOAD")
     expect(result1.get("instructionHistory").get(0).get("address")).toBe("0x0")
     expect(result1.get("instructionHistory").get(0).get("result")).toBe("MISS")
-    expect(result1.get("register").get(0)).not.toBe("empty")
     let result2 = simulateInstruction(result1, 0, "LOAD", 0);
     expect(result2.get("instructionHistory").size).toBe(2);
     expect(result2.get("instructionResult")).toBe("HIT!");
@@ -111,7 +110,6 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(result2.get("instructionHistory").get(1).get("operationType")).toBe("LOAD")
     expect(result2.get("instructionHistory").get(1).get("address")).toBe("0x0")
     expect(result2.get("instructionHistory").get(1).get("result")).toBe("HIT")
-    expect(result1.get("register").get(0)).not.toBe("empty")
     let result3 = simulateInstruction(result2, 16, "LOAD", 0);
     expect(result3.get("instructionHistory").size).toBe(3);
     expect(result3.get("instructionResult")).toBe("MISS! Address not found in Main Memory");
@@ -120,9 +118,8 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(result3.get("cache").get("sets").get(0).get("rows").get(0).get("elements").get(0).get("hit")).toBe(false)
     expect(result3.get("cache").get("sets").get(0).get("rows").get(0).get("elements").get(0).get("data")).toBe(state.get("memory").get(0).get("data_string"))
     expect(result3.get("instructionHistory").get(2).get("operationType")).toBe("LOAD")
-    expect(result3.get("instructionHistory").get(2).get("address")).toBe("0x16")
+    expect(result3.get("instructionHistory").get(2).get("address")).toBe("0x10")
     expect(result3.get("instructionHistory").get(2).get("result")).toBe("MISS")
-    expect(result1.get("register").get(0)).not.toBe("empty")
   })
 
 })
