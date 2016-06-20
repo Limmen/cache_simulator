@@ -4,7 +4,7 @@
 'use strict';
 
 import React from 'react';
-import { reduxForm } from 'redux-form'
+import {reduxForm} from 'redux-form'
 export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize']
 
 /**
@@ -49,7 +49,7 @@ const validate = values => {
     errors.associativity = 'Must be a positive integer'
   } else if (Number(values.associativity) < 0) {
     errors.associativity = 'Must be a positive integer'
-  } else if (!((Number(values.cacheSize)/Number(values.blockSize)) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
+  } else if (!((Number(values.cacheSize) / Number(values.blockSize)) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
     errors.associativity = 'The specfied cache-size cannot contain that many sets'
   }
 
@@ -69,62 +69,84 @@ const validate = values => {
 
 class CacheForm extends React.Component {
   render() {
-    const { fields: { cacheSize, blockSize, associativity, replacementAlgorithm, memorySize }, resetForm, handleSubmit, submitting } = this.props
+    const {fields: {cacheSize, blockSize, associativity, replacementAlgorithm, memorySize}, resetForm, handleSubmit, submitting} = this.props
     return (
       <div className="cacheform-component row">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group col-sm-4">
-            <label className="bold">Cache size (bytes)</label>
-            <div>
-              <input type="text" placeholder="cache size" {...cacheSize} className="form-control"/>
+        <form className="form-horizontal" role="form" onSubmit={handleSubmit}>
+          <div className="row">
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_cache_size">Cache size (bytes)</label>
+                <div className="col-md-8">
+                  <input type="text" placeholder="cache size" id="input_cache_size" {...cacheSize}
+                         className="form-control"/>
+                </div>
+                <div className="error">
+                  {cacheSize.touched && cacheSize.error && <div>{cacheSize.error}</div>}
+                </div>
+              </div>
             </div>
-            <div className="error">
-              {cacheSize.touched && cacheSize.error && <div>{cacheSize.error}</div>}
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label for="input_block_size" className="bold col-md-4 control-label">Block size (bytes)</label>
+                <div className="col-md-8">
+                  <input type="text" placeholder="block size" {...blockSize} id="input_block_size"
+                         className="form-control"/>
+                </div>
+                <div className="error">
+                  {blockSize.touched && blockSize.error && <div>{blockSize.error}</div>}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="form-group col-sm-4">
-            <label className="bold">Block size (bytes)</label>
-            <div>
-              <input type="text" placeholder="block size" {...blockSize} className="form-control"/>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_associativity">Associativity</label>
+                <div className="col-md-8">
+                  <input type="text" placeholder="associativity" id="input_associativity" {...associativity}
+                         className="form-control"/>
+                  <div className="error">
+                    {associativity.touched && associativity.error && <div>{associativity.error}</div>}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="error">
-              {blockSize.touched && blockSize.error && <div>{blockSize.error}</div>}
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_replacement_algorithm">Replacement
+                  Algorithm</label>
+                <div className="col-md-8">
+                  <select className="form-control" id="input_replacement_algorithm" {...replacementAlgorithm}>
+                    <option>LRU</option>
+                    <option>FIFO</option>
+                    <option>RANDOM</option>
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="form-group col-sm-4">
-            <label className="bold">Associativity</label>
-            <div>
-              <input type="text" placeholder="associativity" {...associativity} className="form-control"/>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_memory_size">Memory size (bytes)</label>
+                <div className="col-md-8">
+                  <input type="text" placeholder="memory size" id="input_memory_size" {...memorySize}
+                         className="form-control"/>
+                </div>
+                <div className="error">
+                  {memorySize.touched && memorySize.error && <div>{memorySize.error}</div>}
+                </div>
+              </div>
             </div>
-            <div className="error">
-              {associativity.touched && associativity.error && <div>{associativity.error}</div>}</div>
-          </div>
-          <div className="form-group col-sm-4">
-            <label className="bold">Replacement Algorithm</label>
-            <div>
-              <select className="form-control" {...replacementAlgorithm}>
-                <option>LRU</option>
-                <option>FIFO</option>
-                <option>RANDOM</option>
-              </select>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <div className="col-md-12">
+                  <button type="submit" disabled={submitting} className="btn btn-default">
+                    {submitting ? <i/> : <i/>} Simulate
+                  </button>
+                  <button type="button" disabled={submitting} onClick={resetForm} className="btn btn-default">
+                    Clear Values
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="form-group col-sm-4">
-            <label className="bold">Memory size (bytes)</label>
-            <div>
-              <input type="text" placeholder="memory size" {...memorySize} className="form-control"/>
-            </div>
-            <div className="error">
-              {memorySize.touched && memorySize.error && <div>{memorySize.error}</div>}
-            </div>
-          </div>
-          <div className="form-group col-sm-12">
-            <button type="submit" disabled={submitting} className="btn btn-default">
-              {submitting ? <i/> : <i/>} Simulate
-            </button>
-            <button type="button" disabled={submitting} onClick={resetForm} className="btn btn-default">
-              Clear Values
-            </button>
           </div>
         </form>
       </div>

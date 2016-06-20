@@ -64,3 +64,18 @@ body
   height: 30px;
   width: 100%;
 }
+
+.error
+{
+  height: 40px;
+  width: 100%;
+}
+.empty
+{
+  height: 20px;
+}
+
+.form-horizontal .form-group
+{
+  height: 80px;
+}

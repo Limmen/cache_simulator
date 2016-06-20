@@ -4,7 +4,7 @@
 'use strict';
 
 import React from 'react';
-import { reduxForm } from 'redux-form'
+import {reduxForm} from 'redux-form'
 export const fields = ['fetchAddress', 'operationType', 'register']
 
 /**
@@ -18,13 +18,13 @@ const validate = values => {
 
   if (!values.fetchAddress) {
     errors.fetchAddress = 'Required'
-  } else if(!new RegExp("[0-9A-Fa-f]+").test(values.fetchAddress)) {
+  } else if (!new RegExp("[0-9A-Fa-f]+").test(values.fetchAddress)) {
     errors.fetchAddress = 'Address needs to be a valid hexadecimal number'
     return errors;
-  } else if (isNaN(parseInt(values.fetchAddress,16))) {
+  } else if (isNaN(parseInt(values.fetchAddress, 16))) {
     errors.fetchAddress = "address needs to be a hexadecimal number";
     return errors;
-  }  else if(parseInt(values.fetchAddress, 16) % 4 !== 0) {
+  } else if (parseInt(values.fetchAddress, 16) % 4 !== 0) {
     errors.fetchAddress = 'Address needs to be a multipel of 4'
     return errors;
   }
@@ -47,49 +47,63 @@ const validate = values => {
 class FetchForm extends React.Component {
 
   render() {
-    const { fields: { fetchAddress, operationType, register }, handleSubmit, submitting } = this.props
+    const {fields: {fetchAddress, operationType, register}, handleSubmit, submitting} = this.props
     return (
       <div className="fetchform-component row">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group col-sm-4">
-            <label className="bold">Operation type (4-byte word operations)</label>
-            <div>
-              <select className="form-control" {...operationType}>
-                <option></option>
-                <option>LOAD</option>
-                <option>STORE</option>
-              </select>
-              <div className="error">
-                {operationType.touched && operationType.error && <div>{operationType.error}</div>}
+        <form className="form-horizontal" role="form" onSubmit={handleSubmit}>
+          <div className="row">
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_operation_type">Operation type</label>
+                <div className="col-md-8">
+                  <select id="input_operation_type" className="form-control" {...operationType}>
+                    <option></option>
+                    <option>LOAD</option>
+                    <option>STORE</option>
+                  </select>
+                  <div className="error">
+                    {operationType.touched && operationType.error && <div>{operationType.error}</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_register">Register (0-31)</label>
+                <div className="col-md-8">
+                  <input type="text" placeholder="memory register" id="input_register" {...register} className="form-control"/>
+                </div>
+                <div className="error">
+                  {register.touched && register.error && <div>{register.error}</div>}
+                </div>
+              </div>
+            </div>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" for="input_hexaddress">Address (hexadecimal)</label>
+                <div className="col-md-8">
+                  <input type="text" placeholder="memory address" {...fetchAddress} id="input_hexaddress" className="form-control"/>
+                </div>
+                <div className="error">
+                  {fetchAddress.touched && fetchAddress.error && <div>{fetchAddress.error}</div>}
+                </div>
+              </div>
+            </div>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <div className="col-md-12">
+                  <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
+                    {submitting ? <i/> : <i/>} Run
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-          <div className="form-group col-sm-4">
-            <label className="bold">Register (0-31)</label>
-            <div>
-              <input type="text" placeholder="memory register" {...register} className="form-control"/>
-            </div>
-            <div className="error">
-              {register.touched && register.error && <div>{register.error}</div>}
-            </div>
-          </div>
-          <div className="form-group col-sm-4">
-            <label className="bold">Address (hexadecimal)</label>
-            <div>
-              <input type="text" placeholder="memory address" {...fetchAddress} className="form-control"/>
-            </div>
-            <div className="error">
-              {fetchAddress.touched && fetchAddress.error && <div>{fetchAddress.error}</div>}
-            </div>
-          </div>
-          <div className="form-group col-sm-12">
-            <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
-              {submitting ? <i/> : <i/>} Run
-            </button>
-          </div>
-        </form>
-      </div>
-    );
+  </form>
+  </
+    div >
+  )
+    ;
   }
 }
 

@@ -37444,7 +37444,7 @@
 	            _react2.default.createElement(
 	              'h5',
 	              { className: 'bold  center_text' },
-	              'Run single instruction'
+	              'Run single instruction (4-byte word instructions)'
 	            ),
 	            _react2.default.createElement(_InstructionPanel2.default, null),
 	            _react2.default.createElement(
@@ -37763,144 +37763,180 @@
 	        { className: 'cacheform-component row' },
 	        _react2.default.createElement(
 	          'form',
-	          { onSubmit: handleSubmit },
+	          { className: 'form-horizontal', role: 'form', onSubmit: handleSubmit },
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Cache size (bytes)'
-	            ),
+	            { className: 'row' },
 	            _react2.default.createElement(
 	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size' }, cacheSize, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              cacheSize.touched && cacheSize.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                cacheSize.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Block size (bytes)'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'block size' }, blockSize, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              blockSize.touched && blockSize.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                blockSize.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Associativity'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'associativity' }, associativity, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              associativity.touched && associativity.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                associativity.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Replacement Algorithm'
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              null,
+	              { className: 'col-sm-6' },
 	              _react2.default.createElement(
-	                'select',
-	                _extends({ className: 'form-control' }, replacementAlgorithm),
+	                'div',
+	                { className: 'form-group' },
 	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'LRU'
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_cache_size' },
+	                  'Cache size (bytes)'
 	                ),
 	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'FIFO'
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'cache size', id: 'input_cache_size' }, cacheSize, {
+	                    className: 'form-control' }))
 	                ),
 	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'RANDOM'
+	                  'div',
+	                  { className: 'error' },
+	                  cacheSize.touched && cacheSize.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    cacheSize.error
+	                  )
 	                )
 	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Memory size (bytes)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory size' }, memorySize, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              memorySize.touched && memorySize.error && _react2.default.createElement(
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
 	                'div',
-	                null,
-	                memorySize.error
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { 'for': 'input_block_size', className: 'bold col-md-4 control-label' },
+	                  'Block size (bytes)'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'block size' }, blockSize, { id: 'input_block_size',
+	                    className: 'form-control' }))
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'error' },
+	                  blockSize.touched && blockSize.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    blockSize.error
+	                  )
+	                )
 	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-12' },
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'submit', disabled: submitting, className: 'btn btn-default' },
-	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Simulate'
 	            ),
 	            _react2.default.createElement(
-	              'button',
-	              { type: 'button', disabled: submitting, onClick: resetForm, className: 'btn btn-default' },
-	              'Clear Values'
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_associativity' },
+	                  'Associativity'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'associativity', id: 'input_associativity' }, associativity, {
+	                    className: 'form-control' })),
+	                  _react2.default.createElement(
+	                    'div',
+	                    { className: 'error' },
+	                    associativity.touched && associativity.error && _react2.default.createElement(
+	                      'div',
+	                      null,
+	                      associativity.error
+	                    )
+	                  )
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_replacement_algorithm' },
+	                  'Replacement Algorithm'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement(
+	                    'select',
+	                    _extends({ className: 'form-control', id: 'input_replacement_algorithm' }, replacementAlgorithm),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'LRU'
+	                    ),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'FIFO'
+	                    ),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'RANDOM'
+	                    )
+	                  )
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_memory_size' },
+	                  'Memory size (bytes)'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory size', id: 'input_memory_size' }, memorySize, {
+	                    className: 'form-control' }))
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'error' },
+	                  memorySize.touched && memorySize.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    memorySize.error
+	                  )
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-12' },
+	                  _react2.default.createElement(
+	                    'button',
+	                    { type: 'submit', disabled: submitting, className: 'btn btn-default' },
+	                    submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
+	                    ' Simulate'
+	                  ),
+	                  _react2.default.createElement(
+	                    'button',
+	                    { type: 'button', disabled: submitting, onClick: resetForm, className: 'btn btn-default' },
+	                    'Clear Values'
+	                  )
+	                )
+	              )
 	            )
 	          )
 	        )
@@ -38131,98 +38167,122 @@
 	        { className: 'fetchform-component row' },
 	        _react2.default.createElement(
 	          'form',
-	          { onSubmit: handleSubmit },
+	          { className: 'form-horizontal', role: 'form', onSubmit: handleSubmit },
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Operation type (4-byte word operations)'
-	            ),
+	            { className: 'row' },
 	            _react2.default.createElement(
 	              'div',
-	              null,
+	              { className: 'col-sm-6' },
 	              _react2.default.createElement(
-	                'select',
-	                _extends({ className: 'form-control' }, operationType),
-	                _react2.default.createElement('option', null),
+	                'div',
+	                { className: 'form-group' },
 	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'LOAD'
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_operation_type' },
+	                  'Operation type'
 	                ),
 	                _react2.default.createElement(
-	                  'option',
-	                  null,
-	                  'STORE'
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement(
+	                    'select',
+	                    _extends({ id: 'input_operation_type', className: 'form-control' }, operationType),
+	                    _react2.default.createElement('option', null),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'LOAD'
+	                    ),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'STORE'
+	                    )
+	                  ),
+	                  _react2.default.createElement(
+	                    'div',
+	                    { className: 'error' },
+	                    operationType.touched && operationType.error && _react2.default.createElement(
+	                      'div',
+	                      null,
+	                      operationType.error
+	                    )
+	                  )
 	                )
-	              ),
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
 	              _react2.default.createElement(
 	                'div',
-	                { className: 'error' },
-	                operationType.touched && operationType.error && _react2.default.createElement(
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_register' },
+	                  'Register (0-31)'
+	                ),
+	                _react2.default.createElement(
 	                  'div',
-	                  null,
-	                  operationType.error
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory register', id: 'input_register' }, register, { className: 'form-control' }))
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'error' },
+	                  register.touched && register.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    register.error
+	                  )
 	                )
 	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Register (0-31)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory register' }, register, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              register.touched && register.error && _react2.default.createElement(
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
 	                'div',
-	                null,
-	                register.error
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', 'for': 'input_hexaddress' },
+	                  'Address (hexadecimal)'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory address' }, fetchAddress, { id: 'input_hexaddress', className: 'form-control' }))
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'error' },
+	                  fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    fetchAddress.error
+	                  )
+	                )
 	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-4' },
-	            _react2.default.createElement(
-	              'label',
-	              { className: 'bold' },
-	              'Address (hexadecimal)'
 	            ),
 	            _react2.default.createElement(
 	              'div',
-	              null,
-	              _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory address' }, fetchAddress, { className: 'form-control' }))
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error' },
-	              fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
 	                'div',
-	                null,
-	                fetchAddress.error
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-12' },
+	                  _react2.default.createElement(
+	                    'button',
+	                    { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
+	                    submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
+	                    ' Run'
+	                  )
+	                )
 	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-12' },
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
-	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Run'
 	            )
 	          )
 	        )
