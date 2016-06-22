@@ -18,7 +18,7 @@ describe('NavBar', () => {
   });
 
   it('should have its component name as default className', () => {
-    expect(component.find("div").hasClass("navbar-component")).toEqual(true)
+    expect(component.find("ul").hasClass("navbar-component")).toEqual(true)
   });
 
   it('should render one nav', () => {

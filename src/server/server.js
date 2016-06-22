@@ -19,7 +19,6 @@ import throng from 'throng';
 
 const WORKERS = process.env.WEB_CONCURRENCY || 1;
 const PORT = process.env.PORT || 8080;
-const BLITZ_KEY = process.env.BLITZ_KEY;
 
 throng({
     workers: WORKERS,
