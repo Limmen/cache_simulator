@@ -37125,6 +37125,7 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'container-fluid' },
+	            _react2.default.createElement('div', { className: 'navbar-header' }),
 	            _react2.default.createElement(_NavBar2.default, { linkClicked: this.props.linkClicked })
 	          )
 	        )
@@ -37185,37 +37186,33 @@
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'div',
-	        { className: 'collapse navbar-collapse navbar-component' },
+	        'ul',
+	        { className: 'nav navbar-nav center center-text navbar-component inline' },
 	        _react2.default.createElement(
-	          'ul',
-	          { className: 'nav navbar-nav center center-text' },
+	          'li',
+	          null,
 	          _react2.default.createElement(
-	            'li',
-	            null,
-	            _react2.default.createElement(
-	              _NavLink2.default,
-	              { to: '/simulator', onClick: this.props.linkClicked },
-	              'Simulator'
-	            )
-	          ),
+	            _NavLink2.default,
+	            { to: '/simulator', onClick: this.props.linkClicked },
+	            'Simulator'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'li',
+	          null,
 	          _react2.default.createElement(
-	            'li',
-	            null,
-	            _react2.default.createElement(
-	              _NavLink2.default,
-	              { to: '/about', onClick: this.props.linkClicked },
-	              'What is this?'
-	            )
-	          ),
+	            _NavLink2.default,
+	            { to: '/about', onClick: this.props.linkClicked },
+	            'What is this?'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'li',
+	          null,
 	          _react2.default.createElement(
-	            'li',
-	            null,
-	            _react2.default.createElement(
-	              _NavLink2.default,
-	              { to: '/colophon', onClick: this.props.linkClicked },
-	              'Colophon'
-	            )
+	            _NavLink2.default,
+	            { to: '/colophon', onClick: this.props.linkClicked },
+	            'Colophon'
 	          )
 	        )
 	      );
