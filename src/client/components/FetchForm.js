@@ -25,7 +25,7 @@ const validate = values => {
     errors.fetchAddress = "address needs to be a hexadecimal number";
     return errors;
   } else if (parseInt(values.fetchAddress, 16) % 4 !== 0) {
-    errors.fetchAddress = 'Address needs to be a multipel of 4'
+    errors.fetchAddress = 'Address needs to be a multipel of 4, remember that you need to enter the address in hexadecimal'
     return errors;
   }
 

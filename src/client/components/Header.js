@@ -10,13 +10,15 @@ class Header extends React.Component {
 
   render() {
     return(
-    <div className="header-component">
-      <nav className="navbar navbar-default">
-        <div className="container-fluid">
-          <NavBar linkClicked={this.props.linkClicked}/>
-        </div>
-      </nav>
-    </div>
+      <div className="header-component">
+        <nav className="navbar navbar-default">
+          <div className="container-fluid">
+            <div className="navbar-header">
+            </div>
+            <NavBar linkClicked={this.props.linkClicked}/>
+          </div>
+        </nav>
+      </div>
     );
   }
 }

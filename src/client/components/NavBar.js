@@ -13,8 +13,7 @@ class NavBar extends React.Component {
 
   render() {
     return (
-    <div className="collapse navbar-collapse navbar-component">
-      <ul className="nav navbar-nav center center-text">
+      <ul className="nav navbar-nav center center-text navbar-component inline">
         <li>
           <NavLink to="/simulator" onClick={this.props.linkClicked}>Simulator</NavLink>
         </li>
@@ -25,7 +24,6 @@ class NavBar extends React.Component {
           <NavLink to="/colophon" onClick={this.props.linkClicked}>Colophon</NavLink>
         </li>
       </ul>
-    </div>
     );
   }
 }

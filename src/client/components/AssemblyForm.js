@@ -48,7 +48,7 @@ const validate = values => {
           return errors;
         }
         if(parseInt(address,16) % 4 !== 0) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4'
+          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4. Remember that you need to enter the address in hexadecimal'
           return errors;
         }
       }
