@@ -38921,7 +38921,7 @@
 	            { className: 'col-sm-4' },
 	            _react2.default.createElement(
 	              'table',
-	              { className: 'table table-striped center-table' },
+	              { className: 'table table-striped center-table cache_props' },
 	              _react2.default.createElement(
 	                'caption',
 	                null,
@@ -39049,7 +39049,7 @@
 	          ),
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'col-sm-4' },
+	            { className: 'col-sm-4 address_layout_div' },
 	            _react2.default.createElement(
 	              'table',
 	              { className: 'address_layout table-bordered center-table' },
@@ -48245,12 +48245,12 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'This is a cache simulator that can be used for educational purposes.'
+	      'This is a cache simulator that can be used for educational purposes. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The simulator works under the assumption of address length and word size of 32 bit. Also the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
+	      'The simulator works under the assumption of address length and word size of 32 bit and that the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes.'
 	    ),
 	    _react2.default.createElement(
 	      'h4',
@@ -48332,7 +48332,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Hosted: Not Yet. '
+	      'Hosted: Heroku. '
 	    ),
 	    _react2.default.createElement(
 	      'p',

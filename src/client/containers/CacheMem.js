@@ -97,7 +97,7 @@ class CacheMem extends React.Component {
         <div className="row">
           <h3 className="bold center_text">Cache Information</h3>
           <div className="col-sm-4">
-            <table className="table table-striped center-table">
+            <table className="table table-striped center-table cache_props">
               <caption>Cache properties</caption>
               <tbody>
               <tr>
@@ -135,7 +135,7 @@ class CacheMem extends React.Component {
               </tbody>
             </table>
           </div>
-          <div className="col-sm-4">
+          <div className="col-sm-4 address_layout_div">
             <table className="address_layout table-bordered center-table">
               <caption>Address Layout</caption>
               <tbody>
