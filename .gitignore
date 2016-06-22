@@ -2,8 +2,8 @@
 .idea
 
 # Logs
-src/server/logs
-*.log
+#src/server/logs
+#*.log
 
 # Runtime data
 pids
