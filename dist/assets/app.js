@@ -48290,7 +48290,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'This is a cache simulator that can be used for educational purposes. The simulator lets you manually simulate a D-cache memory\'s behaviour by issuing LOAD/STORE intructions on a simulated cache and main memory.'
+	      'This is a cache simulator that can be used for educational purposes. The simulator lets you manually simulate a D-cache memory\'s behaviour in a uniprocessor system by issuing LOAD/STORE intructions on a simulated cache and main memory.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
