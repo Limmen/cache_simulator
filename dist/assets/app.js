@@ -48281,10 +48281,10 @@
 	var About = function About() {
 	  return _react2.default.createElement(
 	    'div',
-	    { className: 'about-component' },
+	    { className: 'about-component left_align_text' },
 	    _react2.default.createElement(
 	      'h3',
-	      { className: 'bold' },
+	      { className: 'bold center_text_2' },
 	      'What is this?'
 	    ),
 	    _react2.default.createElement(
@@ -48298,8 +48298,23 @@
 	      'The simulator works under the assumption that address length and word size are 32 bit and that the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes.'
 	    ),
 	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Before simulation you enter properties for the cache and you have the freedom to decide yourself if you want to simulate a direct-mapped cache (1-way set associative), 2-way set associative, ... fully associative (m-way associative)'
+	    ),
+	    _react2.default.createElement(
 	      'h4',
-	      { className: 'bold' },
+	      { className: 'bold center_text_2' },
+	      'How to use it?'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      ' TODO '
+	    ),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold center_text_2' },
 	      'Can i use this for teaching?'
 	    ),
 	    _react2.default.createElement(
@@ -48309,7 +48324,7 @@
 	    ),
 	    _react2.default.createElement(
 	      'h4',
-	      { className: 'bold' },
+	      { className: 'bold center_text_2' },
 	      'Contributing'
 	    ),
 	    _react2.default.createElement(
@@ -48353,31 +48368,16 @@
 	var Colophon = function Colophon() {
 	  return _react2.default.createElement(
 	    'div',
-	    { className: 'colophon-component' },
+	    { className: 'colophon-component left_align_text' },
 	    _react2.default.createElement(
 	      'h3',
-	      { className: 'bold' },
+	      { className: 'bold center_text_2' },
 	      'Colophon'
 	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The site is written in JavaScript and styled with Cascading Style Sheets. '
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'React.js is used for view rendering with redux for state management.'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'Twitter Bootstrap is used for styling components on the page.'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'Hosted at Heroku. '
+	      'The site is written in fullstack JavaScript with node.js on the serverside. Webpages are styled with Cascading Style Sheets. React.js is used for view rendering with redux for state management. Twitter Bootstrap is used for styling some of the components on the page. Hosted at Heroku. '
 	    ),
 	    _react2.default.createElement(
 	      'p',

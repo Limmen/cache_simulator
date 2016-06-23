@@ -9,12 +9,12 @@
 import React from 'react';
 
 let Colophon = () => (
-  <div className="colophon-component" >
-    <h3 className="bold">Colophon</h3>
-    <p>The site is written in JavaScript and styled with Cascading Style Sheets. </p>
-    <p>React.js is used for view rendering with redux for state management.</p>
-    <p>Twitter Bootstrap is used for styling components on the page.</p>
-    <p>Hosted at Heroku. </p>
+  <div className="colophon-component left_align_text" >
+    <h3 className="bold center_text_2">Colophon</h3>
+    <p>The site is written in fullstack JavaScript with node.js on the serverside. Webpages are styled with Cascading Style Sheets.
+    React.js is used for view rendering with redux for state management.
+    Twitter Bootstrap is used for styling some of the components on the page.
+    Hosted at Heroku. </p>
     <p>The site is written by <a href="https://github.com/Limmen" target="_blank">Kim Hammar</a></p>
 
   </div>
