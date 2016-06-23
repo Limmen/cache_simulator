@@ -1,5 +1,12 @@
 .error
 {
   color: red;
-  font-size: 80%
+  font-size: 80%;
+  height: 40px;
+  width: 100%;
+}
+.error_without_margin
+{
+  color: red;
+  font-size: 80%;
 }

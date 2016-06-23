@@ -21,7 +21,7 @@ class SettingsPanel extends React.Component {
     }
     return (
       <div>
-        <p> Large cache-sizes (e.g 1024 bytes) will take a few seconds to render </p>
+        <p className="bold center_text"> Large cache-sizes (e.g 1024 bytes) will take a few seconds to render </p>
         <CacheFormComponent onSubmit={this.props.cacheHandleSubmit} {...myInitialValues}/>
       </div>
     );

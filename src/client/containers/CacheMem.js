@@ -140,13 +140,13 @@ class CacheMem extends React.Component {
               <caption>Address Layout</caption>
               <tbody>
               <tr>
-                <td>
+                <td className="center_text_2">
                   Tag({this.props.cachecontent.get("cache").get("tagBits")} bits)
                 </td>
-                <td>
+                <td className="center_text_2">
                   Index({this.props.cachecontent.get("cache").get("indexBits")} bits)
                 </td>
-                <td>
+                <td className="center_text_2">
                   Offset({this.props.cachecontent.get("cache").get("offsetBits")} bits)
                 </td>
               </tr>
@@ -171,7 +171,9 @@ class CacheMem extends React.Component {
         </div>
         <hr></hr>
         <div className="row">
-          <h3 className="bold center_text">Cache Memory
+          <h3 className="bold center_text">Cache Memory <small> <button className="btn btn-default" type="button" onClick={this.props.clearCache}>
+            Clear Cache
+          </button> </small>
           </h3>
           <div className="instructionResult">
             <p id="fade" className="center_text">
@@ -180,9 +182,11 @@ class CacheMem extends React.Component {
               <code>{this.props.cachecontent.get("instruction")}</code>
             </p>
           </div>
-          {this.createTables()}
+          <div className="cache_mem">
+            {this.createTables()}
+          </div>
         </div>
-        <div className="row centering-block margin-bottom">
+        <div className="row centering-block margin-bottom margin-top">
           {this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)}
         </div>
       </div>
@@ -208,6 +212,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     cancelSimulation: () => {
       dispatch(actions.stopSimulation())
+    },
+    clearCache: () => {
+      dispatch(actions.clearCache())
     }
   }
 }

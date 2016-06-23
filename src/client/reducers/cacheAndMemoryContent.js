@@ -6,7 +6,7 @@
 
 'use strict';
 import { CACHE_AND_MEMORY_CONTENT_INIT, CACHE_CONTENT_UPDATE, LINK_CLICKED,
-  START_SIMULATION, STOP_SIMULATION} from '../constants/ActionTypes'
+  START_SIMULATION, STOP_SIMULATION, CLEAR_CACHE} from '../constants/ActionTypes'
 import initialCacheContent from './helper_functions/initialCacheContent'
 import initialMemoryContent from './helper_functions/initialMemoryContent'
 import initialRegisterContent from './helper_functions/initialRegisterContent'
@@ -47,6 +47,8 @@ export default function cacheAndMemoryContent(state = initialState, action) {
         return simulateInstruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType, action.fields.register)
       else
         return state;
+    case CLEAR_CACHE:
+          return state.set("cache", initialCacheContent(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm")))
     case LINK_CLICKED:
       return clear(state);
     case START_SIMULATION:
@@ -68,3 +70,4 @@ function clear(state) {
   let newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("elements", r.get("elements").map((e) => e.set("hit", false)))))))).set("simulating", false).set("instructionResult", "").set("instruction", "")
   return newState.set("cache", state.get("cache").set("sets", newState.get("cache").get("sets").map((s) => s.set("rows", s.get("rows").map((r) => r.set("miss", false))))))
 }
+

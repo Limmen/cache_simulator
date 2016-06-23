@@ -32,10 +32,14 @@ export default function simulateInstruction(state, address, operationType, regis
     if(operationType === "STORE") {
       let storeData = state.get("register").get("registers").get(register).get("data");
       let bytes = wordToBytes(storeData);
-      state = state.set("memory", storeWord(bytes, tag, state.get("memory")))
+      state = state.set("memory", storeWord(bytes, address, state.get("memory")))
+      let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
+      newRow = newRow.set('elements', row.get('elements').map((e) => {
+        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase())
+      })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
     }
     if(operationType === "LOAD"){
-      let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
+      let data = getWord(address, state.get('memory'))
       let word = bytesToWord(data);
       state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
     }
@@ -53,7 +57,7 @@ export default function simulateInstruction(state, address, operationType, regis
         return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase())
       })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
       if(operationType === "LOAD"){
-        let word = bytesToWord(data);
+        let word = bytesToWord(getWord(address, state.get("memory")));
         state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, (reg) => reg.set("data", word))))
       }
       state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
@@ -202,6 +206,13 @@ function getBlock(blockSize, tag, memory) {
   return data;
 }
 
+function getWord(address, memory) {
+  let data = [];
+  for (let i = 0; i < 4; i++) {
+    data.push(getData(Number(address) + Number(i), memory))
+  }
+  return data;
+}
 /**
  * Fetches the data from the specified main memory address
  *
@@ -332,7 +343,7 @@ function bytesToWord(data) {
   let byte2 = createBinaryString(parseInt(data[1].slice(2,data[1].length),16)).slice(24,32);
   let byte3 = createBinaryString(parseInt(data[2].slice(2,data[2].length),16)).slice(24,32);
   let byte4 = createBinaryString(parseInt(data[3].slice(2,data[3].length),16)).slice(24,32);
-  let word = byte4 + byte3 + byte2 + byte1;
+  let word = byte1 + byte2 + byte3 + byte4
   return "0x" + parseInt(word, 2).toString(16).toUpperCase();
 }
 
@@ -348,6 +359,6 @@ function wordToBytes(word) {
   let byte3 = binaryWord.slice(8, 16)
   let byte2 = binaryWord.slice(16, 24)
   let byte1 = binaryWord.slice(24, 32)
-  let data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)]
+  let data = [parseInt(byte4, 2), parseInt(byte3, 2), parseInt(byte2, 2), parseInt(byte1, 2)]
   return data;
 }

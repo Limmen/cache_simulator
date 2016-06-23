@@ -30223,6 +30223,8 @@
 	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
 	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType, action.fields.register);else return state;
+	    case _ActionTypes.CLEAR_CACHE:
+	      return state.set("cache", (0, _initialCacheContent2.default)(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm")));
 	    case _ActionTypes.LINK_CLICKED:
 	      return clear(state);
 	    case _ActionTypes.START_SIMULATION:
@@ -30274,6 +30276,7 @@
 	var LINK_CLICKED = exports.LINK_CLICKED = 'LINK_CLICKED';
 	var START_SIMULATION = exports.START_SIMULATION = 'START_SIMULATION';
 	var STOP_SIMULATION = exports.STOP_SIMULATION = 'STOP_SIMULATION';
+	var CLEAR_CACHE = exports.CLEAR_CACHE = 'CLEAR_CACHE';
 
 /***/ },
 /* 293 */
@@ -35488,13 +35491,19 @@
 	      })).set("usedDate", Date.now());
 	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
 	      if (operationType === "STORE") {
-	        var storeData = state.get("register").get("registers").get(register).get("data");
-	        var bytes = wordToBytes(storeData);
-	        state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
+	        (function () {
+	          var storeData = state.get("register").get("registers").get(register).get("data");
+	          var bytes = wordToBytes(storeData);
+	          state = state.set("memory", storeWord(bytes, address, state.get("memory")));
+	          var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
+	          newRow = newRow.set('elements', row.get('elements').map(function (e) {
+	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	          })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
+	        })();
 	      }
 	      if (operationType === "LOAD") {
 	        (function () {
-	          var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
+	          var data = getWord(address, state.get('memory'));
 	          var word = bytesToWord(data);
 	          state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
 	            return reg.set("data", word);
@@ -35518,14 +35527,14 @@
 	      state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
 	    }
 	    if (memoryHit(tag, state.get('memory'))) {
-	      var _ret3 = function () {
+	      var _ret4 = function () {
 	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
 	        var newRow = row.set('elements', row.get('elements').map(function (e) {
 	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase());
 	        })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
 	        if (operationType === "LOAD") {
 	          (function () {
-	            var word = bytesToWord(data);
+	            var word = bytesToWord(getWord(address, state.get("memory")));
 	            state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
 	              return reg.set("data", word);
 	            })));
@@ -35541,7 +35550,7 @@
 	        };
 	      }();
 
-	      if ((typeof _ret3 === "undefined" ? "undefined" : _typeof(_ret3)) === "object") return _ret3.v;
+	      if ((typeof _ret4 === "undefined" ? "undefined" : _typeof(_ret4)) === "object") return _ret4.v;
 	    } else {
 	      state = updateInstructionHistory(row, tag, operationType, state);
 	      return state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
@@ -35691,6 +35700,13 @@
 	  return data;
 	}
 
+	function getWord(address, memory) {
+	  var data = [];
+	  for (var i = 0; i < 4; i++) {
+	    data.push(getData(Number(address) + Number(i), memory));
+	  }
+	  return data;
+	}
 	/**
 	 * Fetches the data from the specified main memory address
 	 *
@@ -35811,7 +35827,7 @@
 	  var byte2 = createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
 	  var byte3 = createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
 	  var byte4 = createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
-	  var word = byte4 + byte3 + byte2 + byte1;
+	  var word = byte1 + byte2 + byte3 + byte4;
 	  return "0x" + parseInt(word, 2).toString(16).toUpperCase();
 	}
 
@@ -35827,7 +35843,7 @@
 	  var byte3 = binaryWord.slice(8, 16);
 	  var byte2 = binaryWord.slice(16, 24);
 	  var byte1 = binaryWord.slice(24, 32);
-	  var data = [parseInt(byte1, 2), parseInt(byte2, 2), parseInt(byte3, 2), parseInt(byte4, 2)];
+	  var data = [parseInt(byte4, 2), parseInt(byte3, 2), parseInt(byte2, 2), parseInt(byte1, 2)];
 	  return data;
 	}
 
@@ -37314,6 +37330,7 @@
 	exports.linkClicked = linkClicked;
 	exports.startSimulation = startSimulation;
 	exports.stopSimulation = stopSimulation;
+	exports.clearCache = clearCache;
 
 	var _ActionTypes = __webpack_require__(292);
 
@@ -37354,6 +37371,12 @@
 	function stopSimulation() {
 	  return {
 	    type: types.STOP_SIMULATION
+	  };
+	}
+
+	function clearCache() {
+	  return {
+	    type: types.CLEAR_CACHE
 	  };
 	}
 
@@ -37449,7 +37472,7 @@
 	            _react2.default.createElement(
 	              'h5',
 	              { className: 'bold  center_text' },
-	              'Run multiple instructions'
+	              'Run multiple instructions (4-byte word instructions)'
 	            ),
 	            _react2.default.createElement(_AssemblyPanel2.default, null)
 	          ),
@@ -37596,7 +37619,7 @@
 	        null,
 	        _react2.default.createElement(
 	          'p',
-	          null,
+	          { className: 'bold center_text' },
 	          ' Large cache-sizes (e.g 1024 bytes) will take a few seconds to render '
 	        ),
 	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
@@ -37718,7 +37741,9 @@
 	  } else if (Number(values.associativity) < 0) {
 	    errors.associativity = 'Must be a positive integer';
 	  } else if (!(Number(values.cacheSize) / Number(values.blockSize) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
-	    errors.associativity = 'The specfied cache-size cannot contain that many sets';
+	    errors.associativity = 'The specfied cache- and block -size cannot contain that many sets, max number of sets is: ' + Number(values.cacheSize) + " / " + Number(values.blockSize) + " = " + Number(values.cacheSize) / Number(values.blockSize);
+	  } else if (!Number.isInteger(Number(values.cacheSize) / Number(values.associativity))) {
+	    errors.associativity = 'Number of bytes per set need to be a integer, ' + values.cacheSize + " / " + values.associativity + " = " + Number(values.cacheSize) / Number(values.associativity) + " , is not an integer";
 	  }
 
 	  if (!values.memorySize) {
@@ -38687,7 +38712,7 @@
 	            onSubmit: handleSubmit },
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'form-group col-sm-12' },
+	            { className: 'form-group col-sm-12 assembly_input' },
 	            _react2.default.createElement(
 	              'p',
 	              { className: 'bold row' },
@@ -38700,7 +38725,7 @@
 	            }, assembly)),
 	            _react2.default.createElement(
 	              'div',
-	              { className: 'error' },
+	              { className: 'error_without_margin' },
 	              assembly.touched && assembly.error && _react2.default.createElement(
 	                'div',
 	                null,
@@ -38710,7 +38735,7 @@
 	          ),
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'form-group col-sm-6' },
+	            { className: 'form-group col-sm-6 assembly_buttongroup' },
 	            _react2.default.createElement(
 	              'button',
 	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
@@ -39068,21 +39093,21 @@
 	                  null,
 	                  _react2.default.createElement(
 	                    'td',
-	                    null,
+	                    { className: 'center_text_2' },
 	                    'Tag(',
 	                    this.props.cachecontent.get("cache").get("tagBits"),
 	                    ' bits)'
 	                  ),
 	                  _react2.default.createElement(
 	                    'td',
-	                    null,
+	                    { className: 'center_text_2' },
 	                    'Index(',
 	                    this.props.cachecontent.get("cache").get("indexBits"),
 	                    ' bits)'
 	                  ),
 	                  _react2.default.createElement(
 	                    'td',
-	                    null,
+	                    { className: 'center_text_2' },
 	                    'Offset(',
 	                    this.props.cachecontent.get("cache").get("offsetBits"),
 	                    ' bits)'
@@ -39146,7 +39171,18 @@
 	          _react2.default.createElement(
 	            'h3',
 	            { className: 'bold center_text' },
-	            'Cache Memory'
+	            'Cache Memory ',
+	            _react2.default.createElement(
+	              'small',
+	              null,
+	              ' ',
+	              _react2.default.createElement(
+	                'button',
+	                { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
+	                'Clear Cache'
+	              ),
+	              ' '
+	            )
 	          ),
 	          _react2.default.createElement(
 	            'div',
@@ -39163,11 +39199,15 @@
 	              )
 	            )
 	          ),
-	          this.createTables()
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'cache_mem' },
+	            this.createTables()
+	          )
 	        ),
 	        _react2.default.createElement(
 	          'div',
-	          { className: 'row centering-block margin-bottom' },
+	          { className: 'row centering-block margin-bottom margin-top' },
 	          this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
 	        )
 	      );
@@ -39195,6 +39235,9 @@
 	  return {
 	    cancelSimulation: function cancelSimulation() {
 	      dispatch(actions.stopSimulation());
+	    },
+	    clearCache: function clearCache() {
+	      dispatch(actions.clearCache());
 	    }
 	  };
 	};
@@ -39447,7 +39490,7 @@
 	        { id: this.props.data.get('id'), className: 'cache_row cachetablerow-component' },
 	        _react2.default.createElement(
 	          'td',
-	          { 'data-tip': true, 'data-for': this.props.data.get('id') },
+	          { 'data-tip': true, 'data-for': this.props.data.get('id'), className: 'center_text_2 validbit' },
 	          this.props.data.get('validbit'),
 	          _react2.default.createElement(
 	            _reactTooltip2.default,
@@ -39461,7 +39504,7 @@
 	        ),
 	        _react2.default.createElement(
 	          'td',
-	          { 'data-tip': true, 'data-for': this.props.data.get('id') + "index" },
+	          { 'data-tip': true, 'data-for': this.props.data.get('id') + "index", className: 'center_text_2 tag' },
 	          this.props.data.get("tag"),
 	          _react2.default.createElement(
 	            _reactTooltip2.default,
@@ -39594,7 +39637,7 @@
 	      return _react2.default.createElement(
 	        'td',
 	        { 'data-tip': true, 'data-for': this.props.data.get('id'), id: this.props.data.get('id'),
-	          className: 'cache_element cachetableelement-component' },
+	          className: 'cache_element cachetableelement-component center_text_2' },
 	        this.props.data.get('data'),
 	        _react2.default.createElement(
 	          _reactTooltip2.default,
@@ -48252,7 +48295,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The simulator works under the assumption of address length and word size of 32 bit and that the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes.'
+	      'The simulator works under the assumption that address length and word size are 32 bit and that the simulated processor uses a load-store architecture. Additionally, the cache uses a write-through policy for memory writes.'
 	    ),
 	    _react2.default.createElement(
 	      'h4',
@@ -48329,12 +48372,12 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Twitter Bootstrap is used for styling some components on the page.'
+	      'Twitter Bootstrap is used for styling components on the page.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Hosted: Heroku. '
+	      'Hosted at Heroku. '
 	    ),
 	    _react2.default.createElement(
 	      'p',

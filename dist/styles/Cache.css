@@ -1,53 +1,61 @@
-.cache_element
-{
+.cache_element {
   height: 40px;
   width: 40px;
   /*overflow:hidden; */
 }
 
-.cache
-{
+.cache {
   /*overflow:hidden; */
-  table-layout:fixed;
+  table-layout: fixed;
 }
-.table
-{
+
+.table {
   width: auto;
 }
-.cache_info
-{
-  margin-bottom:  5%;
+
+.cache_info {
+  margin-bottom: 5%;
   font-style: italic;
 }
 
-.cache_panel
-{
+.cache_panel {
   margin-top: 5%
 }
 
-.instruction_stats
-{
+.instruction_stats {
   font-style: italic;
 }
 
-.my_tooltip
-{
+.my_tooltip {
   color: black
 }
 
-.center-table
-{
+.center-table {
   margin: 0 auto !important;
   float: none !important;
 }
-.cachetable-component
-{
-  margin-bottom: 10%;
+
+.cachetable-component {
+/*margin-bottom: 10%;*/
 }
 
-.address_layout td
-{
+.address_layout td {
   height: 60px;
   width: 140px;
 }
 
+.cache_mem {
+  position: relative;
+  width: 100vw;
+  left: calc(-50vw + 50%);
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.validbit
+{
+  background-color: #e0e8e0;
+}
+.tag
+{
+  background-color: #dddddd;
+}

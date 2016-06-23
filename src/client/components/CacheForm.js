@@ -50,7 +50,9 @@ const validate = values => {
   } else if (Number(values.associativity) < 0) {
     errors.associativity = 'Must be a positive integer'
   } else if (!((Number(values.cacheSize) / Number(values.blockSize)) / Number(values.associativity) >= 1 || Number(values.associativity) === 1)) {
-    errors.associativity = 'The specfied cache-size cannot contain that many sets'
+    errors.associativity = 'The specfied cache- and block -size cannot contain that many sets, max number of sets is: ' + Number(values.cacheSize) + " / " + Number(values.blockSize)  +  " = " + Number(values.cacheSize) / Number(values.blockSize)
+  } else if (!Number.isInteger(Number(values.cacheSize) / Number(values.associativity))) {
+    errors.associativity = 'Number of bytes per set need to be a integer, ' + values.cacheSize + " / " + values.associativity + " = " +  Number(values.cacheSize) / Number(values.associativity) + " , is not an integer"
   }
 
   if (!values.memorySize) {

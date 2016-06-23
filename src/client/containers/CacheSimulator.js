@@ -25,7 +25,7 @@ class CacheSimulator extends React.Component {
           <div>
             <h5 className="bold  center_text">Run single instruction (4-byte word instructions)</h5>
             <InstructionPanel/>
-            <h5 className="bold  center_text">Run multiple instructions</h5>
+            <h5 className="bold  center_text">Run multiple instructions (4-byte word instructions)</h5>
             <AssemblyPanel/>
           </div>
           <hr></hr>

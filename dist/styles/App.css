@@ -20,6 +20,10 @@ body
   text-align: center;
   margin-bottom: 5%;
 }
+.center_text_2
+{
+  text-align: center;
+}
 .centering-block
 {
   display: block;
@@ -57,17 +61,15 @@ body
 
 .margin-bottom
 {
-  margin-bottom: 10%;
+  margin-bottom: 5%;
+}
+.margin-top
+{
+  margin-top: 5%
 }
 .instructionResult
 {
-  height: 30px;
-  width: 100%;
-}
-
-.error
-{
-  height: 40px;
+  height: 5px;
   width: 100%;
 }
 .empty
@@ -87,4 +89,12 @@ body
 nav
 {
   text-align: center;
+}
+.assembly_input
+{
+  margin-bottom: 0;
+}
+.assembly_buttongroup
+{
+  margin-top: 0
 }

@@ -39,4 +39,10 @@ export function stopSimulation() {
   }
 }
 
+export function clearCache() {
+  return {
+    type: types.CLEAR_CACHE
+  }
+}
+
 

@@ -101,7 +101,7 @@ class AssemblyForm extends React.Component {
         </div>
         <form
           onSubmit={handleSubmit}>
-          <div className="form-group col-sm-12">
+          <div className="form-group col-sm-12 assembly_input">
             <p className="bold row">
               Assembly input
             </p>
@@ -113,12 +113,12 @@ class AssemblyForm extends React.Component {
           assembly
         }
       />
-            <div className="error">
+            <div className="error_without_margin">
               {assembly.touched && assembly.error && <div>{assembly.error}</div>
               }
             </div>
           </div>
-          <div className="form-group col-sm-6">
+          <div className="form-group col-sm-6 assembly_buttongroup">
             <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
               {submitting ? <i/> : <i/>} Run
             </button>

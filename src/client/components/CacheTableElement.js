@@ -61,7 +61,7 @@ class CacheTableElement extends React.Component {
     this.animateHit.bind(this)()
     return (
       <td data-tip data-for={this.props.data.get('id')} id={this.props.data.get('id')}
-          className="cache_element cachetableelement-component">
+          className="cache_element cachetableelement-component center_text_2">
         {this.props.data.get('data')}
         <ReactTooltip id={this.props.data.get('id')} {...this.props}>
           <p>Byte: {this.props.data.get('byte')}</p>

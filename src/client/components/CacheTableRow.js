@@ -75,13 +75,13 @@ class CacheTableRow extends React.Component {
     this.animateMiss.bind(this)()
     return (
       <tr id={this.props.data.get('id')} className="cache_row cachetablerow-component">
-        <td data-tip data-for={this.props.data.get('id')}>
+        <td data-tip data-for={this.props.data.get('id')} className="center_text_2 validbit">
           {this.props.data.get('validbit')}
           <ReactTooltip id={this.props.data.get('id')} {...this.props}>
             <p>{this.props.data.get('validbit') === 1 ? "Valid" : "Not Valid"}</p>
           </ReactTooltip>
         </td>
-        <td data-tip data-for={this.props.data.get('id') + "index"}>
+        <td data-tip data-for={this.props.data.get('id') + "index"} className="center_text_2 tag">
           {this.props.data.get("tag")}
           <ReactTooltip id={this.props.data.get('id') + "index"} {...this.props}>
             <p>Index: {this.props.data.get('index')}</p>
