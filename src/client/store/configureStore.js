@@ -17,11 +17,12 @@ import createLogger from 'redux-logger';
  * @returns {*} the single store of the redux app
  */
 export default function configureStore(initialState) {
-  const logger = createLogger();
+  //const logger = createLogger();
   const store = createStore(
     rootReducer,
     initialState,
-    applyMiddleware(thunk, promise, logger)
+    //applyMiddleware(thunk, promise, logger)
+    applyMiddleware(thunk, promise)
   )
   return store
 }

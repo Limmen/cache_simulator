@@ -54,7 +54,7 @@ class FetchForm extends React.Component {
           <div className="row">
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_operation_type">Operation type</label>
+                <label className="bold col-md-4 control-label" htmlFor="input_operation_type">Operation type</label>
                 <div className="col-md-8">
                   <select id="input_operation_type" className="form-control" {...operationType}>
                     <option></option>
@@ -69,7 +69,7 @@ class FetchForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_register">Register (0-31)</label>
+                <label className="bold col-md-4 control-label" htmlFor="input_register">Register (0-31)</label>
                 <div className="col-md-8">
                   <input type="text" placeholder="memory register" id="input_register" {...register} className="form-control"/>
                 </div>
@@ -80,7 +80,7 @@ class FetchForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_hexaddress">Address (hexadecimal)</label>
+                <label className="bold col-md-4 control-label" htmlFor="input_hexaddress">Address (hexadecimal)</label>
                 <div className="col-md-8">
                   <input type="text" placeholder="memory address" {...fetchAddress} id="input_hexaddress" className="form-control"/>
                 </div>

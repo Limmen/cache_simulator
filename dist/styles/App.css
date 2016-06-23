@@ -79,3 +79,12 @@ body
 {
   height: 80px;
 }
+
+.inline
+{
+  display: inline-block;
+}
+nav
+{
+  text-align: center;
+}

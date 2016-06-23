@@ -27076,8 +27076,10 @@
 	 * @returns {*} the single store of the redux app
 	 */
 	function configureStore(initialState) {
-	  var logger = (0, _reduxLogger2.default)();
-	  var store = (0, _redux.createStore)(_reducers2.default, initialState, (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default, logger));
+	  //const logger = createLogger();
+	  var store = (0, _redux.createStore)(_reducers2.default, initialState,
+	  //applyMiddleware(thunk, promise, logger)
+	  (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default));
 	  return store;
 	} /**
 	   * Function to create and bootstrap the store with reducers, initialstate and middleware.
@@ -37772,7 +37774,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_cache_size' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_cache_size' },
 	                  'Cache size (bytes)'
 	                ),
 	                _react2.default.createElement(
@@ -37800,7 +37802,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { 'for': 'input_block_size', className: 'bold col-md-4 control-label' },
+	                  { htmlFor: 'input_block_size', className: 'bold col-md-4 control-label' },
 	                  'Block size (bytes)'
 	                ),
 	                _react2.default.createElement(
@@ -37828,7 +37830,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_associativity' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_associativity' },
 	                  'Associativity'
 	                ),
 	                _react2.default.createElement(
@@ -37856,7 +37858,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_replacement_algorithm' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_replacement_algorithm' },
 	                  'Replacement Algorithm'
 	                ),
 	                _react2.default.createElement(
@@ -37892,7 +37894,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_memory_size' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_memory_size' },
 	                  'Memory size (bytes)'
 	                ),
 	                _react2.default.createElement(
@@ -38176,7 +38178,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_operation_type' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_operation_type' },
 	                  'Operation type'
 	                ),
 	                _react2.default.createElement(
@@ -38217,7 +38219,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_register' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_register' },
 	                  'Register (0-31)'
 	                ),
 	                _react2.default.createElement(
@@ -38244,7 +38246,7 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', 'for': 'input_hexaddress' },
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_hexaddress' },
 	                  'Address (hexadecimal)'
 	                ),
 	                _react2.default.createElement(

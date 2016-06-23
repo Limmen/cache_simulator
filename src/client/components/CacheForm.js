@@ -76,7 +76,7 @@ class CacheForm extends React.Component {
           <div className="row">
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_cache_size">Cache size (bytes)</label>
+                <label className="bold col-md-4 control-label" htmlFor="input_cache_size">Cache size (bytes)</label>
                 <div className="col-md-8">
                   <input type="text" placeholder="cache size" id="input_cache_size" {...cacheSize}
                          className="form-control"/>
@@ -88,7 +88,7 @@ class CacheForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label for="input_block_size" className="bold col-md-4 control-label">Block size (bytes)</label>
+                <label htmlFor="input_block_size" className="bold col-md-4 control-label">Block size (bytes)</label>
                 <div className="col-md-8">
                   <input type="text" placeholder="block size" {...blockSize} id="input_block_size"
                          className="form-control"/>
@@ -100,7 +100,7 @@ class CacheForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_associativity">Associativity</label>
+                <label className="bold col-md-4 control-label" htmlFor="input_associativity">Associativity</label>
                 <div className="col-md-8">
                   <input type="text" placeholder="associativity" id="input_associativity" {...associativity}
                          className="form-control"/>
@@ -112,7 +112,7 @@ class CacheForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_replacement_algorithm">Replacement
+                <label className="bold col-md-4 control-label" htmlFor="input_replacement_algorithm">Replacement
                   Algorithm</label>
                 <div className="col-md-8">
                   <select className="form-control" id="input_replacement_algorithm" {...replacementAlgorithm}>
@@ -125,7 +125,7 @@ class CacheForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" for="input_memory_size">Memory size (bytes)</label>
+                <label className="bold col-md-4 control-label" htmlFor="input_memory_size">Memory size (bytes)</label>
                 <div className="col-md-8">
                   <input type="text" placeholder="memory size" id="input_memory_size" {...memorySize}
                          className="form-control"/>
