@@ -21,6 +21,9 @@ class NavBar extends React.Component {
           <NavLink to="/about" onClick={this.props.linkClicked}>What is this?</NavLink>
         </li>
         <li>
+          <NavLink to="/tutorial" onClick={this.props.linkClicked}>Tutorial</NavLink>
+        </li>
+        <li>
           <NavLink to="/colophon" onClick={this.props.linkClicked}>Colophon</NavLink>
         </li>
       </ul>

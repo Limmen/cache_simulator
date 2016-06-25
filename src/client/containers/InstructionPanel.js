@@ -59,7 +59,7 @@ const mapDispatchToProps = (dispatch) => {
     fetchHandleSubmit: (fields) => {
       scroller.scrollTo('cache_mem_scroll_position', {
         duration: 1500,
-        offset: -150,
+        offset: -50,
         smooth: true
       })
       setTimeout(function (){

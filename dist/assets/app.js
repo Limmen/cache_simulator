@@ -36981,6 +36981,10 @@
 
 	var _Colophon2 = _interopRequireDefault(_Colophon);
 
+	var _Tutorial = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./../client/components/Tutorial\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+	var _Tutorial2 = _interopRequireDefault(_Tutorial);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	/**
@@ -36988,11 +36992,6 @@
 	 *
 	 * @param history
 	 * @returns {XML}
-	 */
-	/**
-	 * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
-	 *
-	 * Created by kim on 2016-05-11.
 	 */
 
 	exports.default = function (history) {
@@ -37005,10 +37004,15 @@
 	      _react2.default.createElement(_reactRouter.IndexRedirect, { from: '', to: 'simulator' }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'simulator', component: _CacheSimulator2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default })
+	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: 'tutorial', component: _Tutorial2.default })
 	    )
 	  );
-	};
+	}; /**
+	    * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
+	    *
+	    * Created by kim on 2016-05-11.
+	    */
 
 /***/ },
 /* 309 */
@@ -37259,6 +37263,15 @@
 	            _NavLink2.default,
 	            { to: '/about', onClick: this.props.linkClicked },
 	            'What is this?'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'li',
+	          null,
+	          _react2.default.createElement(
+	            _NavLink2.default,
+	            { to: '/tutorial', onClick: this.props.linkClicked },
+	            'Tutorial'
 	          )
 	        ),
 	        _react2.default.createElement(
@@ -37705,7 +37718,7 @@
 	      _reactScroll.scroller.scrollTo('cache_init_scroll_position', {
 	        duration: 1500,
 	        delay: 200,
-	        offset: -50,
+	        offset: 475,
 	        smooth: true,
 	        isDynamic: true
 	      });
@@ -38142,7 +38155,7 @@
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
 	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
 	        duration: 1500,
-	        offset: -150,
+	        offset: -50,
 	        smooth: true
 	      });
 	      setTimeout(function () {
@@ -38489,7 +38502,7 @@
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
 	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
 	        duration: 1500,
-	        offset: -150,
+	        offset: -50,
 	        smooth: true
 	      });
 	      setTimeout(function () {

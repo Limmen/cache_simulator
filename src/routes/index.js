@@ -11,6 +11,7 @@ import App from './../client/containers/App';
 import CacheSimulator from './../client/containers/CacheSimulator';
 import About from './../client/components/About';
 import Colophon from './../client/components/Colophon';
+import Tutorial from './../client/components/Tutorial';
 
 /**
  * Creates the react-router given a history
@@ -26,6 +27,7 @@ export default (history) => {
         <Route path="simulator" component={CacheSimulator}/>
         <Route path="about" component={About}/>
         <Route path="colophon" component={Colophon}/>
+        <Route path="tutorial" component={Tutorial}/>
       </Route>
     </Router>
   );

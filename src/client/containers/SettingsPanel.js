@@ -58,7 +58,7 @@ const mapDispatchToProps = (dispatch) => {
       scroller.scrollTo('cache_init_scroll_position', {
         duration: 1500,
         delay: 200,
-        offset: -50,
+        offset: 475,
         smooth: true,
         isDynamic: true
       })
