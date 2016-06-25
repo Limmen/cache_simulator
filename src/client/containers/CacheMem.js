@@ -7,9 +7,10 @@
 'use strict';
 
 import React from 'react';
-import { connect } from 'react-redux'
+import {connect} from 'react-redux'
 import Table from '../components/CacheTable'
 import * as actions from '../actions/'
+import {Element} from 'react-scroll';
 
 class CacheMem extends React.Component {
 
@@ -94,98 +95,103 @@ class CacheMem extends React.Component {
     this.instructionResult()
     return (
       <div>
-        <div className="row">
-          <h3 className="bold center_text">Cache Information</h3>
-          <div className="col-sm-4">
-            <table className="table table-striped center-table cache_props">
-              <caption>Cache properties</caption>
-              <tbody>
-              <tr>
-                <td>Address length</td>
-                <td>32 bits</td>
-              </tr>
-              <tr>
-                <td>Word size</td>
-                <td>32 bits</td>
-              </tr>
-              <tr>
-                <td>Cache size</td>
-                <td>{this.props.cachecontent.get('cache').get('cacheSize')} Bytes</td>
-              </tr>
-              <tr>
-                <td>Associativity</td>
-                <td>{this.props.cachecontent.get('cache').get('associativity')}</td>
-              </tr>
-              <tr>
-                <td>Block Count</td>
-                <td>{this.props.cachecontent.get('cache').get('blockCount')}</td>
-              </tr>
-              <tr>
-                <td>Block Size</td>
-                <td>{this.props.cachecontent.get('cache').get('blockSize')} Bytes</td>
-              </tr>
-              <tr>
-                <td>Replacement Algorithm</td>
-                <td>{this.props.cachecontent.get('cache').get('replacementAlgorithm')}</td>
-              </tr>
-              <tr>
-                <td>Write Policy</td>
-                <td>Write-through</td>
-              </tr>
-              </tbody>
-            </table>
+          <div className="row">
+            <h3 className="bold center_text">Cache Information</h3>
+            <div className="col-sm-4">
+              <table className="table table-striped center-table cache_props">
+                <caption>Cache properties</caption>
+                <tbody>
+                <tr>
+                  <td>Address length</td>
+                  <td>32 bits</td>
+                </tr>
+                <tr>
+                  <td>Word size</td>
+                  <td>32 bits</td>
+                </tr>
+                <tr>
+                  <td>Cache size</td>
+                  <td>{this.props.cachecontent.get('cache').get('cacheSize')} Bytes</td>
+                </tr>
+                <tr>
+                  <td>Associativity</td>
+                  <td>{this.props.cachecontent.get('cache').get('associativity')}</td>
+                </tr>
+                <tr>
+                  <td>Block Count</td>
+                  <td>{this.props.cachecontent.get('cache').get('blockCount')}</td>
+                </tr>
+                <tr>
+                  <td>Block Size</td>
+                  <td>{this.props.cachecontent.get('cache').get('blockSize')} Bytes</td>
+                </tr>
+                <tr>
+                  <td>Replacement Algorithm</td>
+                  <td>{this.props.cachecontent.get('cache').get('replacementAlgorithm')}</td>
+                </tr>
+                <tr>
+                  <td>Write Policy</td>
+                  <td>Write-through</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="col-sm-4 address_layout_div">
+              <table className="address_layout table-bordered center-table">
+                <caption>Address Layout</caption>
+                <tbody>
+                <tr>
+                  <td className="center_text_2">
+                    Tag({this.props.cachecontent.get("cache").get("tagBits")} bits)
+                  </td>
+                  <td className="center_text_2">
+                    Index({this.props.cachecontent.get("cache").get("indexBits")} bits)
+                  </td>
+                  <td className="center_text_2">
+                    Offset({this.props.cachecontent.get("cache").get("offsetBits")} bits)
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="col-sm-4">
+              <table className="table table-striped center-table">
+                <caption>Cache performance and locality</caption>
+                <tbody>
+                <tr>
+                  <td>Hit rate</td>
+                  <td>{this.getHitRate()}%</td>
+                </tr>
+                <tr>
+                  <td>Miss rate</td>
+                  <td>{this.getMissRate()}%</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className="col-sm-4 address_layout_div">
-            <table className="address_layout table-bordered center-table">
-              <caption>Address Layout</caption>
-              <tbody>
-              <tr>
-                <td className="center_text_2">
-                  Tag({this.props.cachecontent.get("cache").get("tagBits")} bits)
-                </td>
-                <td className="center_text_2">
-                  Index({this.props.cachecontent.get("cache").get("indexBits")} bits)
-                </td>
-                <td className="center_text_2">
-                  Offset({this.props.cachecontent.get("cache").get("offsetBits")} bits)
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="col-sm-4">
-            <table className="table table-striped center-table">
-              <caption>Cache performance and locality</caption>
-              <tbody>
-              <tr>
-                <td>Hit rate</td>
-                <td>{this.getHitRate()}%</td>
-              </tr>
-              <tr>
-                <td>Miss rate</td>
-                <td>{this.getMissRate()}%</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
         <hr></hr>
-        <div className="row">
-          <h3 className="bold center_text">Cache Memory <small> <button className="btn btn-default" type="button" onClick={this.props.clearCache}>
-            Clear Cache
-          </button> </small>
-          </h3>
-          <div className="instructionResult">
-            <p id="fade" className="center_text">
-              {this.props.cachecontent.get("instructionResult")}
-              <br/>
-              <code>{this.props.cachecontent.get("instruction")}</code>
-            </p>
+        <Element name="cache_mem_scroll_position">
+          <div className="row">
+            <h3 className="bold center_text">Cache Memory
+              <small>
+                <button className="btn btn-default" type="button" onClick={this.props.clearCache}>
+                  Clear Cache
+                </button>
+              </small>
+            </h3>
+            <div className="instructionResult">
+              <p id="fade" className="center_text">
+                {this.props.cachecontent.get("instructionResult")}
+                <br/>
+                <code>{this.props.cachecontent.get("instruction")}</code>
+              </p>
+            </div>
+            <div className="cache_mem">
+              {this.createTables()}
+            </div>
           </div>
-          <div className="cache_mem">
-            {this.createTables()}
-          </div>
-        </div>
+        </Element>
         <div className="row centering-block margin-bottom margin-top">
           {this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)}
         </div>

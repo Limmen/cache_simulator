@@ -10,6 +10,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import FetchFormComponent from './../components/FetchForm';
 import * as actions from '../actions/'
+import {scroller} from 'react-scroll';
 
 class InstructionPanel extends React.Component {
 
@@ -56,9 +57,16 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields of the action
      */
     fetchHandleSubmit: (fields) => {
-      dispatch(actions.startSimulation())
-      dispatch(actions.cacheContentUpdate(fields))
-      setTimeout(dispatch, 3600, actions.stopSimulation())
+      scroller.scrollTo('cache_mem_scroll_position', {
+        duration: 1500,
+        offset: -150,
+        smooth: true
+      })
+      setTimeout(function (){
+        dispatch(actions.startSimulation())
+        dispatch(actions.cacheContentUpdate(fields))
+        setTimeout(dispatch, 3600, actions.stopSimulation())
+      }, 1500);
     }
   }
 }

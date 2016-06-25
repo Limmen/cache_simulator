@@ -10,7 +10,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import CacheFormComponent from './../components/CacheForm';
 import * as actions from '../actions/'
-
+import {scroller} from 'react-scroll';
 class SettingsPanel extends React.Component {
 
   render() {
@@ -55,6 +55,13 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields fields of the action
      */
     cacheHandleSubmit: (fields) => {
+      scroller.scrollTo('cache_init_scroll_position', {
+        duration: 1500,
+        delay: 200,
+        offset: -50,
+        smooth: true,
+        isDynamic: true
+      })
       dispatch(actions.cacheAndMemoryContentInitialization(fields));
     }
   }

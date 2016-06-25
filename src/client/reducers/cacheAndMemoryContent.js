@@ -44,7 +44,7 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
     case CACHE_CONTENT_UPDATE:
       if (state.get("simulating"))
-        return simulateInstruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType, action.fields.register)
+        return simulateInstruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType.toUpperCase(), action.fields.register)
       else
         return state;
     case CLEAR_CACHE:

@@ -4,7 +4,7 @@
 'use strict';
 
 import React from 'react';
-import { connect } from 'react-redux'
+import {connect} from 'react-redux'
 import SettingsPanel from './SettingsPanel';
 import InstructionPanel from './InstructionPanel';
 import AssemblyPanel from './AssemblyPanel';
@@ -12,6 +12,7 @@ import CacheMemory from './CacheMem';
 import MemoryPanel from './MemoryPanel';
 import RegisterPanel from './RegisterPanel';
 import InstructionResultPanel from './InstructionResultPanel';
+import {Element} from 'react-scroll';
 
 class CacheSimulator extends React.Component {
 
@@ -55,7 +56,9 @@ class CacheSimulator extends React.Component {
           <SettingsPanel />
           <hr></hr>
         </div>
-        {this.renderCache()}
+        <Element name="cache_init_scroll_position">
+          {this.renderCache()}
+        </Element>
       </div>
     );
   }

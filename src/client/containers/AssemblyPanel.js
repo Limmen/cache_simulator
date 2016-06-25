@@ -10,6 +10,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import AssemblyForm from './../components/AssemblyForm';
 import * as actions from '../actions/'
+import {scroller} from 'react-scroll';
 
 class AssemblyPanel extends React.Component {
 
@@ -50,22 +51,15 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields of the action
      */
     fetchHandleSubmit: (fields) => {
-      dispatch(actions.startSimulation())
-      let rows = fields.assembly.split("\n");
-      let row = rows[0];
-      let tokens = row.replace(/ +(?= )/g,'').split(" ");
-      let operation = tokens[0];
-      let register = tokens[1];
-      let address = tokens[2];
-      fields = {
-        fetchAddress: address,
-        operationType : operation,
-        register: register
-      }
-      dispatch(actions.cacheContentUpdate(fields))
-
-      for(let i = 1; i < rows.length; i++){
-        let row = rows[i];
+      scroller.scrollTo('cache_mem_scroll_position', {
+        duration: 1500,
+        offset: -150,
+        smooth: true
+      })
+      setTimeout(function (){
+        dispatch(actions.startSimulation())
+        let rows = fields.assembly.split("\n");
+        let row = rows[0];
         let tokens = row.replace(/ +(?= )/g,'').split(" ");
         let operation = tokens[0];
         let register = tokens[1];
@@ -75,9 +69,24 @@ const mapDispatchToProps = (dispatch) => {
           operationType : operation,
           register: register
         }
-        setTimeout(dispatch, i*3600, actions.cacheContentUpdate(fields))
-      }
-      setTimeout(dispatch, rows.length*3600, actions.stopSimulation())
+        dispatch(actions.cacheContentUpdate(fields))
+
+        for(let i = 1; i < rows.length; i++){
+          let row = rows[i];
+          let tokens = row.replace(/ +(?= )/g,'').split(" ");
+          let operation = tokens[0];
+          let register = tokens[1];
+          let address = tokens[2];
+          fields = {
+            fetchAddress: address,
+            operationType : operation,
+            register: register
+          }
+          setTimeout(dispatch, i*3600, actions.cacheContentUpdate(fields))
+        }
+        setTimeout(dispatch, rows.length*3600, actions.stopSimulation())
+      }, 1500);
+
     }
   }
 }
