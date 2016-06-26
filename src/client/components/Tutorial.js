@@ -16,71 +16,73 @@ let Tutorial = () => (
       faster.
       A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the
       cost to access data from the main memory.
-      The idea behind it is that the cache-memory allows faster access than the regular main memory (RAM).
-      Thus if the CPU can access the requested data from the cache instead of the main memory the access time will be
+      The idea behind it is that the cache memory allows faster access than the regular main memory (RAM).
+      Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time
+      will be
       reduced.
-      Logically since the cache memory provides faster access than the main memory it is also more expensive and as a
-      consequence you
-      cannot buy cache memories of very large sizes for reasonable prices. So we can choose between a large but slow
+      Logically since the cache memory provides faster access than the main memory it is also more expensive.
+      So to keep the price budget on a resonable level we get to choose between a large but slow
       memory (main memory)
-      and a small but fast memory (cache memory), which one to choose? The common solution that is not too expensive and
-      still provides
-      performance gains is to use both.
+      and a small but fast memory (cache memory). The most common strategy that is not too costly and
+      still provides performance gains is to use both.
     </p>
     <img src="images/cache_arch.png" alt="Cache memory architecture" className="img-responsive center-image"/>
     <p>
-      Now the tricky part with cache memories that requires sophisticated structures and algorithms is too decide how to
-      keep
-      the data in the cache consistent with the main memory and to decide where data should be stored in the cache
-      memory as well
-      as what to do when the cache is full?
+      Now the tricky part is too decide how to keep the data in the cache consistent with the main memory and to decide
+      where data should be stored in the cache memory as well as what to do when the cache is full.
+      This is a complication that require that caches use sophisticated structures and algorithms.
     </p>
     <p>
-      Cache memory varies in sizes, the bigger the more expensive.
-      In the simulator you specify what cache size, block size, associativity and replacement algorithm to use.
+      Cache memory varies in sizes, the bigger the more pricey.
+      In the simulator you specify what cache size, block size, associativity count and replacement algorithm to use.
       Cache size is entered in bytes and specify the size of the whole cache memory.
-      You want to design the cache and the program to be ran such that the CPU can avoid accessing the main memory as
-      far as possible, and be able to fetch from the cache memory instead.
+      As far as possible you want to design the cache and the program to be ran such that the CPU can avoid accessing
+      the main memory and
+      fetch form the cache memory instead.
       When the processor finds the address it's looking or in the cache we say that it is a <i>cache hit</i>, otherwise
       it's a <i>cache miss</i>.
     </p>
     <p>
-      In the context of caches a notion of <i>blocks</i> is used, blocks have fixed size and every time data is
+      In the context of caches, a notion of <i>blocks</i> is used, blocks have fixed size and every time data is
       fetched from the main memory to the cache a whole block is fetched (there is a purpose for this that we'll get to
-      later).
-      Additionally, there are more options for structuring the cache memory beyond specifying the block size.
+      later). In the simulator block size is just as cache size, entered in bytes.
+    </p>
+    <p>
+      Additionally, there are more options for structuring the cache memory beyond specifying the cache and block size.
       The cache can be divided into sets, where each set contains a number of blocks. The number of sets is labeled as
       "associativity count".
     </p>
     <img src="images/form.png" alt="Form for cache information" className="img-responsive center-image"/>
     <p>
-      So we know that the cache memory is smaller than the main memory... then given a address for the main memory, how
-      do we find the right location in the
-      cache? surely we can't use the same addressing as for the main memory.
+      Considering that the cache memory is smaller than the main memory, there need to be some kind of address translation
+      when the CPU reads an main memory address from the program in order to know where in the cache memory to look.
     </p>
     <p>
-      This is handled in a neat way by translating the address for the main memory into a address in the cache memory.
-      The main memory address is divided into parts, one parts decides the row in the cache (also called the index
+      This is handled in a neat way by translating the address for the main memory into an address in the cache memory.
+      The main memory address is divided into parts, one parts decides the row (block) in the cache (also called the index
       part),
       one part decides the byte inside the block (also called the block offset), and the third part specifies the
       address tag in the main memory.
-      For this cache simulator we assume main memory addresses of 32 bits.
+      </p>
+    <p>
+      For this cache simulator we assume main memory addresses of sizes 32 bits.
       Lets say that the cache is of size 32 bytes with a block size of 8 bytes and a associativity count of 2.
       Then we need 1 bit to represent the index (two rows in each set) and 3 bits to represent the byte offset (8 bytes
       in each block). And the remaining bits (32 - (1 +3)) represents the address tag in the main memory.
     </p>
     <img src="images/address_layout.png" alt="Address Layout" className="img-responsive center-image"/>
     <p>
-      So we can interpret the row and the byte location in the cache from the main address. But how do we know which set
-      to look in?
-      With a associativity count > 1 we have mutiple blocks with the same index in the cache. This means that we need to
-      go through all of the rows with the right index
-      in order to be sure if there was a cache hit. So how about cache misses in a cache with associativity count > 1?
+      The translation just described gives information about which row and which byte to look in but it does'nt say anything about which set.
+      With an associativity count > 1 we have multiple blocks with the same index in the cache. This means that a main memory address can match more than
+      one block in the cache memory. In order to know if a main memory address generates a cache hit or not we need to go through all of them.
+      </p>
+    <p>
+      A similar dilemma happens when there is a cache miss in a cache with associativity count > 1.
       When we fetch a memory block from the main memory we know by the address in which row of the cache it should be
       placed, but we dont know in which set.
       To handle this situation a <i>replacement algorithm</i> is used. Obviously if one or more blocks are empty we
       place the block in any one of the empty blocks,
-      but if all blocks with the right index are full then we need to replace the contents of one block, which one to
+      but if all blocks with the right index are full we need to replace the contents of one block. Which one to
       replace is decided by the replacement algorithm.
       The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.
     </p>
@@ -98,7 +100,7 @@ let Tutorial = () => (
       of the
       program code and data is used a lot and some parts are'nt used at all. If those parts that are executed a lot gets
       placed in
-      the cache memory then the program execution will be fast er. For example, consider a program with a loop:
+      the cache memory then the program execution will be faster. For example, consider a program with a loop:
     </p>
     <Highlight className='java'>
       {"int j; \n" +
@@ -119,34 +121,40 @@ let Tutorial = () => (
       Spatial locality means that when a certain memory address have been accessed, adresses close to it in memory will
       soon be accessed as well.
       Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing
-      instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead
+      instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching
+      from main memory, instead
       of just fetching the address in question, a whole block is fetched (the block contains nearby addresses).
-      To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss rate, the better.
-      If a program consisted of the code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of ~1%.
+      To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss
+      rate, the better.
+      If a program consisted of the code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of
+      ~1%.
     </p>
     <img src="images/hit_miss_rate.png" alt="Hit and Miss rates" className="img-responsive center-image"/>
     <p>
       There are many different types of cache memories but the principle is universal.
       For simplicity in this simulator we simulate a d-cache for a uniprocessor system that uses a load-store
-      architecture and a write-through policy.
+      architecture and a write-through policy for STORE instructions.
     </p>
     <p>
       In systems with multiple processors it is common to have one cache memory for each processor,
-      which also introduces the problem of cache coherence. Further more, in many computers a setup with two different cache memories
-      for instructions and data-access is used, the reason for it is that a cache memory can only do one thing at a time
-      thus if you use a single cache memory for both data and instructions you get a delay in that you cannot perform
-      instructions when fetches from main main memory is being made. With separate instruction and data caches, all instructions goes
-      through the instruction cache and other references, like LOAD and STORE instructions goes through the datacache (or d-cache).
-      </p>
-    <p>
-      A load-store architecture
-      means that the only instructions that interact with the memory is LOAD and STORE instructions. Write-through is a
-      <i>policy</i> for STORE instructions. Simply put, it means that the main memory and the cache memory will always be coherent with each other,
-      when a STORE-instruction is issued both main memory and cache memory is updated. An alternative policy is
-      (write-back).
+      which also introduces the problem of cache coherence. Further more, it is common to separate data and instruction caches
+      into two cache memories.
+      cThe reason for it is that a cache memory can only do one thing at a time
+      thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute
+      instructions when fetches from main main memory is being made. With separate instruction and data caches you can do certain operations in parallel.
+      In computers with separate instruction and data caches, all instructions that don't need to access the memory goes through the instruction cache and
+      all instructions that need to access the memory goes through the data cache.
     </p>
     <p>
-      Given that it is a d-cache you can simulate its behaviour by issuing LOAD/STORE - instructions. Either through a
+      A load-store architecture means that the only instructions that interact with the memory are LOAD and STORE instructions.
+      Write-through is a
+      <i>policy</i> for STORE instructions. Simply put, it means that the main memory and the cache memory will always
+      be coherent with each other,
+      when a STORE-instruction is issued both main memory and cache memory is updated. An alternative policy is
+      (write-back) which can provide less latency than write-through but exposes certain risks when it comes to keeping the data in the cache consistent with the main memory.
+    </p>
+    <p>
+      Given that this simulator mimic a d-cache you can simulate its behaviour by issuing LOAD/STORE instructions. Either through a
       form or through a free-text area where you can enter a short program with multiple instructions.
 
       A instruction has the following form (the instructions mimic a kind of generic type of assembly):
@@ -181,6 +189,7 @@ let Tutorial = () => (
       cache it can be either a hit or a miss.
       Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count,
       associativity count, block size and replacement algorithm.
+      There are many different flavors of caches but in essence they do the same thing.
     </p>
   </div >
 );
