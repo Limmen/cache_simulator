@@ -8,7 +8,7 @@ import { applyMiddleware, createStore } from 'redux'
 import rootReducer from '../reducers'
 import thunk from 'redux-thunk';
 import promise from 'redux-promise';
-import createLogger from 'redux-logger';
+//import createLogger from 'redux-logger';
 
 /**
  * Creates the store of the redux app.

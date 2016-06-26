@@ -23,9 +23,6 @@ class NavBar extends React.Component {
         <li>
           <NavLink to="/tutorial" onClick={this.props.linkClicked}>Tutorial</NavLink>
         </li>
-        <li>
-          <NavLink to="/colophon" onClick={this.props.linkClicked}>Colophon</NavLink>
-        </li>
       </ul>
     );
   }

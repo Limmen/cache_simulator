@@ -37,91 +37,148 @@ let Tutorial = () => (
     </p>
     <p>
       Cache memory varies in sizes, the bigger the more expensive.
-      In the simulator you specify what cache size, block size, associativity and replacementalgorithm to use.
+      In the simulator you specify what cache size, block size, associativity and replacement algorithm to use.
       Cache size is entered in bytes and specify the size of the whole cache memory.
-      When designing the cache and your program you want the memory fetches as often as possible be a hit in the cache
-      memory.
-      We say that when the processor finds the address it's looking or in the cache we have a "cache hit", otherwise we
-      have a "cache miss".
-      In the context of caches you use the notion of "blocks", blocks have fixed size and everytime data is
-      fetched from the main memory to the cache a whole block is fetched. Furher more when the addresses of the main
-      memory is
-      mapped to the cache memory there are different additional ways to structure the cache apart form just dividing it
-      into blocks.
-      The cache can be divided into sets, where each set contains a number of blocks. The number of sets is denoted with
+      You want to design the cache and the program to be ran such that the CPU can avoid accessing the main memory as
+      far as possible, and be able to fetch from the cache memory instead.
+      When the processor finds the address it's looking or in the cache we say that it is a <i>cache hit</i>, otherwise
+      it's a <i>cache miss</i>.
+    </p>
+    <p>
+      In the context of caches a notion of <i>blocks</i> is used, blocks have fixed size and every time data is
+      fetched from the main memory to the cache a whole block is fetched (there is a purpose for this that we'll get to
+      later).
+      Additionally, there are more options for structuring the cache memory beyond specifying the block size.
+      The cache can be divided into sets, where each set contains a number of blocks. The number of sets is labeled as
       "associativity count".
     </p>
     <img src="images/form.png" alt="Form for cache information" className="img-responsive center-image"/>
     <p>
-      So we know that the cache memory is smaller than the main memory... then how do we find the right location in the
-      cache?
-      surely we can't use the same addressing as for the main memory.
-      The solution is that the main memory is divided into parts where one part decides the row in the cache (also
-      called the index part),
-      one part decides the byte inside the block (also called the block offset). For this cache simulator we assume main
-      memory addresses of 32 bits.
+      So we know that the cache memory is smaller than the main memory... then given a address for the main memory, how
+      do we find the right location in the
+      cache? surely we can't use the same addressing as for the main memory.
+    </p>
+    <p>
+      This is handled in a neat way by translating the address for the main memory into a address in the cache memory.
+      The main memory address is divided into parts, one parts decides the row in the cache (also called the index
+      part),
+      one part decides the byte inside the block (also called the block offset), and the third part specifies the
+      address tag in the main memory.
+      For this cache simulator we assume main memory addresses of 32 bits.
       Lets say that the cache is of size 32 bytes with a block size of 8 bytes and a associativity count of 2.
       Then we need 1 bit to represent the index (two rows in each set) and 3 bits to represent the byte offset (8 bytes
-      in each block).
+      in each block). And the remaining bits (32 - (1 +3)) represents the address tag in the main memory.
     </p>
     <img src="images/address_layout.png" alt="Address Layout" className="img-responsive center-image"/>
     <p>
-      So we can interpret the row and the byte from the address. But how do we know which set to look in?
-      we don't, we need to check all sets to be sure. Okay so when there is a miss in the cache memory and
-      we fetch a new memory block from the main memory we know by the address in which row it should be placed,
-      but which set should it be placed in? If there is one or more empty rows among the sets it does'nt matter, we can
-      choose any set.
-      If there is'nt an empty row we should replace one row with the newly fetched block, which row to replace is
-      decided by a replacement algorihm,
-      the most common ones are LRU (Least Recently Used), FIFO (First In First Out), RANDOM.
+      So we can interpret the row and the byte location in the cache from the main address. But how do we know which set
+      to look in?
+      With a associativity count > 1 we have mutiple blocks with the same index in the cache. This means that we need to
+      go through all of the rows with the right index
+      in order to be sure if there was a cache hit. So how about cache misses in a cache with associativity count > 1?
+      When we fetch a memory block from the main memory we know by the address in which row of the cache it should be
+      placed, but we dont know in which set.
+      To handle this situation a <i>replacement algorithm</i> is used. Obviously if one or more blocks are empty we
+      place the block in any one of the empty blocks,
+      but if all blocks with the right index are full then we need to replace the contents of one block, which one to
+      replace is decided by the replacement algorithm.
+      The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.
     </p>
     <img src="images/replacement_algo.png" alt="Replacement Algorithm" className="img-responsive center-image"/>
     <p>
       So what is the optimal cache size, block size, associativity count and replacement algorithm?
       Well, the bigger cache size the better, but in real-world scenarios you don't have free hands when it comes to
       deciding the cache size,
-      considering the cost. To optimize your cache memory in terms of block size, associaticity count and replacement
-      algorithm is a interesting
+      considering the cost. </p>
+    <p>
+      To optimize your cache memory in terms of block size, associativity count and replacement algorithm is an
+      interesting
       topic of it's own and it depends heavily on the type of program that the CPU is executing.
-      Most programs, when inspected, shows locality. Locality (or locality of reference), means that some parts of
-      program
-      code and data is used alot and some parts are'nt used at all. If those parts that are executed alot gets placed in
-      the
-      cache memory the program execution will be faster. For example, consider a program with a loop:
+      Most programs, when inspected, shows <i>locality</i>. Locality (or locality of reference), means that some parts
+      of the
+      program code and data is used a lot and some parts are'nt used at all. If those parts that are executed a lot gets
+      placed in
+      the cache memory then the program execution will be fast er. For example, consider a program with a loop:
     </p>
     <Highlight className='java'>
       {"int j; \n" +
-      "for(int i = 0; i < 1000; i++){ \n" +
+      "for(int i = 0; i < 100; i++){ \n" +
       "    j = i; \n" +
       "} \n" +
       "System.out.println(j);"}
     </Highlight>
     <p>
       If the memory addresses for the i and j variables are put in the cache after the first iteration of the loop,
-      than we can reduce the number of fetches to main memory and ultimately increase the performance (reduce execution time).
-      Usually you divide locality into two categories locality in time (temporal locality) and locality in the space (spatial locality).
+      then the number of fetches to main memory is greatly reduced and ultimately the program performance is increased.
+      Usually you divide locality into two categories:
+      <ul>
+        <li>locality in time (temporal locality)</li>
+        <li>locality in the space (spatial locality)</li>
+      </ul>
       The code snippet above have high temporal locality (memory addresses newly accessed will soon be accessed again).
-      Spatial locality means that when a certain memory address have been accessed, adresses close to it in memory will soon be accessed as well.
-      Cache memories take advantage of both of these types of locality, temporal locality is utilized by placing instructions that just
-      have been accessed in the cache memory, spatial locality is utilized by, when fetching from main memory, instead of just fetching
-      the address in question, a whole block is fetched (the block contains nearby addresses). To measure the usefulness of the cache
-      we measure the hit and miss rates. The higher hit rate and the lower miss rate, the better.
+      Spatial locality means that when a certain memory address have been accessed, adresses close to it in memory will
+      soon be accessed as well.
+      Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing
+      instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead
+      of just fetching the address in question, a whole block is fetched (the block contains nearby addresses).
+      To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss rate, the better.
+      If a program consisted of the code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of ~1%.
     </p>
     <img src="images/hit_miss_rate.png" alt="Hit and Miss rates" className="img-responsive center-image"/>
     <p>
-      There are many different types of cache memories but the principal is universal.
-      For simplicity in this simulator we simulate a d-cache for a uniprocessor system that uses a load-store architecture and a write-through policy.
-      In systems with multiple processors it is common to have one cache memory for each processor,
-      which also introduces the problem of cache coherence. In many computers a setup with two different cache memories for
-      instructions and data-access is used, the reason for it is that a cache memory can only do one thing at a time
-      thus if you use a single cache memory for data and for instructions you get a delay in that you cannot perform instructions
-      when fetches from main main memory is being made. With separate instruction and data caches, all instructions goes through the
-      instruction cache and other references, like LOAD and STORE instructions goes through the datacache (or d-cache).
+      There are many different types of cache memories but the principle is universal.
+      For simplicity in this simulator we simulate a d-cache for a uniprocessor system that uses a load-store
+      architecture and a write-through policy.
     </p>
+    <p>
+      In systems with multiple processors it is common to have one cache memory for each processor,
+      which also introduces the problem of cache coherence. Further more, in many computers a setup with two different cache memories
+      for instructions and data-access is used, the reason for it is that a cache memory can only do one thing at a time
+      thus if you use a single cache memory for both data and instructions you get a delay in that you cannot perform
+      instructions when fetches from main main memory is being made. With separate instruction and data caches, all instructions goes
+      through the instruction cache and other references, like LOAD and STORE instructions goes through the datacache (or d-cache).
+      </p>
+    <p>
+      A load-store architecture
+      means that the only instructions that interact with the memory is LOAD and STORE instructions. Write-through is a
+      <i>policy</i> for STORE instructions. Simply put, it means that the main memory and the cache memory will always be coherent with each other,
+      when a STORE-instruction is issued both main memory and cache memory is updated. An alternative policy is
+      (write-back).
+    </p>
+    <p>
+      Given that it is a d-cache you can simulate its behaviour by issuing LOAD/STORE - instructions. Either through a
+      form or through a free-text area where you can enter a short program with multiple instructions.
+
+      A instruction has the following form (the instructions mimic a kind of generic type of assembly):
+    </p>
+    <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;space&gt;&lt;Address&gt;</code> <br/>
+    <p>
+      Example:
+    </p>
+    <code>LOAD 1 0</code> <br/>
+    <p>
+      The instruction above will load the content of memory address 0x00 into register 1. Another example:
+    </p>
+    <code>
+      STORE 1 4
+    </code> <br/>
+    <p>
+      The instruction above will store the content of register 1 into memory address 0x00
+    </p>
+    <div className="alert alert-info">
+      <strong>Note:</strong> For simplicity, all instructions in the simulator handles WORDS of data (4 bytes).
+    </div>
+    <div className="embed-responsive embed-responsive-16by9">
+      <video controls className="embed-responsive-item">
+        <source src="images/hit_miss.mp4" type="video/mp4"/>
+      </video>
+    </div>
     <h4 className="bold center_text_2">Recap</h4>
     <p>
-      The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from main memory.
-      The cache memory is generally smaller than the main memory thus when we look for a certain memory address in the cache it can be either a hit or a miss
+      The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from
+      main memory.
+      The cache memory is generally smaller than the main memory thus when we look for a certain memory address in the
+      cache it can be either a hit or a miss.
       Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count,
       associativity count, block size and replacement algorithm.
     </p>

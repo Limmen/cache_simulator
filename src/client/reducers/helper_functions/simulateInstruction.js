@@ -34,7 +34,7 @@ export default function simulateInstruction(state, address, operationType, regis
       let bytes = wordToBytes(storeData);
       state = state.set("memory", storeWord(bytes, address, state.get("memory")))
       let data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'))
-      newRow = newRow.set('elements', row.get('elements').map((e) => {
+      newRow = newRow.set('elements', newRow.get('elements').map((e) => {
         return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase())
       })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
     }

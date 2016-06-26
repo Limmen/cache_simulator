@@ -27100,11 +27100,9 @@
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	var _reduxLogger = __webpack_require__(307);
-
-	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	//import createLogger from 'redux-logger';
 
 	/**
 	 * Creates the store of the redux app.
@@ -27112,17 +27110,19 @@
 	 * @param initialState initial state
 	 * @returns {*} the single store of the redux app
 	 */
+	/**
+	 * Function to create and bootstrap the store with reducers, initialstate and middleware.
+	 *
+	 * Created by kim on 2016-05-05.
+	 */
+
 	function configureStore(initialState) {
 	  //const logger = createLogger();
 	  var store = (0, _redux.createStore)(_reducers2.default, initialState,
 	  //applyMiddleware(thunk, promise, logger)
 	  (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default));
 	  return store;
-	} /**
-	   * Function to create and bootstrap the store with reducers, initialstate and middleware.
-	   *
-	   * Created by kim on 2016-05-05.
-	   */
+	}
 
 /***/ },
 /* 247 */
@@ -35533,7 +35533,7 @@
 	          var bytes = wordToBytes(storeData);
 	          state = state.set("memory", storeWord(bytes, address, state.get("memory")));
 	          var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
-	          newRow = newRow.set('elements', row.get('elements').map(function (e) {
+	          newRow = newRow.set('elements', newRow.get('elements').map(function (e) {
 	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase());
 	          })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
 	        })();
@@ -36717,239 +36717,7 @@
 
 
 /***/ },
-/* 307 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
-
-	var repeat = function repeat(str, times) {
-	  return new Array(times + 1).join(str);
-	};
-	var pad = function pad(num, maxLength) {
-	  return repeat("0", maxLength - num.toString().length) + num;
-	};
-	var formatTime = function formatTime(time) {
-	  return "@ " + pad(time.getHours(), 2) + ":" + pad(time.getMinutes(), 2) + ":" + pad(time.getSeconds(), 2) + "." + pad(time.getMilliseconds(), 3);
-	};
-
-	// Use the new performance api to get better precision if available
-	var timer = typeof performance !== "undefined" && typeof performance.now === "function" ? performance : Date;
-
-	/**
-	 * parse the level option of createLogger
-	 *
-	 * @property {string | function | object} level - console[level]
-	 * @property {object} action
-	 * @property {array} payload
-	 * @property {string} type
-	 */
-
-	function getLogLevel(level, action, payload, type) {
-	  switch (typeof level === "undefined" ? "undefined" : _typeof(level)) {
-	    case "object":
-	      return typeof level[type] === "function" ? level[type].apply(level, _toConsumableArray(payload)) : level[type];
-	    case "function":
-	      return level(action);
-	    default:
-	      return level;
-	  }
-	}
-
-	/**
-	 * Creates logger with followed options
-	 *
-	 * @namespace
-	 * @property {object} options - options for logger
-	 * @property {string | function | object} options.level - console[level]
-	 * @property {boolean} options.duration - print duration of each action?
-	 * @property {boolean} options.timestamp - print timestamp with each action?
-	 * @property {object} options.colors - custom colors
-	 * @property {object} options.logger - implementation of the `console` API
-	 * @property {boolean} options.logErrors - should errors in action execution be caught, logged, and re-thrown?
-	 * @property {boolean} options.collapsed - is group collapsed?
-	 * @property {boolean} options.predicate - condition which resolves logger behavior
-	 * @property {function} options.stateTransformer - transform state before print
-	 * @property {function} options.actionTransformer - transform action before print
-	 * @property {function} options.errorTransformer - transform error before print
-	 */
-
-	function createLogger() {
-	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var _options$level = options.level;
-	  var level = _options$level === undefined ? "log" : _options$level;
-	  var _options$logger = options.logger;
-	  var logger = _options$logger === undefined ? console : _options$logger;
-	  var _options$logErrors = options.logErrors;
-	  var logErrors = _options$logErrors === undefined ? true : _options$logErrors;
-	  var collapsed = options.collapsed;
-	  var predicate = options.predicate;
-	  var _options$duration = options.duration;
-	  var duration = _options$duration === undefined ? false : _options$duration;
-	  var _options$timestamp = options.timestamp;
-	  var timestamp = _options$timestamp === undefined ? true : _options$timestamp;
-	  var transformer = options.transformer;
-	  var _options$stateTransfo = options.stateTransformer;
-	  var // deprecated
-	  stateTransformer = _options$stateTransfo === undefined ? function (state) {
-	    return state;
-	  } : _options$stateTransfo;
-	  var _options$actionTransf = options.actionTransformer;
-	  var actionTransformer = _options$actionTransf === undefined ? function (actn) {
-	    return actn;
-	  } : _options$actionTransf;
-	  var _options$errorTransfo = options.errorTransformer;
-	  var errorTransformer = _options$errorTransfo === undefined ? function (error) {
-	    return error;
-	  } : _options$errorTransfo;
-	  var _options$colors = options.colors;
-	  var colors = _options$colors === undefined ? {
-	    title: function title() {
-	      return "#000000";
-	    },
-	    prevState: function prevState() {
-	      return "#9E9E9E";
-	    },
-	    action: function action() {
-	      return "#03A9F4";
-	    },
-	    nextState: function nextState() {
-	      return "#4CAF50";
-	    },
-	    error: function error() {
-	      return "#F20404";
-	    }
-	  } : _options$colors;
-
-	  // exit if console undefined
-
-	  if (typeof logger === "undefined") {
-	    return function () {
-	      return function (next) {
-	        return function (action) {
-	          return next(action);
-	        };
-	      };
-	    };
-	  }
-
-	  if (transformer) {
-	    console.error("Option 'transformer' is deprecated, use stateTransformer instead");
-	  }
-
-	  var logBuffer = [];
-	  function printBuffer() {
-	    logBuffer.forEach(function (logEntry, key) {
-	      var started = logEntry.started;
-	      var startedTime = logEntry.startedTime;
-	      var action = logEntry.action;
-	      var prevState = logEntry.prevState;
-	      var error = logEntry.error;
-	      var took = logEntry.took;
-	      var nextState = logEntry.nextState;
-
-	      var nextEntry = logBuffer[key + 1];
-	      if (nextEntry) {
-	        nextState = nextEntry.prevState;
-	        took = nextEntry.started - started;
-	      }
-	      // message
-	      var formattedAction = actionTransformer(action);
-	      var isCollapsed = typeof collapsed === "function" ? collapsed(function () {
-	        return nextState;
-	      }, action) : collapsed;
-
-	      var formattedTime = formatTime(startedTime);
-	      var titleCSS = colors.title ? "color: " + colors.title(formattedAction) + ";" : null;
-	      var title = "action " + (timestamp ? formattedTime : "") + " " + formattedAction.type + " " + (duration ? "(in " + took.toFixed(2) + " ms)" : "");
-
-	      // render
-	      try {
-	        if (isCollapsed) {
-	          if (colors.title) logger.groupCollapsed("%c " + title, titleCSS);else logger.groupCollapsed(title);
-	        } else {
-	          if (colors.title) logger.group("%c " + title, titleCSS);else logger.group(title);
-	        }
-	      } catch (e) {
-	        logger.log(title);
-	      }
-
-	      var prevStateLevel = getLogLevel(level, formattedAction, [prevState], "prevState");
-	      var actionLevel = getLogLevel(level, formattedAction, [formattedAction], "action");
-	      var errorLevel = getLogLevel(level, formattedAction, [error, prevState], "error");
-	      var nextStateLevel = getLogLevel(level, formattedAction, [nextState], "nextState");
-
-	      if (prevStateLevel) {
-	        if (colors.prevState) logger[prevStateLevel]("%c prev state", "color: " + colors.prevState(prevState) + "; font-weight: bold", prevState);else logger[prevStateLevel]("prev state", prevState);
-	      }
-
-	      if (actionLevel) {
-	        if (colors.action) logger[actionLevel]("%c action", "color: " + colors.action(formattedAction) + "; font-weight: bold", formattedAction);else logger[actionLevel]("action", formattedAction);
-	      }
-
-	      if (error && errorLevel) {
-	        if (colors.error) logger[errorLevel]("%c error", "color: " + colors.error(error, prevState) + "; font-weight: bold", error);else logger[errorLevel]("error", error);
-	      }
-
-	      if (nextStateLevel) {
-	        if (colors.nextState) logger[nextStateLevel]("%c next state", "color: " + colors.nextState(nextState) + "; font-weight: bold", nextState);else logger[nextStateLevel]("next state", nextState);
-	      }
-
-	      try {
-	        logger.groupEnd();
-	      } catch (e) {
-	        logger.log("—— log end ——");
-	      }
-	    });
-	    logBuffer.length = 0;
-	  }
-
-	  return function (_ref) {
-	    var getState = _ref.getState;
-	    return function (next) {
-	      return function (action) {
-	        // exit early if predicate function returns false
-	        if (typeof predicate === "function" && !predicate(getState, action)) {
-	          return next(action);
-	        }
-
-	        var logEntry = {};
-	        logBuffer.push(logEntry);
-
-	        logEntry.started = timer.now();
-	        logEntry.startedTime = new Date();
-	        logEntry.prevState = stateTransformer(getState());
-	        logEntry.action = action;
-
-	        var returnedValue = undefined;
-	        if (logErrors) {
-	          try {
-	            returnedValue = next(action);
-	          } catch (e) {
-	            logEntry.error = errorTransformer(e);
-	          }
-	        } else {
-	          returnedValue = next(action);
-	        }
-
-	        logEntry.took = timer.now() - logEntry.started;
-	        logEntry.nextState = stateTransformer(getState());
-
-	        printBuffer();
-
-	        if (logEntry.error) throw logEntry.error;
-	        return returnedValue;
-	      };
-	    };
-	  };
-	}
-
-	module.exports = createLogger;
-
-/***/ },
+/* 307 */,
 /* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -36977,10 +36745,6 @@
 
 	var _About2 = _interopRequireDefault(_About);
 
-	var _Colophon = __webpack_require__(404);
-
-	var _Colophon2 = _interopRequireDefault(_Colophon);
-
 	var _Tutorial = __webpack_require__(405);
 
 	var _Tutorial2 = _interopRequireDefault(_Tutorial);
@@ -36993,6 +36757,11 @@
 	 * @param history
 	 * @returns {XML}
 	 */
+	/**
+	 * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
 
 	exports.default = function (history) {
 	  return _react2.default.createElement(
@@ -37004,15 +36773,10 @@
 	      _react2.default.createElement(_reactRouter.IndexRedirect, { from: '', to: 'simulator' }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'simulator', component: _CacheSimulator2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: 'colophon', component: _Colophon2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: 'tutorial', component: _Tutorial2.default })
 	    )
 	  );
-	}; /**
-	    * Module to instantiate routes for react-router. Utilized both for client-side and server-side rendering.
-	    *
-	    * Created by kim on 2016-05-11.
-	    */
+	};
 
 /***/ },
 /* 309 */
@@ -37272,15 +37036,6 @@
 	            _NavLink2.default,
 	            { to: '/tutorial', onClick: this.props.linkClicked },
 	            'Tutorial'
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'li',
-	          null,
-	          _react2.default.createElement(
-	            _NavLink2.default,
-	            { to: '/colophon', onClick: this.props.linkClicked },
-	            'Colophon'
 	          )
 	        )
 	      );
@@ -49181,58 +48936,7 @@
 	exports.default = About;
 
 /***/ },
-/* 404 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Functional stateless Component shown for the colophon page.
-	 *
-	 * Created by kim on 2016-05-19.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var Colophon = function Colophon() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'colophon-component left_align_text' },
-	    _react2.default.createElement(
-	      'h3',
-	      { className: 'bold center_text_2' },
-	      'Colophon'
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'The site is written in fullstack JavaScript with node.js on the serverside. Webpages are styled with Cascading Style Sheets. React.js is used for view rendering with redux for state management. Twitter Bootstrap is used for styling some of the components on the page. Hosted at Heroku. '
-	    ),
-	    _react2.default.createElement(
-	      'p',
-	      null,
-	      'The site is written by ',
-	      _react2.default.createElement(
-	        'a',
-	        { href: 'https://github.com/Limmen', target: '_blank' },
-	        'Kim Hammar'
-	      )
-	    )
-	  );
-	};
-
-	Colophon.displayName = 'Colophon';
-	exports.default = Colophon;
-
-/***/ },
+/* 404 */,
 /* 405 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -49281,41 +48985,177 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Cache memory varies in sizes, the bigger the more expensive. In the simulator you specify what cache size, block size, associativity and replacementalgorithm to use. Cache size is entered in bytes and specify the size of the whole cache memory. When designing the cache and your program you want the memory fetches as often as possible be a hit in the cache memory. We say that when the processor finds the address it\'s looking or in the cache we have a "cache hit", otherwise we have a "cache miss". In the context of caches you use the notion of "blocks", blocks have fixed size and everytime data is fetched from the main memory to the cache a whole block is fetched. Furher more when the addresses of the main memory is mapped to the cache memory there are different additional ways to structure the cache apart form just dividing it into blocks. The cache can be divided into sets, where each set contains a number of blocks. The number of sets is denoted with "associativity count".'
+	      'Cache memory varies in sizes, the bigger the more expensive. In the simulator you specify what cache size, block size, associativity and replacement algorithm to use. Cache size is entered in bytes and specify the size of the whole cache memory. You want to design the cache and the program to be ran such that the CPU can avoid accessing the main memory as far as possible, and be able to fetch from the cache memory instead. When the processor finds the address it\'s looking or in the cache we say that it is a ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'cache hit'
+	      ),
+	      ', otherwise it\'s a ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'cache miss'
+	      ),
+	      '.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'In the context of caches a notion of ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'blocks'
+	      ),
+	      ' is used, blocks have fixed size and every time data is fetched from the main memory to the cache a whole block is fetched (there is a purpose for this that we\'ll get to later). Additionally, there are more options for structuring the cache memory beyond specifying the block size. The cache can be divided into sets, where each set contains a number of blocks. The number of sets is labeled as "associativity count".'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/form.png', alt: 'Form for cache information', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'So we know that the cache memory is smaller than the main memory... then how do we find the right location in the cache? surely we can\'t use the same addressing as for the main memory. The solution is that the main memory is divided into parts where one part decides the row in the cache (also called the index part), one part decides the byte inside the block (also called the block offset). For this cache simulator we assume main memory addresses of 32 bits. Lets say that the cache is of size 32 bytes with a block size of 8 bytes and a associativity count of 2. Then we need 1 bit to represent the index (two rows in each set) and 3 bits to represent the byte offset (8 bytes in each block).'
+	      'So we know that the cache memory is smaller than the main memory... then given a address for the main memory, how do we find the right location in the cache? surely we can\'t use the same addressing as for the main memory.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'This is handled in a neat way by translating the address for the main memory into a address in the cache memory. The main memory address is divided into parts, one parts decides the row in the cache (also called the index part), one part decides the byte inside the block (also called the block offset), and the third part specifies the address tag in the main memory. For this cache simulator we assume main memory addresses of 32 bits. Lets say that the cache is of size 32 bytes with a block size of 8 bytes and a associativity count of 2. Then we need 1 bit to represent the index (two rows in each set) and 3 bits to represent the byte offset (8 bytes in each block). And the remaining bits (32 - (1 +3)) represents the address tag in the main memory.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/address_layout.png', alt: 'Address Layout', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'So we can interpret the row and the byte from the address. But how do we know which set to look in? we don\'t, we need to check all sets to be sure. Okay so when there is a miss in the cache memory and we fetch a new memory block from the main memory we know by the address in which row it should be placed, but which set should it be placed in? If there is one or more empty rows among the sets it does\'nt matter, we can choose any set. If there is\'nt an empty row we should replace one row with the newly fetched block, which row to replace is decided by a replacement algorihm, the most common ones are LRU (Least Recently Used), FIFO (First In First Out), RANDOM.'
+	      'So we can interpret the row and the byte location in the cache from the main address. But how do we know which set to look in? With a associativity count > 1 we have mutiple blocks with the same index in the cache. This means that we need to go through all of the rows with the right index in order to be sure if there was a cache hit. So how about cache misses in a cache with associativity count > 1? When we fetch a memory block from the main memory we know by the address in which row of the cache it should be placed, but we dont know in which set. To handle this situation a ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'replacement algorithm'
+	      ),
+	      ' is used. Obviously if one or more blocks are empty we place the block in any one of the empty blocks, but if all blocks with the right index are full then we need to replace the contents of one block, which one to replace is decided by the replacement algorithm. The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/replacement_algo.png', alt: 'Replacement Algorithm', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'So what is the optimal cache size, block size, associativity count and replacement algorithm? Well, the bigger cache size the better, but in real-world scenarios you don\'t have free hands when it comes to deciding the cache size, considering the cost. To optimize your cache memory in terms of block size, associaticity count and replacement algorithm is a interesting topic of it\'s own and it depends heavily on the type of program that the CPU is executing. Most programs, when inspected, shows locality. Locality (or locality of reference), means that some parts of program code and data is used alot and some parts are\'nt used at all. If those parts that are executed alot gets placed in the cache memory the program execution will be faster. For example, consider a program with a loop:'
-	    ),
-	    _react2.default.createElement(
-	      _reactHighlight2.default,
-	      { className: 'java' },
-	      "int j; \n" + "for(int i = 0; i < 1000; i++){ \n" + "    j = i; \n" + "} \n" + "System.out.println(j);"
+	      'So what is the optimal cache size, block size, associativity count and replacement algorithm? Well, the bigger cache size the better, but in real-world scenarios you don\'t have free hands when it comes to deciding the cache size, considering the cost. '
 	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'If the memory addresses for the i and j variables are put in the cache after the first iteration of the loop, than we can reduce the number of fetches to main memory and ultimately increase the performance (reduce execution time). Usually you divide locality into two categories locality in time (temporal locality) and locality in the space (spatial locality). The code snippet above have high temporal locality (memory addresses newly accessed will soon be accessed again). Spatial locality means that when a certain memory address have been accessed, adresses close to it in memory will soon be accessed as well. Cache memories take advantage of both of these types of locality, temporal locality is utilized by placing instructions that just have been accessed in the cache memory, spatial locality is utilized by, when fetching from main memory, instead of just fetching the address in question, a whole block is fetched (the block contains nearby addresses). To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss rate, the better.'
+	      'To optimize your cache memory in terms of block size, associativity count and replacement algorithm is an interesting topic of it\'s own and it depends heavily on the type of program that the CPU is executing. Most programs, when inspected, shows ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'locality'
+	      ),
+	      '. Locality (or locality of reference), means that some parts of the program code and data is used a lot and some parts are\'nt used at all. If those parts that are executed a lot gets placed in the cache memory then the program execution will be fast er. For example, consider a program with a loop:'
+	    ),
+	    _react2.default.createElement(
+	      _reactHighlight2.default,
+	      { className: 'java' },
+	      "int j; \n" + "for(int i = 0; i < 100; i++){ \n" + "    j = i; \n" + "} \n" + "System.out.println(j);"
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'If the memory addresses for the i and j variables are put in the cache after the first iteration of the loop, then the number of fetches to main memory is greatly reduced and ultimately the program performance is increased. Usually you divide locality into two categories:',
+	      _react2.default.createElement(
+	        'ul',
+	        null,
+	        _react2.default.createElement(
+	          'li',
+	          null,
+	          'locality in time (temporal locality)'
+	        ),
+	        _react2.default.createElement(
+	          'li',
+	          null,
+	          'locality in the space (spatial locality)'
+	        )
+	      ),
+	      'The code snippet above have high temporal locality (memory addresses newly accessed will soon be accessed again). Spatial locality means that when a certain memory address have been accessed, adresses close to it in memory will soon be accessed as well. Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead of just fetching the address in question, a whole block is fetched (the block contains nearby addresses). To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss rate, the better. If a program consisted of the code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of ~1%.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/hit_miss_rate.png', alt: 'Hit and Miss rates', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'There are many different types of cache memories but the principal is universal. For simplicity in this simulator we simulate a d-cache for a uniprocessor system that uses a load-store architecture and a write-through policy. In systems with multiple processors it is common to have one cache memory for each processor, which also introduces the problem of cache coherence. In many computers a setup with two different cache memories for instructions and data-access is used, the reason for it is that a cache memory can only do one thing at a time thus if you use a single cache memory for data and for instructions you get a delay in that you cannot perform instructions when fetches from main main memory is being made. With separate instruction and data caches, all instructions goes through the instruction cache and other references, like LOAD and STORE instructions goes through the datacache (or d-cache).'
+	      'There are many different types of cache memories but the principle is universal. For simplicity in this simulator we simulate a d-cache for a uniprocessor system that uses a load-store architecture and a write-through policy.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'In systems with multiple processors it is common to have one cache memory for each processor, which also introduces the problem of cache coherence. Further more, in many computers a setup with two different cache memories for instructions and data-access is used, the reason for it is that a cache memory can only do one thing at a time thus if you use a single cache memory for both data and instructions you get a delay in that you cannot perform instructions when fetches from main main memory is being made. With separate instruction and data caches, all instructions goes through the instruction cache and other references, like LOAD and STORE instructions goes through the datacache (or d-cache).'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'A load-store architecture means that the only instructions that interact with the memory is LOAD and STORE instructions. Write-through is a',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'policy'
+	      ),
+	      ' for STORE instructions. Simply put, it means that the main memory and the cache memory will always be coherent with each other, when a STORE-instruction is issued both main memory and cache memory is updated. An alternative policy is (write-back).'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Given that it is a d-cache you can simulate its behaviour by issuing LOAD/STORE - instructions. Either through a form or through a free-text area where you can enter a short program with multiple instructions. A instruction has the following form (the instructions mimic a kind of generic type of assembly):'
+	    ),
+	    _react2.default.createElement(
+	      'code',
+	      null,
+	      '<Operation><space><Register><space><Address>'
+	    ),
+	    ' ',
+	    _react2.default.createElement('br', null),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'Example:'
+	    ),
+	    _react2.default.createElement(
+	      'code',
+	      null,
+	      'LOAD 1 0'
+	    ),
+	    ' ',
+	    _react2.default.createElement('br', null),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The instruction above will load the content of memory address 0x00 into register 1. Another example:'
+	    ),
+	    _react2.default.createElement(
+	      'code',
+	      null,
+	      'STORE 1 4'
+	    ),
+	    ' ',
+	    _react2.default.createElement('br', null),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'The instruction above will store the content of register 1 into memory address 0x00'
+	    ),
+	    _react2.default.createElement(
+	      'div',
+	      { className: 'alert alert-info' },
+	      _react2.default.createElement(
+	        'strong',
+	        null,
+	        'Note:'
+	      ),
+	      ' For simplicity, all instructions in the simulator handles WORDS of data (4 bytes).'
+	    ),
+	    _react2.default.createElement(
+	      'div',
+	      { className: 'embed-responsive embed-responsive-16by9' },
+	      _react2.default.createElement(
+	        'video',
+	        { controls: true, className: 'embed-responsive-item' },
+	        _react2.default.createElement('source', { src: 'images/hit_miss.mp4', type: 'video/mp4' })
+	      )
 	    ),
 	    _react2.default.createElement(
 	      'h4',
@@ -49325,7 +49165,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from main memory. The cache memory is generally smaller than the main memory thus when we look for a certain memory address in the cache it can be either a hit or a miss Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count, associativity count, block size and replacement algorithm.'
+	      'The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from main memory. The cache memory is generally smaller than the main memory thus when we look for a certain memory address in the cache it can be either a hit or a miss. Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count, associativity count, block size and replacement algorithm.'
 	    )
 	  );
 	};
