@@ -37,7 +37,7 @@ let About = () => (
     <h4 className="bold center_text_2">Contributing</h4>
     <p>Bug reports and ideas for development extensions are welcome on the
       <a href="https://github.com/Limmen/cache_simulator" target="_blank"> GitHub Repo</a> or contact me directly at
-      <a href="mailto:kimham@kth.se?Subject=wwww.cachesimulator.com" target="_top">kimham@kth.se</a></p>
+      <a href="mailto:kimham@kth.se?Subject=wwww.cachesimulator.com" target="_top"> kimham@kth.se</a></p>
   </div>
 );
 
