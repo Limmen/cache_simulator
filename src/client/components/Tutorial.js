@@ -45,7 +45,7 @@ let Tutorial = () => (
     <p>
       In the context of caches, a notion of <i>blocks</i> is used, blocks have fixed size and every time data is
       fetched from the main memory to the cache a whole block is fetched (there is a purpose for this that we'll get to
-      later). In the simulator block size is just as cache size, entered in bytes.
+      later). In the simulator, block size is just as cache size, entered in bytes.
     </p>
     <p>
       Additionally, there are more options for structuring the cache memory beyond specifying the cache and block size.
@@ -61,27 +61,27 @@ let Tutorial = () => (
       This is handled in a neat way by translating the main memory address into a cache memory address.
       The main memory address is divided into parts, one parts decides the row (block) in the cache (also called the index
       part),
-      one part decides the byte inside the block (also called the byte offset), and the third part specifies the
+      one part decides the byte inside the block (also called the byte offset), and the remaininig part represents the
       address tag in the main memory.
+      For this cache simulator we assume that main memory addresses are of size 32 bits.
       </p>
     <p>
-      For this cache simulator we assume main memory addresses of size 32 bits.
-      Lets say that the cache is of size 32 bytes with a block size of 8 bytes and an associativity count of 2.
+      <strong>An example:</strong> <br/> Lets say that the cache is of size 32 bytes with a block size of 8 bytes and an associativity count of 2.
       Then we need 1 bit to represent the index (two rows in each set) and 3 bits to represent the byte offset (8 bytes
       in each block). And the remaining bits (32 - (1 +3)) represents the address tag in the main memory.
     </p>
     <img src="images/address_layout.png" alt="Address Layout" className="img-responsive center-image"/>
     <p>
-      The translation just described gives information about which row and which byte to look in but it does'nt say anything about which set.
-      With an associativity count > 1 we have multiple blocks with the same index in the cache. This means that a main memory address can match more than
+      The translation just described gives information about row number and byte number but it does'nt say anything about which set.
+      With an associativity count > 1 we have multiple blocks on the same row (same index) in the cache. This means that a main memory address can match more than
       one block in the cache memory. In order to know if a main memory address generates a cache hit or not we need to go through all of the matching blocks.
       </p>
     <p>
       A similar dilemma happens when there is a cache miss in a cache with associativity count > 1.
-      We know by the address in which row of the cache the new block should be placed, but we dont know in which set.
-      To handle this situation a <i>replacement algorithm</i> is used. Obviously if one or more matching rows are empty we
-      place the fetched block in any one of the empty rows,
-      but if all rows with the right index are full we need to replace the contents of one row. Which one to
+      We know by the address in which row of the cache the new block should be placed, but we don't know in which set.
+      To handle this situation a <i>replacement algorithm</i> is used. Obviously if one or more block positions in the right cache row are empty we
+      place the fetched block in any one of the block-positions,
+      but if all blocks in the row with the right index are full we need to replace the contents of one block position. Which one to
       replace is decided by the replacement algorithm.
       The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.
     </p>
@@ -112,9 +112,11 @@ let Tutorial = () => (
         <li>locality in time (temporal locality)</li>
         <li>locality in the space (spatial locality)</li>
       </ul>
-      The code snippet above have high temporal locality (memory addresses newly accessed will soon be accessed again).
+      The code snippet above have high temporal locality (memory addresses recently accessed will soon be accessed again).
       Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will
       soon be accessed as well.
+      </p>
+    <p>
       Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing
       instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching
       from main memory, instead
@@ -134,9 +136,9 @@ let Tutorial = () => (
       In systems with multiple processors it is common to have one cache memory for each processor,
       which also introduces the problem of cache coherence, however in this simulator we assume a uniprocesor system (only one processor).
       Further more, it is common to separate data and instruction caches into two cache memories.
-      The reason for it is that a cache memory can only do one thing at a time
+      The reason for it is that a cache memory can only do one thing at a time,
       thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute
-      instructions when fetches from main main memory is being made. With separate instruction and data caches you can do certain operations in parallel.
+      instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel.
       In computers with separate instruction and data caches, all instructions that don't need to access the memory goes through the instruction cache and
       all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache.
     </p>
@@ -145,7 +147,7 @@ let Tutorial = () => (
       Write-through is a
       <i>policy</i> for STORE instructions. Simply put, it means that the main memory and the cache memory will always
       be coherent with each other.
-      When a STORE-instruction is issued both main memory and cache memory is updated. An alternative policy is
+      When a STORE instruction is issued both main memory and cache memory is updated. An alternative policy is
       (write-back) which can provide less latency than write-through but exposes certain risks when it comes to
       keeping the data in the cache consistent with the main memory.
     </p>
@@ -153,19 +155,19 @@ let Tutorial = () => (
       Given that this simulator mimic a d-cache you can simulate its behaviour by issuing LOAD/STORE instructions. Either through a
       form or through a free-text area where you can enter a short program with multiple instructions.
 
-      A instruction has the following form (the instructions mimic a kind of generic type of assembly):
+      A instruction has the following form (the instructions resemble a kind of generic type of assembly):
     </p>
-    <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;space&gt;&lt;Address&gt;</code> <br/>
+    <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;space&gt;&lt;Address&gt;</code> <br/> <br/>
     <p>
       Example:
     </p>
-    <code>LOAD 1 0</code> <br/>
+    <code>LOAD 1 0</code> <br/> <br/>
     <p>
       The instruction above will load the content of memory address 0x00 into register 1. Another example:
     </p>
     <code>
       STORE 1 4
-    </code> <br/>
+    </code> <br/> <br/>
     <p>
       The instruction above will store the content of register 1 into memory address 0x00
     </p>
@@ -181,11 +183,11 @@ let Tutorial = () => (
     <p>
       The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from
       main memory.
-      The cache memory is generally smaller than the main memory thus when we look for a certain memory address in the
+      The cache memory is generally smaller than the main memory hence when we look for a certain memory address in the
       cache it can be either a hit or a miss.
       Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count,
       associativity count, block size and replacement algorithm.
-      There are many different flavors of caches but in essence they do the same thing.
+      There are many different flavors of caches but in essence they do the same thing and have the same purpose.
     </p>
   </div >
 );
