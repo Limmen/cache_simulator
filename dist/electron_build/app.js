@@ -78,7 +78,10 @@
 	var store = (0, _configureStore2.default)(initialState);
 	// Render the main component into the dom
 	// Create an enhanced history that syncs navigation events with the store
-	var history = (0, _reactRouterRedux.syncHistoryWithStore)(_reactRouter.browserHistory, store);
+	//const history = syncHistoryWithStore(browserHistory, store)
+
+	//Electron
+	var history = _reactRouter.hashHistory;
 
 	_reactDom2.default.render(_react2.default.createElement(
 	  _reactRedux.Provider,

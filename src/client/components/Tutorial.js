@@ -108,10 +108,12 @@ let Tutorial = () => (
       If the memory addresses for the i and j variables are put in the cache after the first iteration of the loop,
       then the number of fetches to main memory is greatly reduced and ultimately the program performance is increased.
       Usually you divide locality into two categories:
+      </p>
       <ul>
         <li>locality in time (temporal locality)</li>
         <li>locality in the space (spatial locality)</li>
       </ul>
+    <p>
       The code snippet above have high temporal locality (memory addresses recently accessed will soon be accessed again).
       Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will
       soon be accessed as well.

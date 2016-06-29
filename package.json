@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "description": "Cache Simulator",
-  "main": "",
+  "main": "src/electron/main.js",
   "engines": {
     "node": "6.0.0",
     "npm": "3.8.9"
@@ -14,6 +14,7 @@
     "posttest": "npm run lint",
     "start": "NODE_ENV=dev node src/server/util/startup.js --history-api-fallback",
     "start_prod": "NODE_ENV=production node src/server/util/startup.js --history-api-fallback",
+    "start_electron": "electron src/electron/main.js",
     "test": "jest --coverage"
   },
   "jest": {
@@ -25,12 +26,21 @@
       "<rootDir>/node_modules/immutable"
     ]
   },
-  "repository": "https://github.com/Limmen/cache_simulator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Limmen/cache_simulator"
+  },
+  "homepage": "http://www.cachesimulator.com/",
   "keywords": [
     "Cache",
     "Simulator"
   ],
-  "author": "Kim Hammar",
+  "author": {
+    "name": "Kim Hammar",
+    "email": "kimham@kth.se",
+    "url": "https://github.com/Limmen"
+  },
+  "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.0.0",
     "babel-eslint": "^6.0.0",
