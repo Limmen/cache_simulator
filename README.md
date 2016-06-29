@@ -1,6 +1,7 @@
 # Cache Simulator
 
 [![Build Status](https://travis-ci.org/Limmen/cache_simulator.svg?branch=master)](https://travis-ci.org/Limmen/cache_simulator)
+[![Dependencies](https://david-dm.org/limmen/cache_simulator.svg)](https://david-dm.org/limmen/cache_simulator.svg)
 
 Table of Contents
 =================
@@ -52,6 +53,14 @@ $ npm test
 # Lint all files in src (also automatically done AFTER tests are run)
 $ npm run lint
 
+# When app is running on localhost you can run electron commands
+
+# Create and run desktop version
+$ npm run start_electron
+
+# Build desktop versions for all of the major distributions
+$ npm run build_electron
+
 
 ```
 
@@ -64,7 +73,8 @@ $ npm run lint
 * Webpack - Module bundler for JavaScript
 * EsLint - Linting utility for JavaScript
 * TravisCi - Continous integration service
-
+* Electron -  framework for creating native applications with web technologies like JavaScript, HTML, and CSS.
+ 
 ## Versioning
 
 [Semantic Versioning](http://semver.org/). For the versions available, see the [tags on this repository](https://github.com/Limmen/cache_simulator/tags). 
