@@ -77,7 +77,6 @@
     "es6-module-loader": "^0.17.11",
     "expect": "^1.19.0",
     "express": "^4.13.4",
-    "express-history-api-fallback": "^2.0.0",
     "file-loader": "^0.8.5",
     "fixed-data-table": "^0.6.0",
     "history": "^2.1.1",
