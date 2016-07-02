@@ -48936,7 +48936,12 @@
 	    _react2.default.createElement(
 	      'h3',
 	      { className: 'bold center_text_2' },
-	      'Tutorial'
+	      'Tutorial ',
+	      _react2.default.createElement(
+	        'small',
+	        null,
+	        'A short primer on cache memories'
+	      )
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -48944,6 +48949,11 @@
 	      'A cache is a hardware or software component that stores data so future requests for that data can be served faster. A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the cost to access data from the main memory. The idea behind it is that the cache memory allows faster access than the regular main memory (RAM). Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time will be reduced. Logically since the cache memory provides faster access than the main memory it is also more expensive. So to keep the price budget on a resonable level we get to choose between a large but slow memory (main memory) and a small but fast memory (cache memory). The most common strategy that is not too costly and still provides performance gains is to use both.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/cache_arch.png', alt: 'Cache memory architecture', className: 'img-responsive center-image' }),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold center_text_2' },
+	      'Tasks of a Cache Memory'
+	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
@@ -48967,6 +48977,11 @@
 	      '.'
 	    ),
 	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold center_text_2' },
+	      'Cache Memory Structure'
+	    ),
+	    _react2.default.createElement(
 	      'p',
 	      null,
 	      'In the context of caches, a notion of ',
@@ -48975,7 +48990,7 @@
 	        null,
 	        'blocks'
 	      ),
-	      ' is used, blocks have fixed size and every time data is fetched from the main memory to the cache a whole block is fetched (there is a purpose for this that we\'ll get to later). In the simulator, block size is just as cache size, entered in bytes.'
+	      ' is used. Blocks have fixed size and every time data is fetched from the main memory and the cache memory gets updated, instead of just putting the referenced main memory address in the cache, a block is fetched from main memory and put in the cache. There is a purpose for this that we\'ll get to later. In the simulator, block size is just as cache size, entered in bytes.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -48983,6 +48998,11 @@
 	      'Additionally, there are more options for structuring the cache memory beyond specifying the cache and block size. The cache can be divided into sets, where each set contains a number of blocks. The number of sets is labeled as "associativity count".'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/form.png', alt: 'Form for cache information', className: 'img-responsive center-image' }),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold center_text_2' },
+	      'Address Translation'
+	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
@@ -49009,7 +49029,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The translation just described gives information about row number and byte number but it does\'nt say anything about which set. With an associativity count > 1 we have multiple blocks on the same row (same index) in the cache. This means that a main memory address can match more than one block in the cache memory. In order to know if a main memory address generates a cache hit or not we need to go through all of the matching blocks.'
+	      'The address translation just described gives information about row number and byte number but it does\'nt say anything about which set. With an associativity count > 1 we have multiple blocks on the same row (same index) in the cache. This means that a main memory address can match more than one block in the cache memory. In order to know if a main memory address generates a cache hit or not we need to go through all of the matching blocks.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49020,9 +49040,14 @@
 	        null,
 	        'replacement algorithm'
 	      ),
-	      ' is used. Obviously if one or more block positions in the right cache row are empty we place the fetched block in any one of the block-positions, but if all blocks in the row with the right index are full we need to replace the contents of one block position. Which one to replace is decided by the replacement algorithm. The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.'
+	      ' is used. Obviously if one or more block positions in the right cache row are empty we place the fetched block in any one of the block-positions, but if all blocks in the row with the right index are occupied we need to replace the contents of one block position. Which one to replace is decided by the replacement algorithm. The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/replacement_algo.png', alt: 'Replacement Algorithm', className: 'img-responsive center-image' }),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold center_text_2' },
+	      'Cache Memory Performance and Utility'
+	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
@@ -49069,11 +49094,26 @@
 	      'The code snippet above have high temporal locality (memory addresses recently accessed will soon be accessed again). Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will soon be accessed as well.'
 	    ),
 	    _react2.default.createElement(
+	      _reactHighlight2.default,
+	      { className: 'assembly' },
+	      "LOAD 0 0 \n" + "LOAD 0 4 \n" + "LOAD 0 8 \n" + "LOAD 0 12"
+	    ),
+	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead of just fetching the address in question, a whole block is fetched (the block contains nearby addresses also). To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss rate, the better. If a program consisted of the code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of ~1%.'
+	      'Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead of just fetching the referenced address, a whole block is fetched (the block contains nearby addresses also). The assembly-like program above shows a high spatial locality. For example if we have a cache memory with block size of 16 bytes, when the program above is ran, the first line will generate a cache miss by the CPU and a block of memory addresses 0-15 will be fetched to the cache memory. This means that the remaining operations in the program will be hits in the cache and don\'t require any access to main memory.'
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'To measure the usefulness of cache memories we measure hit and miss rates. The higher hit rate and the lower miss rate, the better. If a program consisted of the java code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of ~1%. And likewise for the assembly code-snippet above and a block-size of 16bytes we would get a hit rate of ~75% and a miss rate of ~25%.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/hit_miss_rate.png', alt: 'Hit and Miss rates', className: 'img-responsive center-image' }),
+	    _react2.default.createElement(
+	      'h4',
+	      { className: 'bold center_text_2' },
+	      'Types of Cache Memories'
+	    ),
 	    _react2.default.createElement(
 	      'p',
 	      null,
@@ -49082,7 +49122,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'In systems with multiple processors it is common to have one cache memory for each processor, which also introduces the problem of cache coherence, however in this simulator we assume a uniprocesor system (only one processor). Further more, it is common to separate data and instruction caches into two cache memories. The reason for it is that a cache memory can only do one thing at a time, thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel. In computers with separate instruction and data caches, all instructions that don\'t need to access the memory goes through the instruction cache and all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache.'
+	      'In systems with multiple processors it is common to have one cache memory for each processor, which also introduces the problem of cache coherence, however in this simulator we assume a uniprocesor system (only one processor). Further more, it is common to separate data and instruction caches into two  separate cache memories. The reason for it is that a cache memory can only do one thing at a time, thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel. In computers with separate instruction and data caches, all instructions that don\'t need to access the memory goes through the instruction cache and all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49093,7 +49133,7 @@
 	        null,
 	        'policy'
 	      ),
-	      ' for STORE instructions. Simply put, it means that the main memory and the cache memory will always be coherent with each other. When a STORE instruction is issued both main memory and cache memory is updated. An alternative policy is (write-back) which can provide less latency than write-through but exposes certain risks when it comes to keeping the data in the cache consistent with the main memory.'
+	      ' for STORE instructions. Simply put, it means that the main memory and the cache memory will always be consistent. When a STORE instruction is issued, both main memory and cache memory is updated. An alternative policy is (write-back) which can provide less latency than write-through but exposes certain risks when it comes to keeping the data in the cache consistent with the main memory.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49169,7 +49209,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from main memory. The cache memory is generally smaller than the main memory hence when we look for a certain memory address in the cache it can be either a hit or a miss. Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count, associativity count, block size and replacement algorithm. There are many different flavors of caches but in essence they do the same thing and have the same purpose.'
+	      'The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from main memory. The cache memory is generally smaller than the main memory, hence when we look for a certain memory address in the cache it can be either a hit or a miss. Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count, associativity count, block size and replacement algorithm. There are many different flavors of caches but in essence they do the same thing and have the same purpose.'
 	    )
 	  );
 	};

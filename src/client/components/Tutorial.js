@@ -10,7 +10,7 @@ import React from 'react';
 import Highlight from 'react-highlight'
 let Tutorial = () => (
   <div className="tutorial-component left_align_text">
-    <h3 className="bold center_text_2">Tutorial</h3>
+    <h3 className="bold center_text_2">Tutorial <small>A short primer on cache memories</small></h3>
     <p>
       A cache is a hardware or software component that stores data so future requests for that data can be served
       faster.
@@ -27,6 +27,7 @@ let Tutorial = () => (
       still provides performance gains is to use both.
     </p>
     <img src="images/cache_arch.png" alt="Cache memory architecture" className="img-responsive center-image"/>
+    <h4 className="bold center_text_2">Tasks of a Cache Memory</h4>
     <p>
       Now the tricky part is too decide how to keep the data in the cache consistent with the main memory and to decide
       where data should be stored in the cache memory as well as what to do when the cache is full.
@@ -42,10 +43,11 @@ let Tutorial = () => (
       When the processor finds the address it's looking or in the cache we say that it is a <i>cache hit</i>, otherwise
       it's a <i>cache miss</i>.
     </p>
+    <h4 className="bold center_text_2">Cache Memory Structure</h4>
     <p>
-      In the context of caches, a notion of <i>blocks</i> is used, blocks have fixed size and every time data is
-      fetched from the main memory to the cache a whole block is fetched (there is a purpose for this that we'll get to
-      later). In the simulator, block size is just as cache size, entered in bytes.
+      In the context of caches, a notion of <i>blocks</i> is used. Blocks have fixed size and every time data is
+      fetched from the main memory and the cache memory gets updated, instead of just putting the referenced main memory address in the cache, a block is fetched from main memory and put in the cache.
+      There is a purpose for this that we'll get to later. In the simulator, block size is just as cache size, entered in bytes.
     </p>
     <p>
       Additionally, there are more options for structuring the cache memory beyond specifying the cache and block size.
@@ -53,6 +55,7 @@ let Tutorial = () => (
       "associativity count".
     </p>
     <img src="images/form.png" alt="Form for cache information" className="img-responsive center-image"/>
+    <h4 className="bold center_text_2">Address Translation</h4>
     <p>
       Considering that the cache memory is smaller than the main memory, there need to be some kind of address translation
       when the CPU reads a main memory address from the program in order to know where in the cache memory to look.
@@ -72,7 +75,7 @@ let Tutorial = () => (
     </p>
     <img src="images/address_layout.png" alt="Address Layout" className="img-responsive center-image"/>
     <p>
-      The translation just described gives information about row number and byte number but it does'nt say anything about which set.
+      The address translation just described gives information about row number and byte number but it does'nt say anything about which set.
       With an associativity count > 1 we have multiple blocks on the same row (same index) in the cache. This means that a main memory address can match more than
       one block in the cache memory. In order to know if a main memory address generates a cache hit or not we need to go through all of the matching blocks.
       </p>
@@ -81,11 +84,12 @@ let Tutorial = () => (
       We know by the address in which row of the cache the new block should be placed, but we don't know in which set.
       To handle this situation a <i>replacement algorithm</i> is used. Obviously if one or more block positions in the right cache row are empty we
       place the fetched block in any one of the block-positions,
-      but if all blocks in the row with the right index are full we need to replace the contents of one block position. Which one to
+      but if all blocks in the row with the right index are occupied we need to replace the contents of one block position. Which one to
       replace is decided by the replacement algorithm.
       The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.
     </p>
     <img src="images/replacement_algo.png" alt="Replacement Algorithm" className="img-responsive center-image"/>
+    <h4 className="bold center_text_2">Cache Memory Performance and Utility</h4>
     <p>
       So what is the optimal cache size, block size, associativity count and replacement algorithm?
       Well, the bigger cache size the better, but in real-world scenarios you don't have free hands when it comes to
@@ -118,17 +122,29 @@ let Tutorial = () => (
       Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will
       soon be accessed as well.
       </p>
+    <Highlight className='assembly'>
+      {"LOAD 0 0 \n" +
+      "LOAD 0 4 \n" +
+      "LOAD 0 8 \n" +
+      "LOAD 0 12"}
+    </Highlight>
     <p>
       Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing
       instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching
       from main memory, instead
-      of just fetching the address in question, a whole block is fetched (the block contains nearby addresses also).
-      To measure the usefulness of the cache we measure the hit and miss rates. The higher hit rate and the lower miss
+      of just fetching the referenced address, a whole block is fetched (the block contains nearby addresses also).
+      The assembly-like program above shows a high spatial locality. For example if we have a cache memory with block size of 16 bytes,
+       when the program above is ran, the first line will generate a cache miss by the CPU and a block of memory addresses 0-15 will be fetched to the cache memory.
+      This means that the remaining operations in the program will be hits in the cache and don't require any access to main memory.
+      </p>
+    <p>
+      To measure the usefulness of cache memories we measure hit and miss rates. The higher hit rate and the lower miss
       rate, the better.
-      If a program consisted of the code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of
-      ~1%.
+      If a program consisted of the java code-snippet above only, then we would expect a hit rate of ~99% and a miss rate of
+      ~1%. And likewise for the assembly code-snippet above and a block-size of 16bytes we would get a hit rate of ~75% and a miss rate of ~25%.
     </p>
     <img src="images/hit_miss_rate.png" alt="Hit and Miss rates" className="img-responsive center-image"/>
+    <h4 className="bold center_text_2">Types of Cache Memories</h4>
     <p>
       There are many different types of cache memories but the principle is universal.
       For simplicity in this simulator we simulate a d-cache for a uniprocessor system that uses a load-store
@@ -137,7 +153,7 @@ let Tutorial = () => (
     <p>
       In systems with multiple processors it is common to have one cache memory for each processor,
       which also introduces the problem of cache coherence, however in this simulator we assume a uniprocesor system (only one processor).
-      Further more, it is common to separate data and instruction caches into two cache memories.
+      Further more, it is common to separate data and instruction caches into two  separate cache memories.
       The reason for it is that a cache memory can only do one thing at a time,
       thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute
       instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel.
@@ -148,8 +164,8 @@ let Tutorial = () => (
       A load-store architecture means that the only instructions that interact with the memory are LOAD and STORE instructions.
       Write-through is a
       <i>policy</i> for STORE instructions. Simply put, it means that the main memory and the cache memory will always
-      be coherent with each other.
-      When a STORE instruction is issued both main memory and cache memory is updated. An alternative policy is
+      be consistent.
+      When a STORE instruction is issued, both main memory and cache memory is updated. An alternative policy is
       (write-back) which can provide less latency than write-through but exposes certain risks when it comes to
       keeping the data in the cache consistent with the main memory.
     </p>
@@ -185,7 +201,7 @@ let Tutorial = () => (
     <p>
       The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from
       main memory.
-      The cache memory is generally smaller than the main memory hence when we look for a certain memory address in the
+      The cache memory is generally smaller than the main memory, hence when we look for a certain memory address in the
       cache it can be either a hit or a miss.
       Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count,
       associativity count, block size and replacement algorithm.
