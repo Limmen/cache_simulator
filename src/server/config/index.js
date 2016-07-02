@@ -8,6 +8,7 @@ import compression from 'compression';
 import path from 'path'
 import bodyParser from 'body-parser'
 import morgan from 'morgan'
+import fallback from 'express-history-api-fallback'
 
 /**
  * Function to configure the express app.
@@ -34,6 +35,8 @@ const configInit = (server, express) => {
   server.use(compression());
   logger.debug('Setting static folder');
   server.use(express.static(path.dirname(module.parent.filename) + '/../../dist'));
+  logger.debug('Setting history fallback');
+  server.use(fallback('/', path.dirname(module.parent.filename) + '/../../dist'))
   logger.debug('Setting views folder');
   server.set('views', path.dirname(module.parent.filename) + '/views');
   logger.debug('Setting "ejs" as view engine');

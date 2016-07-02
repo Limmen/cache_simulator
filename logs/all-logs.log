@@ -1,0 +1,17 @@
+{"level":"info","message":"configuring express....","timestamp":"2016-07-02T17:40:05.890Z"}
+{"level":"info","message":"express configured","timestamp":"2016-07-02T17:40:05.901Z"}
+{"level":"info","message":"Server listening on port: 8080","timestamp":"2016-07-02T17:40:05.902Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:40:30 +0000] \"GET /simulator HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:40:30.265Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:40:31 +0000] \"GET /simulator HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:40:31.981Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:41:29 +0000] \"GET /index.ejs HTTP/1.1\" 404 - \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:41:29.004Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:41:32 +0000] \"GET /index.html HTTP/1.1\" 404 - \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:41:32.222Z"}
+{"level":"info","message":"configuring express....","timestamp":"2016-07-02T17:47:33.706Z"}
+{"level":"info","message":"express configured","timestamp":"2016-07-02T17:47:33.717Z"}
+{"level":"info","message":"Server listening on port: 8080","timestamp":"2016-07-02T17:47:33.718Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:47:34 +0000] \"GET /simulator HTTP/1.1\" 200 - \"http://localhost:8080/tutorial\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:47:34.734Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:47:36 +0000] \"GET /about HTTP/1.1\" 200 - \"http://localhost:8080/simulator\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:47:36.106Z"}
+{"level":"info","message":"configuring express....","timestamp":"2016-07-02T17:49:52.499Z"}
+{"level":"info","message":"express configured","timestamp":"2016-07-02T17:49:52.509Z"}
+{"level":"info","message":"Server listening on port: 8080","timestamp":"2016-07-02T17:49:52.510Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:49:54 +0000] \"GET /about HTTP/1.1\" 200 - \"http://localhost:8080/simulator\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:49:54.114Z"}
+{"level":"info","message":"::1 - - [02/Jul/2016:17:50:09 +0000] \"GET /simulator HTTP/1.1\" 200 - \"http://localhost:8080/about\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/48.0.2564.82 Chrome/48.0.2564.82 Safari/537.36\"\n","timestamp":"2016-07-02T17:50:09.881Z"}
