@@ -14,7 +14,7 @@
     "lint": "eslint ./src",
     "posttest": "npm run lint",
     "start": "NODE_ENV=dev node src/server/util/startup.js --history-api-fallback",
-    "start_prod": "NODE_ENV=production node start src/server/util/startup.js --node-args='history-api-fallback'",
+    "start_prod": "NODE_ENV=production node src/server/util/startup.js --node-args='history-api-fallback'",
     "start_electron": "electron main.js",
     "build_electron": "electron-packager . --all",
     "test": "jest --coverage"
