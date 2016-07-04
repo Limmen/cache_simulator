@@ -37035,10 +37035,8 @@
 	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
 	      _reactScroll.scroller.scrollTo('cache_init_scroll_position', {
 	        duration: 1500,
-	        delay: 200,
 	        offset: 475,
-	        smooth: true,
-	        isDynamic: true
+	        smooth: true
 	      });
 	      dispatch(actions.cacheAndMemoryContentInitialization(fields));
 	    }
@@ -38208,15 +38206,13 @@
 	     */
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
 	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
-	        duration: 1500,
+	        duration: 0,
 	        offset: -50,
 	        smooth: true
 	      });
-	      setTimeout(function () {
-	        dispatch(actions.startSimulation());
-	        dispatch(actions.cacheContentUpdate(fields));
-	        setTimeout(dispatch, 3600, actions.stopSimulation());
-	      }, 1500);
+	      dispatch(actions.startSimulation());
+	      dispatch(actions.cacheContentUpdate(fields));
+	      setTimeout(dispatch, 3600, actions.stopSimulation());
 	    }
 	  };
 	};
