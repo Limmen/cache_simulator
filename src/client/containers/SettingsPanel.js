@@ -58,7 +58,7 @@ const mapDispatchToProps = (dispatch) => {
       scroller.scrollTo('cache_init_scroll_position', {
         duration: 1500,
         offset: 475,
-        smooth: true,
+        smooth: true
       })
       dispatch(actions.cacheAndMemoryContentInitialization(fields));
     }

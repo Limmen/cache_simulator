@@ -48069,7 +48069,7 @@
 	          _react2.default.createElement(
 	            'caption',
 	            null,
-	            'Register'
+	            'Registers'
 	          ),
 	          _react2.default.createElement(
 	            'thead',

@@ -29,7 +29,7 @@ class RegisterTable extends React.Component {
     return (
       <div className="registertable-component">
         <table className="table table-bordered cache center-table">
-          <caption>Register</caption>
+          <caption>Registers</caption>
           <thead>
           <tr>
             <td className="bold center_text">Register</td>
