@@ -8,7 +8,7 @@ import cacheAndMemoryContent from '../../src/client/reducers/cacheAndMemoryConte
 import initialCacheContent from '../../src/client/reducers/model/initialCacheContent.js'
 import initialMemoryContent from '../../src/client/reducers/model/initialMemoryContent.js'
 import initialRegisterContent from '../../src/client/reducers/model/initialRegisterContent.js'
-import simulateInstruction from '../../src/client/reducers/model/simulateInstruction.js'
+import Instruction from '../../src/client/reducers/model/Instruction.js'
 import * as actions from '../../src/client/actions/'
 import {Map, List} from 'immutable'
 
@@ -90,7 +90,7 @@ describe('cacheAndMemoryContent-reducer', () => {
       instructionResult: "",
       simulating: false
     });
-    let result1 = simulateInstruction(state, 0, "LOAD", 0);
+    let result1 = new Instruction(state, 0, "LOAD", 0).simulate();
     expect(result1.get("instructionHistory").size).toBe(1);
     expect(result1.get("instructionResult")).toBe("MISS! Cache updated");
     expect(result1.get("cache").get("sets").get(0).get("rows").get(0).get("validbit")).toBe(1)
@@ -100,7 +100,7 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(result1.get("instructionHistory").get(0).get("operationType")).toBe("LOAD")
     expect(result1.get("instructionHistory").get(0).get("address")).toBe("0x0")
     expect(result1.get("instructionHistory").get(0).get("result")).toBe("MISS")
-    let result2 = simulateInstruction(result1, 0, "LOAD", 0);
+    let result2 = new Instruction(result1, 0, "LOAD", 0).simulate();
     expect(result2.get("instructionHistory").size).toBe(2);
     expect(result2.get("instructionResult")).toBe("HIT!");
     expect(result2.get("cache").get("sets").get(0).get("rows").get(0).get("validbit")).toBe(1)
@@ -110,7 +110,7 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(result2.get("instructionHistory").get(1).get("operationType")).toBe("LOAD")
     expect(result2.get("instructionHistory").get(1).get("address")).toBe("0x0")
     expect(result2.get("instructionHistory").get(1).get("result")).toBe("HIT")
-    let result3 = simulateInstruction(result2, 16, "LOAD", 0);
+    let result3 = new Instruction(result2, 16, "LOAD", 0).simulate();
     expect(result3.get("instructionHistory").size).toBe(3);
     expect(result3.get("instructionResult")).toBe("MISS! Address not found in Main Memory");
     expect(result3.get("cache").get("sets").get(0).get("rows").get(0).get("validbit")).toBe(1)

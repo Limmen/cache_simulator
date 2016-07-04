@@ -18,7 +18,7 @@ describe('Tutorial', () => {
   });
 
   it('should render tutorial title', () => {
-    expect(component.find("h3").text()).toEqual('Tutorial')
+    expect(component.find("h3").text()).toEqual('Tutorial A short primer on cache memories')
   });
 
   it('should have its component name as default className', () => {
