@@ -7,10 +7,10 @@
 'use strict';
 import { CACHE_AND_MEMORY_CONTENT_INIT, CACHE_CONTENT_UPDATE, LINK_CLICKED,
   START_SIMULATION, STOP_SIMULATION, CLEAR_CACHE} from '../constants/ActionTypes'
-import initialCacheContent from './helper_functions/initialCacheContent'
-import initialMemoryContent from './helper_functions/initialMemoryContent'
-import initialRegisterContent from './helper_functions/initialRegisterContent'
-import simulateInstruction from './helper_functions/simulateInstruction'
+import initialCacheContent from './model/initialCacheContent'
+import initialMemoryContent from './model/initialMemoryContent'
+import initialRegisterContent from './model/initialRegisterContent'
+import Instruction from './model/Instruction'
 import {Map, List} from 'immutable'
 
 /**
@@ -44,7 +44,7 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
     case CACHE_CONTENT_UPDATE:
       if (state.get("simulating"))
-        return simulateInstruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType.toUpperCase(), action.fields.register)
+        return new Instruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType.toUpperCase(), action.fields.register).simulate();
       else
         return state;
     case CLEAR_CACHE:

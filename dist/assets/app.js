@@ -30183,9 +30183,9 @@
 
 	var _initialRegisterContent2 = _interopRequireDefault(_initialRegisterContent);
 
-	var _simulateInstruction = __webpack_require__(297);
+	var _Instruction = __webpack_require__(544);
 
-	var _simulateInstruction2 = _interopRequireDefault(_simulateInstruction);
+	var _Instruction2 = _interopRequireDefault(_Instruction);
 
 	var _immutable = __webpack_require__(294);
 
@@ -30222,7 +30222,7 @@
 	      var newregister = (0, _initialRegisterContent2.default)();
 	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
-	      if (state.get("simulating")) return (0, _simulateInstruction2.default)(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType.toUpperCase(), action.fields.register);else return state;
+	      if (state.get("simulating")) return new _Instruction2.default(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType.toUpperCase(), action.fields.register).simulate();else return state;
 	    case _ActionTypes.CLEAR_CACHE:
 	      return state.set("cache", (0, _initialCacheContent2.default)(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm")));
 	    case _ActionTypes.LINK_CLICKED:
@@ -35448,406 +35448,7 @@
 	   */
 
 /***/ },
-/* 297 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; }; /**
-	                                                                                                                                                                                                                                                   * Exports a function to simulate a instruction in the cache.
-	                                                                                                                                                                                                                                                   *
-	                                                                                                                                                                                                                                                   * Created by kim on 2016-05-27.
-	                                                                                                                                                                                                                                                   */
-
-	exports.default = simulateInstruction;
-
-	var _immutable = __webpack_require__(294);
-
-	/**
-	 * Function that simulates a instruction in the cache.
-	 *
-	 * @param state state
-	 * @param address address entered by the user
-	 * @param operationType operationType entered by the user
-	 * @returns {*} new state1
-	 */
-	function simulateInstruction(state, address, operationType, register) {
-	  var tag = getTag(address, state.get("cache").get("blockSize"));
-	  state = clear(state);
-	  var index = getRowIndex(tag, state.get('cache').get('blockCount'), state.get('cache').get('offsetBits'), state.get('cache').get('indexBits'));
-	  var setNr = getSetNr(state, index, tag);
-	  var row = state.get('cache').get('sets').get(setNr).get('rows').get(index);
-
-	  if (hit(row, tag)) {
-	    var _ret = function () {
-	      var newRow = row.set('elements', row.get('elements').map(function (e) {
-	        if (Number(e.get("byte")) === Number(address) - Number(tag)) {
-	          return e.set("hit", true);
-	        } else return e;
-	      })).set("usedDate", Date.now());
-	      state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "HIT!").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
-	      if (operationType === "STORE") {
-	        (function () {
-	          var storeData = state.get("register").get("registers").get(register).get("data");
-	          var bytes = wordToBytes(storeData);
-	          state = state.set("memory", storeWord(bytes, address, state.get("memory")));
-	          var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
-	          newRow = newRow.set('elements', newRow.get('elements').map(function (e) {
-	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase());
-	          })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
-	        })();
-	      }
-	      if (operationType === "LOAD") {
-	        (function () {
-	          var data = getWord(address, state.get('memory'));
-	          var word = bytesToWord(data);
-	          state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
-	            return reg.set("data", word);
-	          })));
-	        })();
-	      }
-	      return {
-	        v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
-	          return s.set('rows', s.get('rows').update(index, function () {
-	            return newRow;
-	          }));
-	        })))
-	      };
-	    }();
-
-	    if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
-	  } else {
-	    if (operationType === "STORE") {
-	      var storeData = state.get("register").get("registers").get(register).get("data");
-	      var bytes = wordToBytes(storeData);
-	      state = state.set("memory", storeWord(bytes, tag, state.get("memory")));
-	    }
-	    if (memoryHit(tag, state.get('memory'))) {
-	      var _ret4 = function () {
-	        var data = getBlock(state.get('cache').get('blockSize'), tag, state.get('memory'));
-	        var newRow = row.set('elements', row.get('elements').map(function (e) {
-	          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(tag) + Number(e.get('byte'))).toString(16).toUpperCase());
-	        })).set("validbit", 1).set("tag", "0x" + tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
-	        if (operationType === "LOAD") {
-	          (function () {
-	            var word = bytesToWord(getWord(address, state.get("memory")));
-	            state = state.set("register", state.get("register").set("registers", state.get("register").get("registers").update(register, function (reg) {
-	              return reg.set("data", word);
-	            })));
-	          })();
-	        }
-	        state = updateInstructionHistory(row, tag, operationType, state).set("instructionResult", "MISS! Cache updated").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
-	        return {
-	          v: state.set('cache', state.get('cache').set('sets', state.get('cache').get('sets').update(setNr, function (s) {
-	            return s.set('rows', s.get('rows').update(index, function () {
-	              return newRow;
-	            }));
-	          })))
-	        };
-	      }();
-
-	      if ((typeof _ret4 === "undefined" ? "undefined" : _typeof(_ret4)) === "object") return _ret4.v;
-	    } else {
-	      state = updateInstructionHistory(row, tag, operationType, state);
-	      return state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", operationType + " " + register + " 0x" + address.toString(16).toUpperCase());
-	    }
-	  }
-	}
-
-	/**
-	 * Function that clears state for visual effects.
-	 *
-	 * @param state state to be updated
-	 * @returns {*} new state
-	 */
-	function clear(state) {
-	  var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
-	    return s.set("rows", s.get("rows").map(function (r) {
-	      return r.set("elements", r.get("elements").map(function (e) {
-	        return e.set("hit", false);
-	      })).set("miss", false);
-	    }));
-	  })));
-	  return newState;
-	}
-
-	/**
-	 * Function that calculates setNumber to be affected by the cache hit/miss
-	 *
-	 * @param state state
-	 * @param index row-index
-	 * @param tag tag of the block
-	 * @returns {number} set-number
-	 */
-	function getSetNr(state, index, tag) {
-	  var rows = (0, _immutable.List)();
-	  var algorithm = state.get('cache').get('replacementAlgorithm');
-	  var row = void 0;
-	  for (var i = 0; i < state.get("cache").get("sets").size; i++) {
-	    row = state.get("cache").get("sets").get(i).get("rows").get(index);
-	    if (hit(row, tag)) {
-	      return i;
-	    }
-	    rows = rows.push(row);
-	  }
-	  for (var _i = 0; _i < rows.size; _i++) {
-	    if (rows.get(_i).get("validbit") === 0) {
-	      return _i;
-	    }
-	  }
-	  switch (algorithm) {
-	    case "LRU":
-	      return lru(rows);
-	    case "FIFO":
-	      return fifo(rows);
-	    case "RANDOM":
-	      return random(rows);
-	  }
-	}
-
-	/**
-	 * Simulates the LRU replacement algorithm
-	 *
-	 * @param rows rows with the same index from different sets
-	 * @returns {number} set-number
-	 */
-	function lru(rows) {
-	  var setNr = 0;
-	  var usedDate = rows.get(0).get("usedDate");
-
-	  for (var i = 1; i < rows.size; i++) {
-	    if (rows.get(i).get("usedDate") < usedDate) {
-	      setNr = i;
-	      usedDate = rows.get(i).get("usedDate");
-	    }
-	  }
-	  return setNr;
-	}
-
-	/**
-	 * Simulates  the FIFO replacement algorithm
-	 *
-	 * @param rows rows with the same index from different sets
-	 * @returns {number}set-number
-	 */
-	function fifo(rows) {
-	  var setNr = 0;
-	  var loadedDate = rows.get(0).get("loadedDate");
-
-	  for (var i = 1; i < rows.size; i++) {
-	    if (rows.get(i).get("loadedDate") < loadedDate) {
-	      setNr = i;
-	      loadedDate = rows.get(i).get("usedDate");
-	    }
-	  }
-	  return setNr;
-	}
-
-	/**
-	 * Simulates the RANDOM replacement algorithm
-	 *
-	 * @param rows rows with the same index from different sets
-	 * @returns {number} set-number
-	 */
-	function random(rows) {
-	  return Math.floor(Math.random() * rows.size);
-	}
-
-	/**
-	 * Returns row-index in the cache
-	 *
-	 * @param tag tag of the block to be fetched
-	 * @param blockCount number of blocks in each set
-	 * @param offsetBits number of offsetbits in the address
-	 * @param indexBits number of indexbits in the address
-	 * @returns {*} row-index
-	 */
-	function getRowIndex(tag, blockCount, offsetBits, indexBits) {
-	  if (blockCount === 1) return 0;
-	  var binary = createBinaryString(Number(tag));
-	  var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
-	  return parseInt(index, 2);
-	}
-
-	/**
-	 * Returns the tag of the block (a whole block is always fetched on cache miss)
-	 *
-	 * @param tag tag of the instruction
-	 * @param blockSize blocksize
-	 * @returns {number} tag of the block
-	 */
-	function getTag(tag, blockSize) {
-	  return Number(tag) - Number(Number(tag) % Number(blockSize));
-	}
-
-	/**
-	 * Fetches a block of data
-	 *
-	 * @param blockSize block-size in the cache memory
-	 * @param tag address-tag to be fetched
-	 * @param memory main memory
-	 * @returns {Array} block of data
-	 */
-	function getBlock(blockSize, tag, memory) {
-	  var data = [];
-	  for (var i = 0; i < blockSize; i++) {
-	    data.push(getData(Number(tag) + Number(i), memory));
-	  }
-	  return data;
-	}
-
-	function getWord(address, memory) {
-	  var data = [];
-	  for (var i = 0; i < 4; i++) {
-	    data.push(getData(Number(address) + Number(i), memory));
-	  }
-	  return data;
-	}
-	/**
-	 * Fetches the data from the specified main memory address
-	 *
-	 * @param tag address-tag
-	 * @param memory main memory
-	 * @returns {string} data
-	 */
-	function getData(tag, memory) {
-	  var data = "invalid_address";
-	  memory.map(function (addr) {
-	    if (Number(addr.get('address_number')) === Number(tag)) {
-	      data = addr.get('data_string');
-	      return;
-	    }
-	  });
-	  return data;
-	}
-
-	/**
-	 * Stores a word in main memory at the specified tag
-	 *
-	 * @param bytes 4 bytes to store
-	 * @param tag memory address to store at
-	 * @param memory memory to store in
-	 * @returns {*} updated memory
-	 */
-	function storeWord(bytes, tag, memory) {
-	  var newMemory = void 0;
-	  for (var i = 0; i < bytes.length; i++) {
-	    newMemory = storeByte(bytes[i], Number(tag) + i, memory);
-	    memory = newMemory;
-	  }
-	  return memory;
-	}
-
-	/**
-	 * Stores a byte in memory at the specified tag
-	 *
-	 * @param byte byte to store
-	 * @param tag memory address to store at
-	 * @param memory memory to store in
-	 * @returns {*} updated memory
-	 */
-	function storeByte(byte, tag, memory) {
-	  return memory.update(Number(tag), function (m) {
-	    return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte);
-	  });
-	}
-	/**
-	 * Function that updates instructionhistory
-	 *
-	 * @param row row in the cache affected by the instruction simulation
-	 * @param tag tag of the instruction
-	 * @param operationType operation-type of the instruction
-	 * @param state state to update
-	 * @returns {*} new state with updated instructionHistory
-	 */
-	function updateInstructionHistory(row, tag, operationType, state) {
-	  var result = void 0;
-	  if (hit(row, tag)) {
-	    result = "HIT";
-	  } else {
-	    result = "MISS";
-	  }
-	  var instruction = (0, _immutable.Map)({
-	    operationType: operationType,
-	    address: "0x" + tag.toString(16).toUpperCase(),
-	    result: result
-	  });
-	  return state.set('instructionHistory', state.get('instructionHistory').push(instruction));
-	}
-
-	/**
-	 * Checks whether the instruction was a hit in the cache or not.
-	 *
-	 * @param row row calculated by replacementalgorithm and index-bits
-	 * @param tag address-tag of the instruction
-	 * @returns {boolean}
-	 */
-	function hit(row, tag) {
-	  if (row.get("validbit") === 1) {
-	    if (row.get("tag") === "0x" + tag.toString(16).toUpperCase()) return true;else return false;
-	  } else {
-	    return false;
-	  }
-	}
-
-	/**
-	 * Checks if the address to be fetched is valid, i.e it can be found in the main memory
-	 *
-	 * @param tag address-tag
-	 * @param memory main memory
-	 * @returns {boolean}
-	 */
-	function memoryHit(tag, memory) {
-	  if (getData(tag, memory) !== "invalid_address") return true;else return false;
-	}
-
-	/**
-	 * Creates binary string from integer
-	 *
-	 * @param nMask integer
-	 * @returns {string} binary string
-	 */
-	function createBinaryString(nMask) {
-	  // nMask must be between -2147483648 and 2147483647
-	  for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
-	  return sMask;
-	}
-
-	/**
-	 * Function that converts 4 bytes in hex format to a word in hex format
-	 * @param data bytes to convert
-	 * @returns {string} hexadecimal string of the word
-	 */
-	function bytesToWord(data) {
-	  var byte1 = createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
-	  var byte2 = createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
-	  var byte3 = createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
-	  var byte4 = createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
-	  var word = byte1 + byte2 + byte3 + byte4;
-	  return "0x" + parseInt(word, 2).toString(16).toUpperCase();
-	}
-
-	/**
-	 * Function that converts a hexadecimal word to 4 bytes in decimal
-	 *
-	 * @param word word to convert
-	 * @returns {*} array of 4 bytes.
-	 */
-	function wordToBytes(word) {
-	  var binaryWord = createBinaryString(parseInt(word.slice(2, word.length), 16));
-	  var byte4 = binaryWord.slice(0, 8);
-	  var byte3 = binaryWord.slice(8, 16);
-	  var byte2 = binaryWord.slice(16, 24);
-	  var byte1 = binaryWord.slice(24, 32);
-	  var data = [parseInt(byte4, 2), parseInt(byte3, 2), parseInt(byte2, 2), parseInt(byte1, 2)];
-	  return data;
-	}
-
-/***/ },
+/* 297 */,
 /* 298 */
 /***/ function(module, exports) {
 
@@ -63557,6 +63158,503 @@
 	    ]
 	  };
 	};
+
+/***/ },
+/* 544 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by kim on 2016-07-04.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _immutable = __webpack_require__(294);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Instruction = function () {
+	  function Instruction(state, address, operationType, register) {
+	    _classCallCheck(this, Instruction);
+
+	    this.state = this.clear(state);
+	    this.address = address;
+	    this.operationType = operationType;
+	    this.register = register;
+	    this.tag = this.getTag(this.state.get("cache").get("blockSize"));
+	    this.index = this.getRowIndex(this.state.get('cache').get('blockCount'), this.state.get('cache').get('offsetBits'), this.state.get('cache').get('indexBits'));
+	    this.setNr = this.getSetNr();
+	    this.row = this.state.get('cache').get('sets').get(this.setNr).get('rows').get(this.index);
+	  }
+
+	  _createClass(Instruction, [{
+	    key: "simulate",
+	    value: function simulate() {
+	      if (this.hit(this.row)) {
+	        return this.simulateHit();
+	      } else {
+	        return this.simulateMiss();
+	      }
+	    }
+	  }, {
+	    key: "simulateHit",
+	    value: function simulateHit() {
+	      var _this = this;
+
+	      var newRow = this.getNewRowHit();
+	      this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      if (this.operationType === "STORE") {
+	        (function () {
+	          _this.state = _this.storeHit();
+	          var data = _this.getBlock(_this.state.get('cache').get('blockSize'), _this.state.get('memory'));
+	          newRow = newRow.set('elements', newRow.get('elements').map(function (e) {
+	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	          })).set("validbit", 1).set("tag", "0x" + _this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
+	        })();
+	      }
+	      if (this.operationType === "LOAD") {
+	        this.state = this.loadHit();
+	      }
+	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
+	        return s.set('rows', s.get('rows').update(_this.index, function () {
+	          return newRow;
+	        }));
+	      })));
+	    }
+	  }, {
+	    key: "simulateMiss",
+	    value: function simulateMiss() {
+	      if (this.operationType === "STORE") {
+	        this.state = this.storeMiss();
+	      }
+	      if (this.memoryHit(this.state.get('memory'))) {
+	        return this.memoryFetch();
+	      } else {
+	        this.state = this.updateInstructionHistory();
+	        return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      }
+	    }
+	  }, {
+	    key: "storeMiss",
+	    value: function storeMiss() {
+	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
+	      var bytes = this.wordToBytes(storeData);
+	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
+	    }
+	  }, {
+	    key: "storeHit",
+	    value: function storeHit() {
+	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
+	      var bytes = this.wordToBytes(storeData);
+	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
+	    }
+	  }, {
+	    key: "loadMiss",
+	    value: function loadMiss() {
+	      var word = this.bytesToWord(this.getWord(this.address, this.state.get("memory")));
+	      return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, function (reg) {
+	        return reg.set("data", word);
+	      })));
+	    }
+	  }, {
+	    key: "loadHit",
+	    value: function loadHit() {
+	      var data = this.getWord(this.address, this.state.get('memory'));
+	      var word = this.bytesToWord(data);
+	      return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, function (reg) {
+	        return reg.set("data", word);
+	      })));
+	    }
+	  }, {
+	    key: "memoryFetch",
+	    value: function memoryFetch() {
+	      var _this2 = this;
+
+	      var newRow = this.getNewRowMiss();
+	      if (this.operationType === "LOAD") {
+	        this.state = this.loadMiss();
+	      }
+	      this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
+	        return s.set('rows', s.get('rows').update(_this2.index, function () {
+	          return newRow;
+	        }));
+	      })));
+	    }
+	  }, {
+	    key: "getNewRowMiss",
+	    value: function getNewRowMiss() {
+	      var _this3 = this;
+
+	      var data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'));
+	      return this.row.set('elements', this.row.get('elements').map(function (e) {
+	        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this3.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	      })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
+	    }
+	  }, {
+	    key: "getNewRowHit",
+	    value: function getNewRowHit() {
+	      var _this4 = this;
+
+	      return this.row.set('elements', this.row.get('elements').map(function (e) {
+	        if (Number(e.get("byte")) === Number(_this4.address) - Number(_this4.tag)) {
+	          return e.set("hit", true);
+	        } else return e;
+	      })).set("usedDate", Date.now());
+	    }
+
+	    /**
+	     * Function that clears state for visual effects.
+	     *
+	     * @param state state to be updated
+	     * @returns {*} new state
+	     */
+
+	  }, {
+	    key: "clear",
+	    value: function clear(state) {
+	      var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	        return s.set("rows", s.get("rows").map(function (r) {
+	          return r.set("elements", r.get("elements").map(function (e) {
+	            return e.set("hit", false);
+	          })).set("miss", false);
+	        }));
+	      })));
+	      return newState;
+	    }
+
+	    /**
+	     * Function that calculates setNumber to be affected by the cache hit/miss
+	     *
+	     * @param state state
+	     * @param index row-index
+	     * @param tag tag of the block
+	     * @returns {number} set-number
+	     */
+
+	  }, {
+	    key: "getSetNr",
+	    value: function getSetNr() {
+	      var rows = (0, _immutable.List)();
+	      var algorithm = this.state.get('cache').get('replacementAlgorithm');
+	      var row = void 0;
+	      for (var i = 0; i < this.state.get("cache").get("sets").size; i++) {
+	        row = this.state.get("cache").get("sets").get(i).get("rows").get(this.index);
+	        if (this.hit(row)) {
+	          return i;
+	        }
+	        rows = rows.push(row);
+	      }
+	      for (var _i = 0; _i < rows.size; _i++) {
+	        if (rows.get(_i).get("validbit") === 0) {
+	          return _i;
+	        }
+	      }
+	      switch (algorithm) {
+	        case "LRU":
+	          return this.lru(rows);
+	        case "FIFO":
+	          return this.fifo(rows);
+	        case "RANDOM":
+	          return this.random(rows);
+	      }
+	    }
+
+	    /**
+	     * Simulates the LRU replacement algorithm
+	     *
+	     * @param rows rows with the same index from different sets
+	     * @returns {number} set-number
+	     */
+
+	  }, {
+	    key: "lru",
+	    value: function lru(rows) {
+	      var setNr = 0;
+	      var usedDate = rows.get(0).get("usedDate");
+
+	      for (var i = 1; i < rows.size; i++) {
+	        if (rows.get(i).get("usedDate") < usedDate) {
+	          setNr = i;
+	          usedDate = rows.get(i).get("usedDate");
+	        }
+	      }
+	      return setNr;
+	    }
+
+	    /**
+	     * Simulates  the FIFO replacement algorithm
+	     *
+	     * @param rows rows with the same index from different sets
+	     * @returns {number}set-number
+	     */
+
+	  }, {
+	    key: "fifo",
+	    value: function fifo(rows) {
+	      var setNr = 0;
+	      var loadedDate = rows.get(0).get("loadedDate");
+
+	      for (var i = 1; i < rows.size; i++) {
+	        if (rows.get(i).get("loadedDate") < loadedDate) {
+	          setNr = i;
+	          loadedDate = rows.get(i).get("usedDate");
+	        }
+	      }
+	      return setNr;
+	    }
+
+	    /**
+	     * Simulates the RANDOM replacement algorithm
+	     *
+	     * @param rows rows with the same index from different sets
+	     * @returns {number} set-number
+	     */
+
+	  }, {
+	    key: "random",
+	    value: function random(rows) {
+	      return Math.floor(Math.random() * rows.size);
+	    }
+
+	    /**
+	     * Returns row-index in the cache
+	     *
+	     * @param tag tag of the block to be fetched
+	     * @param blockCount number of blocks in each set
+	     * @param offsetBits number of offsetbits in the address
+	     * @param indexBits number of indexbits in the address
+	     * @returns {*} row-index
+	     */
+
+	  }, {
+	    key: "getRowIndex",
+	    value: function getRowIndex(blockCount, offsetBits, indexBits) {
+	      if (blockCount === 1) return 0;
+	      var binary = this.createBinaryString(Number(this.tag));
+	      var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
+	      return parseInt(index, 2);
+	    }
+
+	    /**
+	     * Returns the tag of the block (a whole block is always fetched on cache miss)
+	     *
+	     * @param tag tag of the instruction
+	     * @param blockSize blocksize
+	     * @returns {number} tag of the block
+	     */
+
+	  }, {
+	    key: "getTag",
+	    value: function getTag(blockSize) {
+	      return Number(this.address) - Number(Number(this.address) % Number(blockSize));
+	    }
+
+	    /**
+	     * Fetches a block of data
+	     *
+	     * @param blockSize block-size in the cache memory
+	     * @param tag address-tag to be fetched
+	     * @param memory main memory
+	     * @returns {Array} block of data
+	     */
+
+	  }, {
+	    key: "getBlock",
+	    value: function getBlock(blockSize, memory) {
+	      var data = [];
+	      for (var i = 0; i < blockSize; i++) {
+	        data.push(this.getData(Number(this.tag) + Number(i), memory));
+	      }
+	      return data;
+	    }
+	  }, {
+	    key: "getWord",
+	    value: function getWord(address, memory) {
+	      var data = [];
+	      for (var i = 0; i < 4; i++) {
+	        data.push(this.getData(Number(address) + Number(i), memory));
+	      }
+	      return data;
+	    }
+
+	    /**
+	     * Fetches the data from the specified main memory address
+	     *
+	     * @param tag address-tag
+	     * @param memory main memory
+	     * @returns {string} data
+	     */
+
+	  }, {
+	    key: "getData",
+	    value: function getData(tag, memory) {
+	      var data = "invalid_address";
+	      memory.map(function (addr) {
+	        if (Number(addr.get('address_number')) === Number(tag)) {
+	          data = addr.get('data_string');
+	          return;
+	        }
+	      });
+	      return data;
+	    }
+
+	    /**
+	     * Stores a word in main memory at the specified tag
+	     *
+	     * @param bytes 4 bytes to store
+	     * @param tag memory address to store at
+	     * @param memory memory to store in
+	     * @returns {*} updated memory
+	     */
+
+	  }, {
+	    key: "storeWord",
+	    value: function storeWord(bytes, memory) {
+	      var newMemory = void 0;
+	      for (var i = 0; i < bytes.length; i++) {
+	        newMemory = this.storeByte(bytes[i], Number(this.tag) + i, memory);
+	        memory = newMemory;
+	      }
+	      return memory;
+	    }
+
+	    /**
+	     * Stores a byte in memory at the specified tag
+	     *
+	     * @param byte byte to store
+	     * @param tag memory address to store at
+	     * @param memory memory to store in
+	     * @returns {*} updated memory
+	     */
+
+	  }, {
+	    key: "storeByte",
+	    value: function storeByte(byte, tag, memory) {
+	      return memory.update(Number(tag), function (m) {
+	        return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte);
+	      });
+	    }
+
+	    /**
+	     * Function that updates instructionhistory
+	     *
+	     * @param row row in the cache affected by the instruction simulation
+	     * @param tag tag of the instruction
+	     * @param operationType operation-type of the instruction
+	     * @param state state to update
+	     * @returns {*} new state with updated instructionHistory
+	     */
+
+	  }, {
+	    key: "updateInstructionHistory",
+	    value: function updateInstructionHistory() {
+	      var result = void 0;
+	      if (this.hit(this.row)) {
+	        result = "HIT";
+	      } else {
+	        result = "MISS";
+	      }
+	      var instruction = (0, _immutable.Map)({
+	        operationType: this.operationType,
+	        address: "0x" + this.tag.toString(16).toUpperCase(),
+	        result: result
+	      });
+	      return this.state.set('instructionHistory', this.state.get('instructionHistory').push(instruction));
+	    }
+
+	    /**
+	     * Checks whether the instruction was a hit in the cache or not.
+	     *
+	     * @param row row calculated by replacementalgorithm and index-bits
+	     * @param tag address-tag of the instruction
+	     * @returns {boolean}
+	     */
+
+	  }, {
+	    key: "hit",
+	    value: function hit(row) {
+	      if (row.get("validbit") === 1) {
+	        if (row.get("tag") === "0x" + this.tag.toString(16).toUpperCase()) return true;else return false;
+	      } else {
+	        return false;
+	      }
+	    }
+
+	    /**
+	     * Checks if the address to be fetched is valid, i.e it can be found in the main memory
+	     *
+	     * @param tag address-tag
+	     * @param memory main memory
+	     * @returns {boolean}
+	     */
+
+	  }, {
+	    key: "memoryHit",
+	    value: function memoryHit(memory) {
+	      if (this.getData(this.tag, memory) !== "invalid_address") return true;else return false;
+	    }
+
+	    /**
+	     * Creates binary string from integer
+	     *
+	     * @param nMask integer
+	     * @returns {string} binary string
+	     */
+
+	  }, {
+	    key: "createBinaryString",
+	    value: function createBinaryString(nMask) {
+	      // nMask must be between -2147483648 and 2147483647
+	      for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
+	      return sMask;
+	    }
+
+	    /**
+	     * Function that converts 4 bytes in hex format to a word in hex format
+	     * @param data bytes to convert
+	     * @returns {string} hexadecimal string of the word
+	     */
+
+	  }, {
+	    key: "bytesToWord",
+	    value: function bytesToWord(data) {
+	      var byte1 = this.createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
+	      var byte2 = this.createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
+	      var byte3 = this.createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
+	      var byte4 = this.createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
+	      var word = byte1 + byte2 + byte3 + byte4;
+	      return "0x" + parseInt(word, 2).toString(16).toUpperCase();
+	    }
+
+	    /**
+	     * Function that converts a hexadecimal word to 4 bytes in decimal
+	     *
+	     * @param word word to convert
+	     * @returns {*} array of 4 bytes.
+	     */
+
+	  }, {
+	    key: "wordToBytes",
+	    value: function wordToBytes(word) {
+	      var binaryWord = this.createBinaryString(parseInt(word.slice(2, word.length), 16));
+	      var byte4 = binaryWord.slice(0, 8);
+	      var byte3 = binaryWord.slice(8, 16);
+	      var byte2 = binaryWord.slice(16, 24);
+	      var byte1 = binaryWord.slice(24, 32);
+	      var data = [parseInt(byte4, 2), parseInt(byte3, 2), parseInt(byte2, 2), parseInt(byte1, 2)];
+	      return data;
+	    }
+	  }]);
+
+	  return Instruction;
+	}();
+
+	exports.default = Instruction;
 
 /***/ }
 /******/ ]);

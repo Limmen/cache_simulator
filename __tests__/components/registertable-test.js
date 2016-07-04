@@ -9,7 +9,7 @@ jest.disableAutomock();
 import React from 'react';
 import { mount } from 'enzyme';
 import RegisterTable from '../../src/client/components/RegisterTable';
-import initialRegisterContent from '../../src/client/reducers/helper_functions/initialRegisterContent';
+import initialRegisterContent from '../../src/client/reducers/model/initialRegisterContent';
 
 describe('RegisterTable', () => {
   let component;

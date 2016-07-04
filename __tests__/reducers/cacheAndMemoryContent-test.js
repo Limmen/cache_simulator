@@ -5,10 +5,10 @@
 jest.disableAutomock();
 
 import cacheAndMemoryContent from '../../src/client/reducers/cacheAndMemoryContent.js'
-import initialCacheContent from '../../src/client/reducers/helper_functions/initialCacheContent.js'
-import initialMemoryContent from '../../src/client/reducers/helper_functions/initialMemoryContent.js'
-import initialRegisterContent from '../../src/client/reducers/helper_functions/initialRegisterContent.js'
-import simulateInstruction from '../../src/client/reducers/helper_functions/simulateInstruction.js'
+import initialCacheContent from '../../src/client/reducers/model/initialCacheContent.js'
+import initialMemoryContent from '../../src/client/reducers/model/initialMemoryContent.js'
+import initialRegisterContent from '../../src/client/reducers/model/initialRegisterContent.js'
+import simulateInstruction from '../../src/client/reducers/model/simulateInstruction.js'
 import * as actions from '../../src/client/actions/'
 import {Map, List} from 'immutable'
 

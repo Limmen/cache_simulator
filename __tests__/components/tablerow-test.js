@@ -9,7 +9,7 @@ jest.disableAutomock();
 import React from 'react';
 import { mount } from 'enzyme';
 import CacheTableRow from '../../src/client/components/CacheTableRow';
-import initialCacheContent from '../../src/client/reducers/helper_functions/initialCacheContent';
+import initialCacheContent from '../../src/client/reducers/model/initialCacheContent';
 
 describe('CacheTableRow', () => {
   let component;
