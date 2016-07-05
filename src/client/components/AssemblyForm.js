@@ -17,40 +17,41 @@ const validate = values => {
     let rows = values.assembly.split("\n");
     let row;
     for (let i = 0; i < rows.length; i++) {
-      row = rows[i];
-      if (row !== "") {
-        let tokens = row.replace(/ +(?= )/g, '').split(" ");
-        if (tokens.length !== 3) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
-          return errors;
-        }
-        let operation = tokens[0];
-        let register = tokens[1];
-        let address = tokens[2];
-        if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
-          return errors;
-        }
-        if(isNaN(register)){
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
-          return errors;
-        }
-        if(register < 0 || register > 31){
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
-          return errors;
-        }
-        if (!new RegExp("[0-9A-Fa-f]+").test(address)) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
-          return errors;
-        }
-        if (isNaN(parseInt(address,16))) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
-          return errors;
-        }
-        if(parseInt(address,16) % 4 !== 0) {
-          errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4. Remember that you need to enter the address in hexadecimal'
-          return errors;
-        }
+      row = rows[i].trim();
+      if (row === "") {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
+      }
+      let tokens = row.replace(/ +(?= )/g, '').split(" ");
+      if (tokens.length !== 3) {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
+        return errors;
+      }
+      let operation = tokens[0];
+      let register = tokens[1];
+      let address = tokens[2];
+      if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
+        return errors;
+      }
+      if (isNaN(register)) {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+        return errors;
+      }
+      if (register < 0 || register > 31) {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+        return errors;
+      }
+      if (!new RegExp("[0-9A-Fa-f]+").test(address)) {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
+        return errors;
+      }
+      if (isNaN(parseInt(address, 16))) {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
+        return errors;
+      }
+      if (parseInt(address, 16) % 4 !== 0) {
+        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4. Remember that you need to enter the address in hexadecimal'
+        return errors;
       }
     }
   }
@@ -75,7 +76,8 @@ class AssemblyForm extends React.Component {
                   One statement on each row.
                 </p>
                 <p>
-                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;space&gt;&lt;Address&gt;</code>
+                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;
+                  space&gt;&lt;Address&gt;</code>
                 </p>
                 <p>
                   Allowed operations are: <code>LOAD</code> and <code>STORE</code>

@@ -52,7 +52,7 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       else
         return state;
     case CLEAR_CACHE:
-      return state.set("cache", initialCacheContent(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm")))
+      return state.set("cache", initialCacheContent(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm"))).set("register", initialRegisterContent()).set("memory", initialMemoryContent(state.get("memory").size)).set("instructionHistory", List())
     case LINK_CLICKED:
       return clear(state);
     case START_SIMULATION:
