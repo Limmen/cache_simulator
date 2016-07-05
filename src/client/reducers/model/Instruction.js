@@ -316,7 +316,7 @@ class Instruction {
       {
         operationType: this.operationType,
         register: this.register,
-        address: "0x" + this.tag.toString(16).toUpperCase(),
+        address: "0x" + this.address.toString(16).toUpperCase(),
         result: result
       })
     return this.state.set('instructionHistory', this.state.get('instructionHistory').push(instruction));

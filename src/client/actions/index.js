@@ -5,10 +5,6 @@
  */
 
 import * as types from '../constants/ActionTypes'
-import initialCacheContent from '../reducers/model/initialCacheContent'
-import initialMemoryContent from '../reducers/model/initialMemoryContent'
-import initialRegisterContent from '../reducers/model/initialRegisterContent'
-
 
 export function cacheAndMemoryContentInitialization(fields) {
   return {

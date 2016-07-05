@@ -35853,7 +35853,7 @@
 	      var instruction = (0, _immutable.Map)({
 	        operationType: this.operationType,
 	        register: this.register,
-	        address: "0x" + this.tag.toString(16).toUpperCase(),
+	        address: "0x" + this.address.toString(16).toUpperCase(),
 	        result: result
 	      });
 	      return this.state.set('instructionHistory', this.state.get('instructionHistory').push(instruction));
@@ -37205,34 +37205,18 @@
 
 	var types = _interopRequireWildcard(_ActionTypes);
 
-	var _initialCacheContent = __webpack_require__(293);
-
-	var _initialCacheContent2 = _interopRequireDefault(_initialCacheContent);
-
-	var _initialMemoryContent = __webpack_require__(295);
-
-	var _initialMemoryContent2 = _interopRequireDefault(_initialMemoryContent);
-
-	var _initialRegisterContent = __webpack_require__(296);
-
-	var _initialRegisterContent2 = _interopRequireDefault(_initialRegisterContent);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	/**
-	 * ActionCreator, returns action objects of different types.
-	 *
-	 * Created by kim on 2016-05-05.
-	 */
 
 	function cacheAndMemoryContentInitialization(fields) {
 	  return {
 	    type: types.CACHE_AND_MEMORY_CONTENT_INIT,
 	    fields: fields
 	  };
-	}
+	} /**
+	   * ActionCreator, returns action objects of different types.
+	   *
+	   * Created by kim on 2016-05-05.
+	   */
 
 	function cacheContentUpdate(fields) {
 	  return {
