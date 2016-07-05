@@ -52,11 +52,10 @@ const mapDispatchToProps = (dispatch) => {
      */
     fetchHandleSubmit: (fields) => {
       scroller.scrollTo('cache_mem_scroll_position', {
-        duration: 1500,
+        duration: 1000,
         offset: -50,
         smooth: true
       })
-      setTimeout(function (){
         dispatch(actions.startSimulation())
         let rows = fields.assembly.split("\n");
         let row = rows[0];
@@ -85,7 +84,6 @@ const mapDispatchToProps = (dispatch) => {
           setTimeout(dispatch, i*3600, actions.cacheContentUpdate(fields))
         }
         setTimeout(dispatch, rows.length*3600, actions.stopSimulation())
-      }, 1500);
 
     }
   }

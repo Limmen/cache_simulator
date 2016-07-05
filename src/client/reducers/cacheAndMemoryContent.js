@@ -6,7 +6,7 @@
 
 'use strict';
 import { CACHE_AND_MEMORY_CONTENT_INIT, CACHE_CONTENT_UPDATE, LINK_CLICKED,
-  START_SIMULATION, STOP_SIMULATION, CLEAR_CACHE} from '../constants/ActionTypes'
+  START_SIMULATION, STOP_SIMULATION, CLEAR_CACHE, START_RENDERING} from '../constants/ActionTypes'
 import initialCacheContent from './model/initialCacheContent'
 import initialMemoryContent from './model/initialMemoryContent'
 import initialRegisterContent from './model/initialRegisterContent'
@@ -24,7 +24,9 @@ const initialState = Map(
     instructionHistory: List(),
     instructionResult: "",
     instruction: "",
-    simulating: false
+    simulating: false,
+    isLoadingContent: false,
+    isRenderingContent: false
   }
 )
 
@@ -37,6 +39,8 @@ const initialState = Map(
  */
 export default function cacheAndMemoryContent(state = initialState, action) {
   switch (action.type) {
+    case START_RENDERING:
+      return state.set("isRenderingContent", true)
     case  CACHE_AND_MEMORY_CONTENT_INIT:
       let newcache = initialCacheContent(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm)
       let newmemory = initialMemoryContent(action.fields.memorySize)
@@ -44,11 +48,11 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
     case CACHE_CONTENT_UPDATE:
       if (state.get("simulating"))
-        return new Instruction(state,parseInt(action.fields.fetchAddress,16), action.fields.operationType.toUpperCase(), action.fields.register).simulate();
+        return new Instruction(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType.toUpperCase(), action.fields.register).simulate();
       else
         return state;
     case CLEAR_CACHE:
-          return state.set("cache", initialCacheContent(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm")))
+      return state.set("cache", initialCacheContent(state.get("cache").get("cacheSize"), state.get("cache").get("blockSize"), state.get("cache").get("associativity"), state.get("cache").get("replacementAlgorithm")))
     case LINK_CLICKED:
       return clear(state);
     case START_SIMULATION:

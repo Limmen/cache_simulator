@@ -315,6 +315,7 @@ class Instruction {
     let instruction = Map(
       {
         operationType: this.operationType,
+        register: this.register,
         address: "0x" + this.tag.toString(16).toUpperCase(),
         result: result
       })

@@ -42,9 +42,15 @@ class CacheSimulator extends React.Component {
       )
     }
     else {
-      return (
-        <h3 className="bold center_text">Enter properties for the cache to simulate it</h3>
-      )
+      if(this.props.isRenderingContent || this.props.isLoadingContent) {
+        return (
+          <h3 className="bold center_text">Loading... </h3>
+        )
+      } else {
+        return (
+          <h3 className="bold center_text">Enter properties for the cache to simulate it</h3>
+        )
+      }
     }
   }
 
@@ -76,7 +82,9 @@ function mapStateToProps(state) {
   return {
     associativity: state.cacheAndMemoryContent.get('cache').get('associativity'),
     cacheSize: state.cacheAndMemoryContent.get('cache').get('cacheSize'),
-    blockSize: state.cacheAndMemoryContent.get('cache').get('blockSize')
+    blockSize: state.cacheAndMemoryContent.get('cache').get('blockSize'),
+    isLoadingContent: state.cacheAndMemoryContent.get("isLoadingContent"),
+    isRenderingContent: state.cacheAndMemoryContent.get("isRenderingContent")
   }
 }
 

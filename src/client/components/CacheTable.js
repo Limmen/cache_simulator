@@ -9,7 +9,6 @@
 import React from 'react';
 import CacheTableRow from './CacheTableRow'
 
-
 class CacheTable extends React.Component {
 
   /**
@@ -28,20 +27,21 @@ class CacheTable extends React.Component {
   render() {
     return (
       <div className="cachetable-component">
-        <table className="table table-bordered cache center-table">
-          <caption>Set: {this.props.data.get('set')}</caption>
-          <thead>
-          <tr>
-            <td className="bold center_text cache_element">Valid Bit</td>
-            <td className="bold center_text cache_element">Tag</td>
-            <td className="bold center_text cache_element" colSpan={this.props.data.get('nr_elements')}>Data</td>
-          </tr>
-          </thead>
-          <tbody>
-          {this.createRows()}
-          </tbody>
-        </table>
+          <table className="table table-bordered cache center-table" id={"cache_table_set_" + this.props.data.get("set")}>
+            <caption>Set: {this.props.data.get('set')}</caption>
+            <thead>
+            <tr>
+              <td className="bold center_text cache_element">Valid Bit</td>
+              <td className="bold center_text cache_element">Tag</td>
+              <td className="bold center_text cache_element" colSpan={this.props.data.get('nr_elements')}>Data</td>
+            </tr>
+            </thead>
+            <tbody>
+            {this.createRows()}
+            </tbody>
+          </table>
       </div>
+
     );
   }
 }

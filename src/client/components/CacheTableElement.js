@@ -11,6 +11,7 @@ import ReactTooltip from 'react-tooltip'
 
 
 class CacheTableElement extends React.Component {
+
   /**
    * Class constructor. Called when instantiated.
    *

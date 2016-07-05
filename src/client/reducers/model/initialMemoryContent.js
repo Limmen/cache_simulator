@@ -13,7 +13,6 @@ import {Map, List} from 'immutable'
  * @returns {*} memory layout
  */
 export default function initialMemoryContent(memorySize) {
-
   let memory = List()
 
   for (let i = 0; i < memorySize; i++) {

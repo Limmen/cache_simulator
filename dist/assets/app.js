@@ -27063,9 +27063,11 @@
 
 	var _reduxPromise2 = _interopRequireDefault(_reduxPromise);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var _reduxLogger = __webpack_require__(546);
 
-	//import createLogger from 'redux-logger';
+	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	/**
 	 * Creates the store of the redux app.
@@ -27073,19 +27075,17 @@
 	 * @param initialState initial state
 	 * @returns {*} the single store of the redux app
 	 */
-	/**
-	 * Function to create and bootstrap the store with reducers, initialstate and middleware.
-	 *
-	 * Created by kim on 2016-05-05.
-	 */
-
 	function configureStore(initialState) {
-	  //const logger = createLogger();
-	  var store = (0, _redux.createStore)(_reducers2.default, initialState,
-	  //applyMiddleware(thunk, promise, logger)
-	  (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default));
+	  var logger = (0, _reduxLogger2.default)();
+	  var store = (0, _redux.createStore)(_reducers2.default, initialState, (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default, logger)
+	  //applyMiddleware(thunk, promise)
+	  );
 	  return store;
-	}
+	} /**
+	   * Function to create and bootstrap the store with reducers, initialstate and middleware.
+	   *
+	   * Created by kim on 2016-05-05.
+	   */
 
 /***/ },
 /* 246 */
@@ -30183,7 +30183,7 @@
 
 	var _initialRegisterContent2 = _interopRequireDefault(_initialRegisterContent);
 
-	var _Instruction = __webpack_require__(544);
+	var _Instruction = __webpack_require__(297);
 
 	var _Instruction2 = _interopRequireDefault(_Instruction);
 
@@ -30201,7 +30201,9 @@
 	  instructionHistory: (0, _immutable.List)(),
 	  instructionResult: "",
 	  instruction: "",
-	  simulating: false
+	  simulating: false,
+	  isLoadingContent: false,
+	  isRenderingContent: false
 	});
 
 	/**
@@ -30216,6 +30218,8 @@
 	  var action = arguments[1];
 
 	  switch (action.type) {
+	    case _ActionTypes.START_RENDERING:
+	      return state.set("isRenderingContent", true);
 	    case _ActionTypes.CACHE_AND_MEMORY_CONTENT_INIT:
 	      var newcache = (0, _initialCacheContent2.default)(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm);
 	      var newmemory = (0, _initialMemoryContent2.default)(action.fields.memorySize);
@@ -30277,6 +30281,7 @@
 	var START_SIMULATION = exports.START_SIMULATION = 'START_SIMULATION';
 	var STOP_SIMULATION = exports.STOP_SIMULATION = 'STOP_SIMULATION';
 	var CLEAR_CACHE = exports.CLEAR_CACHE = 'CLEAR_CACHE';
+	var START_RENDERING = exports.START_RENDERING = 'START_RENDERING';
 
 /***/ },
 /* 293 */
@@ -30326,7 +30331,7 @@
 	    for (var j = 0; j < cacheSize / associativity / blockSize; j++) {
 	      var row = (0, _immutable.Map)({
 	        id: "row_id" + i + j,
-	        tag: "0x00",
+	        tag: "0x0",
 	        index: j,
 	        validbit: 0,
 	        miss: false,
@@ -30338,8 +30343,8 @@
 	        var element = (0, _immutable.Map)({
 	          id: "element_id" + i + j + k,
 	          byte: k,
-	          address: '0x00',
-	          data: '0x00',
+	          address: '0x0',
+	          data: '0x0',
 	          hit: false
 	        });
 	        var newRow = row.set('elements', row.get('elements').push(element));
@@ -35374,7 +35379,6 @@
 	 * @returns {*} memory layout
 	 */
 	function initialMemoryContent(memorySize) {
-
 	  var memory = (0, _immutable.List)();
 
 	  for (var i = 0; i < memorySize; i++) {
@@ -35426,13 +35430,12 @@
 	 * @returns {*} Register layout
 	 */
 	function initialRegisterContent() {
-
 	  var register = (0, _immutable.Map)({
 	    registers: (0, _immutable.List)()
 	  });
 
 	  for (var i = 0; i < 32; i++) {
-	    var data = "0x00";
+	    var data = "0x0";
 	    var newRegisters = register.set("registers", register.get("registers").push((0, _immutable.Map)({
 	      data: data,
 	      number: i,
@@ -35448,7 +35451,504 @@
 	   */
 
 /***/ },
-/* 297 */,
+/* 297 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by kim on 2016-07-04.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _immutable = __webpack_require__(294);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Instruction = function () {
+	  function Instruction(state, address, operationType, register) {
+	    _classCallCheck(this, Instruction);
+
+	    this.state = this.clear(state);
+	    this.address = address;
+	    this.operationType = operationType;
+	    this.register = register;
+	    this.tag = this.getTag(this.state.get("cache").get("blockSize"));
+	    this.index = this.getRowIndex(this.state.get('cache').get('blockCount'), this.state.get('cache').get('offsetBits'), this.state.get('cache').get('indexBits'));
+	    this.setNr = this.getSetNr();
+	    this.row = this.state.get('cache').get('sets').get(this.setNr).get('rows').get(this.index);
+	  }
+
+	  _createClass(Instruction, [{
+	    key: "simulate",
+	    value: function simulate() {
+	      if (this.hit(this.row)) {
+	        return this.simulateHit();
+	      } else {
+	        return this.simulateMiss();
+	      }
+	    }
+	  }, {
+	    key: "simulateHit",
+	    value: function simulateHit() {
+	      var _this = this;
+
+	      var newRow = this.getNewRowHit();
+	      this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      if (this.operationType === "STORE") {
+	        (function () {
+	          _this.state = _this.storeHit();
+	          var data = _this.getBlock(_this.state.get('cache').get('blockSize'), _this.state.get('memory'));
+	          newRow = newRow.set('elements', newRow.get('elements').map(function (e) {
+	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	          })).set("validbit", 1).set("tag", "0x" + _this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
+	        })();
+	      }
+	      if (this.operationType === "LOAD") {
+	        this.state = this.loadHit();
+	      }
+	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
+	        return s.set('rows', s.get('rows').update(_this.index, function () {
+	          return newRow;
+	        }));
+	      })));
+	    }
+	  }, {
+	    key: "simulateMiss",
+	    value: function simulateMiss() {
+	      if (this.operationType === "STORE") {
+	        this.state = this.storeMiss();
+	      }
+	      if (this.memoryHit(this.state.get('memory'))) {
+	        return this.memoryFetch();
+	      } else {
+	        this.state = this.updateInstructionHistory();
+	        return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      }
+	    }
+	  }, {
+	    key: "storeMiss",
+	    value: function storeMiss() {
+	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
+	      var bytes = this.wordToBytes(storeData);
+	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
+	    }
+	  }, {
+	    key: "storeHit",
+	    value: function storeHit() {
+	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
+	      var bytes = this.wordToBytes(storeData);
+	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
+	    }
+	  }, {
+	    key: "loadMiss",
+	    value: function loadMiss() {
+	      var word = this.bytesToWord(this.getWord(this.address, this.state.get("memory")));
+	      return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, function (reg) {
+	        return reg.set("data", word);
+	      })));
+	    }
+	  }, {
+	    key: "loadHit",
+	    value: function loadHit() {
+	      var data = this.getWord(this.address, this.state.get('memory'));
+	      var word = this.bytesToWord(data);
+	      return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, function (reg) {
+	        return reg.set("data", word);
+	      })));
+	    }
+	  }, {
+	    key: "memoryFetch",
+	    value: function memoryFetch() {
+	      var _this2 = this;
+
+	      var newRow = this.getNewRowMiss();
+	      if (this.operationType === "LOAD") {
+	        this.state = this.loadMiss();
+	      }
+	      this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
+	        return s.set('rows', s.get('rows').update(_this2.index, function () {
+	          return newRow;
+	        }));
+	      })));
+	    }
+	  }, {
+	    key: "getNewRowMiss",
+	    value: function getNewRowMiss() {
+	      var _this3 = this;
+
+	      var data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'));
+	      return this.row.set('elements', this.row.get('elements').map(function (e) {
+	        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this3.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	      })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
+	    }
+	  }, {
+	    key: "getNewRowHit",
+	    value: function getNewRowHit() {
+	      var _this4 = this;
+
+	      return this.row.set('elements', this.row.get('elements').map(function (e) {
+	        if (Number(e.get("byte")) === Number(_this4.address) - Number(_this4.tag)) {
+	          return e.set("hit", true);
+	        } else return e;
+	      })).set("usedDate", Date.now());
+	    }
+
+	    /**
+	     * Function that clears state for visual effects.
+	     *
+	     * @param state state to be updated
+	     * @returns {*} new state
+	     */
+
+	  }, {
+	    key: "clear",
+	    value: function clear(state) {
+	      var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
+	        return s.set("rows", s.get("rows").map(function (r) {
+	          return r.set("elements", r.get("elements").map(function (e) {
+	            return e.set("hit", false);
+	          })).set("miss", false);
+	        }));
+	      })));
+	      return newState;
+	    }
+
+	    /**
+	     * Function that calculates setNumber to be affected by the cache hit/miss
+	     *
+	     * @param state state
+	     * @param index row-index
+	     * @param tag tag of the block
+	     * @returns {number} set-number
+	     */
+
+	  }, {
+	    key: "getSetNr",
+	    value: function getSetNr() {
+	      var rows = (0, _immutable.List)();
+	      var algorithm = this.state.get('cache').get('replacementAlgorithm');
+	      var row = void 0;
+	      for (var i = 0; i < this.state.get("cache").get("sets").size; i++) {
+	        row = this.state.get("cache").get("sets").get(i).get("rows").get(this.index);
+	        if (this.hit(row)) {
+	          return i;
+	        }
+	        rows = rows.push(row);
+	      }
+	      for (var _i = 0; _i < rows.size; _i++) {
+	        if (rows.get(_i).get("validbit") === 0) {
+	          return _i;
+	        }
+	      }
+	      switch (algorithm) {
+	        case "LRU":
+	          return this.lru(rows);
+	        case "FIFO":
+	          return this.fifo(rows);
+	        case "RANDOM":
+	          return this.random(rows);
+	      }
+	    }
+
+	    /**
+	     * Simulates the LRU replacement algorithm
+	     *
+	     * @param rows rows with the same index from different sets
+	     * @returns {number} set-number
+	     */
+
+	  }, {
+	    key: "lru",
+	    value: function lru(rows) {
+	      var setNr = 0;
+	      var usedDate = rows.get(0).get("usedDate");
+
+	      for (var i = 1; i < rows.size; i++) {
+	        if (rows.get(i).get("usedDate") < usedDate) {
+	          setNr = i;
+	          usedDate = rows.get(i).get("usedDate");
+	        }
+	      }
+	      return setNr;
+	    }
+
+	    /**
+	     * Simulates  the FIFO replacement algorithm
+	     *
+	     * @param rows rows with the same index from different sets
+	     * @returns {number}set-number
+	     */
+
+	  }, {
+	    key: "fifo",
+	    value: function fifo(rows) {
+	      var setNr = 0;
+	      var loadedDate = rows.get(0).get("loadedDate");
+
+	      for (var i = 1; i < rows.size; i++) {
+	        if (rows.get(i).get("loadedDate") < loadedDate) {
+	          setNr = i;
+	          loadedDate = rows.get(i).get("usedDate");
+	        }
+	      }
+	      return setNr;
+	    }
+
+	    /**
+	     * Simulates the RANDOM replacement algorithm
+	     *
+	     * @param rows rows with the same index from different sets
+	     * @returns {number} set-number
+	     */
+
+	  }, {
+	    key: "random",
+	    value: function random(rows) {
+	      return Math.floor(Math.random() * rows.size);
+	    }
+
+	    /**
+	     * Returns row-index in the cache
+	     *
+	     * @param tag tag of the block to be fetched
+	     * @param blockCount number of blocks in each set
+	     * @param offsetBits number of offsetbits in the address
+	     * @param indexBits number of indexbits in the address
+	     * @returns {*} row-index
+	     */
+
+	  }, {
+	    key: "getRowIndex",
+	    value: function getRowIndex(blockCount, offsetBits, indexBits) {
+	      if (blockCount === 1) return 0;
+	      var binary = this.createBinaryString(Number(this.tag));
+	      var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
+	      return parseInt(index, 2);
+	    }
+
+	    /**
+	     * Returns the tag of the block (a whole block is always fetched on cache miss)
+	     *
+	     * @param tag tag of the instruction
+	     * @param blockSize blocksize
+	     * @returns {number} tag of the block
+	     */
+
+	  }, {
+	    key: "getTag",
+	    value: function getTag(blockSize) {
+	      return Number(this.address) - Number(Number(this.address) % Number(blockSize));
+	    }
+
+	    /**
+	     * Fetches a block of data
+	     *
+	     * @param blockSize block-size in the cache memory
+	     * @param tag address-tag to be fetched
+	     * @param memory main memory
+	     * @returns {Array} block of data
+	     */
+
+	  }, {
+	    key: "getBlock",
+	    value: function getBlock(blockSize, memory) {
+	      var data = [];
+	      for (var i = 0; i < blockSize; i++) {
+	        data.push(this.getData(Number(this.tag) + Number(i), memory));
+	      }
+	      return data;
+	    }
+	  }, {
+	    key: "getWord",
+	    value: function getWord(address, memory) {
+	      var data = [];
+	      for (var i = 0; i < 4; i++) {
+	        data.push(this.getData(Number(address) + Number(i), memory));
+	      }
+	      return data;
+	    }
+
+	    /**
+	     * Fetches the data from the specified main memory address
+	     *
+	     * @param tag address-tag
+	     * @param memory main memory
+	     * @returns {string} data
+	     */
+
+	  }, {
+	    key: "getData",
+	    value: function getData(tag, memory) {
+	      var data = "invalid_address";
+	      memory.map(function (addr) {
+	        if (Number(addr.get('address_number')) === Number(tag)) {
+	          data = addr.get('data_string');
+	          return;
+	        }
+	      });
+	      return data;
+	    }
+
+	    /**
+	     * Stores a word in main memory at the specified tag
+	     *
+	     * @param bytes 4 bytes to store
+	     * @param tag memory address to store at
+	     * @param memory memory to store in
+	     * @returns {*} updated memory
+	     */
+
+	  }, {
+	    key: "storeWord",
+	    value: function storeWord(bytes, memory) {
+	      var newMemory = void 0;
+	      for (var i = 0; i < bytes.length; i++) {
+	        newMemory = this.storeByte(bytes[i], Number(this.tag) + i, memory);
+	        memory = newMemory;
+	      }
+	      return memory;
+	    }
+
+	    /**
+	     * Stores a byte in memory at the specified tag
+	     *
+	     * @param byte byte to store
+	     * @param tag memory address to store at
+	     * @param memory memory to store in
+	     * @returns {*} updated memory
+	     */
+
+	  }, {
+	    key: "storeByte",
+	    value: function storeByte(byte, tag, memory) {
+	      return memory.update(Number(tag), function (m) {
+	        return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte);
+	      });
+	    }
+
+	    /**
+	     * Function that updates instructionhistory
+	     *
+	     * @param row row in the cache affected by the instruction simulation
+	     * @param tag tag of the instruction
+	     * @param operationType operation-type of the instruction
+	     * @param state state to update
+	     * @returns {*} new state with updated instructionHistory
+	     */
+
+	  }, {
+	    key: "updateInstructionHistory",
+	    value: function updateInstructionHistory() {
+	      var result = void 0;
+	      if (this.hit(this.row)) {
+	        result = "HIT";
+	      } else {
+	        result = "MISS";
+	      }
+	      var instruction = (0, _immutable.Map)({
+	        operationType: this.operationType,
+	        register: this.register,
+	        address: "0x" + this.tag.toString(16).toUpperCase(),
+	        result: result
+	      });
+	      return this.state.set('instructionHistory', this.state.get('instructionHistory').push(instruction));
+	    }
+
+	    /**
+	     * Checks whether the instruction was a hit in the cache or not.
+	     *
+	     * @param row row calculated by replacementalgorithm and index-bits
+	     * @param tag address-tag of the instruction
+	     * @returns {boolean}
+	     */
+
+	  }, {
+	    key: "hit",
+	    value: function hit(row) {
+	      if (row.get("validbit") === 1) {
+	        if (row.get("tag") === "0x" + this.tag.toString(16).toUpperCase()) return true;else return false;
+	      } else {
+	        return false;
+	      }
+	    }
+
+	    /**
+	     * Checks if the address to be fetched is valid, i.e it can be found in the main memory
+	     *
+	     * @param tag address-tag
+	     * @param memory main memory
+	     * @returns {boolean}
+	     */
+
+	  }, {
+	    key: "memoryHit",
+	    value: function memoryHit(memory) {
+	      if (this.getData(this.tag, memory) !== "invalid_address") return true;else return false;
+	    }
+
+	    /**
+	     * Creates binary string from integer
+	     *
+	     * @param nMask integer
+	     * @returns {string} binary string
+	     */
+
+	  }, {
+	    key: "createBinaryString",
+	    value: function createBinaryString(nMask) {
+	      // nMask must be between -2147483648 and 2147483647
+	      for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
+	      return sMask;
+	    }
+
+	    /**
+	     * Function that converts 4 bytes in hex format to a word in hex format
+	     * @param data bytes to convert
+	     * @returns {string} hexadecimal string of the word
+	     */
+
+	  }, {
+	    key: "bytesToWord",
+	    value: function bytesToWord(data) {
+	      var byte1 = this.createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
+	      var byte2 = this.createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
+	      var byte3 = this.createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
+	      var byte4 = this.createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
+	      var word = byte1 + byte2 + byte3 + byte4;
+	      return "0x" + parseInt(word, 2).toString(16).toUpperCase();
+	    }
+
+	    /**
+	     * Function that converts a hexadecimal word to 4 bytes in decimal
+	     *
+	     * @param word word to convert
+	     * @returns {*} array of 4 bytes.
+	     */
+
+	  }, {
+	    key: "wordToBytes",
+	    value: function wordToBytes(word) {
+	      var binaryWord = this.createBinaryString(parseInt(word.slice(2, word.length), 16));
+	      var byte4 = binaryWord.slice(0, 8);
+	      var byte3 = binaryWord.slice(8, 16);
+	      var byte2 = binaryWord.slice(16, 24);
+	      var byte1 = binaryWord.slice(24, 32);
+	      var data = [parseInt(byte4, 2), parseInt(byte3, 2), parseInt(byte2, 2), parseInt(byte1, 2)];
+	      return data;
+	    }
+	  }]);
+
+	  return Instruction;
+	}();
+
+	exports.default = Instruction;
+
+/***/ },
 /* 298 */
 /***/ function(module, exports) {
 
@@ -36695,6 +37195,7 @@
 	});
 	exports.cacheAndMemoryContentInitialization = cacheAndMemoryContentInitialization;
 	exports.cacheContentUpdate = cacheContentUpdate;
+	exports.startRendering = startRendering;
 	exports.linkClicked = linkClicked;
 	exports.startSimulation = startSimulation;
 	exports.stopSimulation = stopSimulation;
@@ -36704,23 +37205,45 @@
 
 	var types = _interopRequireWildcard(_ActionTypes);
 
+	var _initialCacheContent = __webpack_require__(293);
+
+	var _initialCacheContent2 = _interopRequireDefault(_initialCacheContent);
+
+	var _initialMemoryContent = __webpack_require__(295);
+
+	var _initialMemoryContent2 = _interopRequireDefault(_initialMemoryContent);
+
+	var _initialRegisterContent = __webpack_require__(296);
+
+	var _initialRegisterContent2 = _interopRequireDefault(_initialRegisterContent);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	/**
+	 * ActionCreator, returns action objects of different types.
+	 *
+	 * Created by kim on 2016-05-05.
+	 */
 
 	function cacheAndMemoryContentInitialization(fields) {
 	  return {
 	    type: types.CACHE_AND_MEMORY_CONTENT_INIT,
 	    fields: fields
 	  };
-	} /**
-	   * ActionCreator, returns action objects of different types.
-	   *
-	   * Created by kim on 2016-05-05.
-	   */
+	}
 
 	function cacheContentUpdate(fields) {
 	  return {
 	    type: types.CACHE_CONTENT_UPDATE,
 	    fields: fields
+	  };
+	}
+
+	function startRendering() {
+	  return {
+	    type: types.START_RENDERING
 	  };
 	}
 
@@ -36869,11 +37392,19 @@
 	          _react2.default.createElement(_MemoryPanel2.default, null)
 	        );
 	      } else {
-	        return _react2.default.createElement(
-	          'h3',
-	          { className: 'bold center_text' },
-	          'Enter properties for the cache to simulate it'
-	        );
+	        if (this.props.isRenderingContent || this.props.isLoadingContent) {
+	          return _react2.default.createElement(
+	            'h3',
+	            { className: 'bold center_text' },
+	            'Loading... '
+	          );
+	        } else {
+	          return _react2.default.createElement(
+	            'h3',
+	            { className: 'bold center_text' },
+	            'Enter properties for the cache to simulate it'
+	          );
+	        }
 	      }
 	    }
 	  }, {
@@ -36917,7 +37448,9 @@
 	  return {
 	    associativity: state.cacheAndMemoryContent.get('cache').get('associativity'),
 	    cacheSize: state.cacheAndMemoryContent.get('cache').get('cacheSize'),
-	    blockSize: state.cacheAndMemoryContent.get('cache').get('blockSize')
+	    blockSize: state.cacheAndMemoryContent.get('cache').get('blockSize'),
+	    isLoadingContent: state.cacheAndMemoryContent.get("isLoadingContent"),
+	    isRenderingContent: state.cacheAndMemoryContent.get("isRenderingContent")
 	  };
 	}
 
@@ -36996,7 +37529,7 @@
 	        _react2.default.createElement(
 	          'p',
 	          { className: 'bold center_text' },
-	          ' Large cache-sizes (e.g 1024 bytes) will take a few seconds to render '
+	          'Large cache-sizes will take longer time to render and simulate '
 	        ),
 	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
 	      );
@@ -37033,12 +37566,13 @@
 	     * @param fields fields of the action
 	     */
 	    cacheHandleSubmit: function cacheHandleSubmit(fields) {
+	      dispatch(actions.startRendering());
 	      _reactScroll.scroller.scrollTo('cache_init_scroll_position', {
 	        duration: 1500,
 	        offset: 475,
 	        smooth: true
 	      });
-	      dispatch(actions.cacheAndMemoryContentInitialization(fields));
+	      setTimeout(dispatch, 100, actions.cacheAndMemoryContentInitialization(fields));
 	    }
 	  };
 	};
@@ -38551,40 +39085,38 @@
 	     */
 	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
 	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
-	        duration: 1500,
+	        duration: 1000,
 	        offset: -50,
 	        smooth: true
 	      });
-	      setTimeout(function () {
-	        dispatch(actions.startSimulation());
-	        var rows = fields.assembly.split("\n");
-	        var row = rows[0];
-	        var tokens = row.replace(/ +(?= )/g, '').split(" ");
-	        var operation = tokens[0];
-	        var register = tokens[1];
-	        var address = tokens[2];
-	        fields = {
-	          fetchAddress: address,
-	          operationType: operation,
-	          register: register
-	        };
-	        dispatch(actions.cacheContentUpdate(fields));
+	      dispatch(actions.startSimulation());
+	      var rows = fields.assembly.split("\n");
+	      var row = rows[0];
+	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
+	      var operation = tokens[0];
+	      var register = tokens[1];
+	      var address = tokens[2];
+	      fields = {
+	        fetchAddress: address,
+	        operationType: operation,
+	        register: register
+	      };
+	      dispatch(actions.cacheContentUpdate(fields));
 
-	        for (var i = 1; i < rows.length; i++) {
-	          var _row = rows[i];
-	          var _tokens = _row.replace(/ +(?= )/g, '').split(" ");
-	          var _operation = _tokens[0];
-	          var _register = _tokens[1];
-	          var _address = _tokens[2];
-	          fields = {
-	            fetchAddress: _address,
-	            operationType: _operation,
-	            register: _register
-	          };
-	          setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
-	        }
-	        setTimeout(dispatch, rows.length * 3600, actions.stopSimulation());
-	      }, 1500);
+	      for (var i = 1; i < rows.length; i++) {
+	        var _row = rows[i];
+	        var _tokens = _row.replace(/ +(?= )/g, '').split(" ");
+	        var _operation = _tokens[0];
+	        var _register = _tokens[1];
+	        var _address = _tokens[2];
+	        fields = {
+	          fetchAddress: _address,
+	          operationType: _operation,
+	          register: _register
+	        };
+	        setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
+	      }
+	      setTimeout(dispatch, rows.length * 3600, actions.stopSimulation());
 	    }
 	  };
 	};
@@ -39322,6 +39854,11 @@
 	            ),
 	            _react2.default.createElement(
 	              'div',
+	              { className: 'row centering-block margin-bottom margin-top' },
+	              this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
+	            ),
+	            _react2.default.createElement(
+	              'div',
 	              { className: 'instructionResult' },
 	              _react2.default.createElement(
 	                'p',
@@ -39341,11 +39878,6 @@
 	              this.createTables()
 	            )
 	          )
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row centering-block margin-bottom margin-top' },
-	          this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
 	        )
 	      );
 	    }
@@ -39448,7 +39980,7 @@
 	        { className: 'cachetable-component' },
 	        _react2.default.createElement(
 	          'table',
-	          { className: 'table table-bordered cache center-table' },
+	          { className: 'table table-bordered cache center-table', id: "cache_table_set_" + this.props.data.get("set") },
 	          _react2.default.createElement(
 	            'caption',
 	            null,
@@ -48331,6 +48863,22 @@
 	                _fixedDataTable.Cell,
 	                props,
 	                _this2.props.data.get(props.rowIndex).get("operationType")
+	              );
+	            },
+	            width: 50,
+	            flexGrow: 1
+	          }),
+	          _react2.default.createElement(_fixedDataTable.Column, {
+	            header: _react2.default.createElement(
+	              _fixedDataTable.Cell,
+	              null,
+	              'Register'
+	            ),
+	            cell: function cell(props) {
+	              return _react2.default.createElement(
+	                _fixedDataTable.Cell,
+	                props,
+	                _this2.props.data.get(props.rowIndex).get("register")
 	              );
 	            },
 	            width: 50,
@@ -63156,501 +63704,239 @@
 	};
 
 /***/ },
-/* 544 */
-/***/ function(module, exports, __webpack_require__) {
+/* 544 */,
+/* 545 */,
+/* 546 */
+/***/ function(module, exports) {
 
 	"use strict";
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by kim on 2016-07-04.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-	var _immutable = __webpack_require__(294);
+	var repeat = function repeat(str, times) {
+	  return new Array(times + 1).join(str);
+	};
+	var pad = function pad(num, maxLength) {
+	  return repeat("0", maxLength - num.toString().length) + num;
+	};
+	var formatTime = function formatTime(time) {
+	  return "@ " + pad(time.getHours(), 2) + ":" + pad(time.getMinutes(), 2) + ":" + pad(time.getSeconds(), 2) + "." + pad(time.getMilliseconds(), 3);
+	};
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	// Use the new performance api to get better precision if available
+	var timer = typeof performance !== "undefined" && typeof performance.now === "function" ? performance : Date;
 
-	var Instruction = function () {
-	  function Instruction(state, address, operationType, register) {
-	    _classCallCheck(this, Instruction);
+	/**
+	 * parse the level option of createLogger
+	 *
+	 * @property {string | function | object} level - console[level]
+	 * @property {object} action
+	 * @property {array} payload
+	 * @property {string} type
+	 */
 
-	    this.state = this.clear(state);
-	    this.address = address;
-	    this.operationType = operationType;
-	    this.register = register;
-	    this.tag = this.getTag(this.state.get("cache").get("blockSize"));
-	    this.index = this.getRowIndex(this.state.get('cache').get('blockCount'), this.state.get('cache').get('offsetBits'), this.state.get('cache').get('indexBits'));
-	    this.setNr = this.getSetNr();
-	    this.row = this.state.get('cache').get('sets').get(this.setNr).get('rows').get(this.index);
+	function getLogLevel(level, action, payload, type) {
+	  switch (typeof level === "undefined" ? "undefined" : _typeof(level)) {
+	    case "object":
+	      return typeof level[type] === "function" ? level[type].apply(level, _toConsumableArray(payload)) : level[type];
+	    case "function":
+	      return level(action);
+	    default:
+	      return level;
+	  }
+	}
+
+	/**
+	 * Creates logger with followed options
+	 *
+	 * @namespace
+	 * @property {object} options - options for logger
+	 * @property {string | function | object} options.level - console[level]
+	 * @property {boolean} options.duration - print duration of each action?
+	 * @property {boolean} options.timestamp - print timestamp with each action?
+	 * @property {object} options.colors - custom colors
+	 * @property {object} options.logger - implementation of the `console` API
+	 * @property {boolean} options.logErrors - should errors in action execution be caught, logged, and re-thrown?
+	 * @property {boolean} options.collapsed - is group collapsed?
+	 * @property {boolean} options.predicate - condition which resolves logger behavior
+	 * @property {function} options.stateTransformer - transform state before print
+	 * @property {function} options.actionTransformer - transform action before print
+	 * @property {function} options.errorTransformer - transform error before print
+	 */
+
+	function createLogger() {
+	  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var _options$level = options.level;
+	  var level = _options$level === undefined ? "log" : _options$level;
+	  var _options$logger = options.logger;
+	  var logger = _options$logger === undefined ? console : _options$logger;
+	  var _options$logErrors = options.logErrors;
+	  var logErrors = _options$logErrors === undefined ? true : _options$logErrors;
+	  var collapsed = options.collapsed;
+	  var predicate = options.predicate;
+	  var _options$duration = options.duration;
+	  var duration = _options$duration === undefined ? false : _options$duration;
+	  var _options$timestamp = options.timestamp;
+	  var timestamp = _options$timestamp === undefined ? true : _options$timestamp;
+	  var transformer = options.transformer;
+	  var _options$stateTransfo = options.stateTransformer;
+	  var // deprecated
+	  stateTransformer = _options$stateTransfo === undefined ? function (state) {
+	    return state;
+	  } : _options$stateTransfo;
+	  var _options$actionTransf = options.actionTransformer;
+	  var actionTransformer = _options$actionTransf === undefined ? function (actn) {
+	    return actn;
+	  } : _options$actionTransf;
+	  var _options$errorTransfo = options.errorTransformer;
+	  var errorTransformer = _options$errorTransfo === undefined ? function (error) {
+	    return error;
+	  } : _options$errorTransfo;
+	  var _options$colors = options.colors;
+	  var colors = _options$colors === undefined ? {
+	    title: function title() {
+	      return "#000000";
+	    },
+	    prevState: function prevState() {
+	      return "#9E9E9E";
+	    },
+	    action: function action() {
+	      return "#03A9F4";
+	    },
+	    nextState: function nextState() {
+	      return "#4CAF50";
+	    },
+	    error: function error() {
+	      return "#F20404";
+	    }
+	  } : _options$colors;
+
+	  // exit if console undefined
+
+	  if (typeof logger === "undefined") {
+	    return function () {
+	      return function (next) {
+	        return function (action) {
+	          return next(action);
+	        };
+	      };
+	    };
 	  }
 
-	  _createClass(Instruction, [{
-	    key: "simulate",
-	    value: function simulate() {
-	      if (this.hit(this.row)) {
-	        return this.simulateHit();
-	      } else {
-	        return this.simulateMiss();
+	  if (transformer) {
+	    console.error("Option 'transformer' is deprecated, use stateTransformer instead");
+	  }
+
+	  var logBuffer = [];
+	  function printBuffer() {
+	    logBuffer.forEach(function (logEntry, key) {
+	      var started = logEntry.started;
+	      var startedTime = logEntry.startedTime;
+	      var action = logEntry.action;
+	      var prevState = logEntry.prevState;
+	      var error = logEntry.error;
+	      var took = logEntry.took;
+	      var nextState = logEntry.nextState;
+
+	      var nextEntry = logBuffer[key + 1];
+	      if (nextEntry) {
+	        nextState = nextEntry.prevState;
+	        took = nextEntry.started - started;
 	      }
-	    }
-	  }, {
-	    key: "simulateHit",
-	    value: function simulateHit() {
-	      var _this = this;
+	      // message
+	      var formattedAction = actionTransformer(action);
+	      var isCollapsed = typeof collapsed === "function" ? collapsed(function () {
+	        return nextState;
+	      }, action) : collapsed;
 
-	      var newRow = this.getNewRowHit();
-	      this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
-	      if (this.operationType === "STORE") {
-	        (function () {
-	          _this.state = _this.storeHit();
-	          var data = _this.getBlock(_this.state.get('cache').get('blockSize'), _this.state.get('memory'));
-	          newRow = newRow.set('elements', newRow.get('elements').map(function (e) {
-	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
-	          })).set("validbit", 1).set("tag", "0x" + _this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
-	        })();
-	      }
-	      if (this.operationType === "LOAD") {
-	        this.state = this.loadHit();
-	      }
-	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
-	        return s.set('rows', s.get('rows').update(_this.index, function () {
-	          return newRow;
-	        }));
-	      })));
-	    }
-	  }, {
-	    key: "simulateMiss",
-	    value: function simulateMiss() {
-	      if (this.operationType === "STORE") {
-	        this.state = this.storeMiss();
-	      }
-	      if (this.memoryHit(this.state.get('memory'))) {
-	        return this.memoryFetch();
-	      } else {
-	        this.state = this.updateInstructionHistory();
-	        return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
-	      }
-	    }
-	  }, {
-	    key: "storeMiss",
-	    value: function storeMiss() {
-	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
-	      var bytes = this.wordToBytes(storeData);
-	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
-	    }
-	  }, {
-	    key: "storeHit",
-	    value: function storeHit() {
-	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
-	      var bytes = this.wordToBytes(storeData);
-	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
-	    }
-	  }, {
-	    key: "loadMiss",
-	    value: function loadMiss() {
-	      var word = this.bytesToWord(this.getWord(this.address, this.state.get("memory")));
-	      return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, function (reg) {
-	        return reg.set("data", word);
-	      })));
-	    }
-	  }, {
-	    key: "loadHit",
-	    value: function loadHit() {
-	      var data = this.getWord(this.address, this.state.get('memory'));
-	      var word = this.bytesToWord(data);
-	      return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, function (reg) {
-	        return reg.set("data", word);
-	      })));
-	    }
-	  }, {
-	    key: "memoryFetch",
-	    value: function memoryFetch() {
-	      var _this2 = this;
+	      var formattedTime = formatTime(startedTime);
+	      var titleCSS = colors.title ? "color: " + colors.title(formattedAction) + ";" : null;
+	      var title = "action " + (timestamp ? formattedTime : "") + " " + formattedAction.type + " " + (duration ? "(in " + took.toFixed(2) + " ms)" : "");
 
-	      var newRow = this.getNewRowMiss();
-	      if (this.operationType === "LOAD") {
-	        this.state = this.loadMiss();
-	      }
-	      this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
-	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
-	        return s.set('rows', s.get('rows').update(_this2.index, function () {
-	          return newRow;
-	        }));
-	      })));
-	    }
-	  }, {
-	    key: "getNewRowMiss",
-	    value: function getNewRowMiss() {
-	      var _this3 = this;
-
-	      var data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'));
-	      return this.row.set('elements', this.row.get('elements').map(function (e) {
-	        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this3.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
-	      })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
-	    }
-	  }, {
-	    key: "getNewRowHit",
-	    value: function getNewRowHit() {
-	      var _this4 = this;
-
-	      return this.row.set('elements', this.row.get('elements').map(function (e) {
-	        if (Number(e.get("byte")) === Number(_this4.address) - Number(_this4.tag)) {
-	          return e.set("hit", true);
-	        } else return e;
-	      })).set("usedDate", Date.now());
-	    }
-
-	    /**
-	     * Function that clears state for visual effects.
-	     *
-	     * @param state state to be updated
-	     * @returns {*} new state
-	     */
-
-	  }, {
-	    key: "clear",
-	    value: function clear(state) {
-	      var newState = state.set("cache", state.get("cache").set("sets", state.get("cache").get("sets").map(function (s) {
-	        return s.set("rows", s.get("rows").map(function (r) {
-	          return r.set("elements", r.get("elements").map(function (e) {
-	            return e.set("hit", false);
-	          })).set("miss", false);
-	        }));
-	      })));
-	      return newState;
-	    }
-
-	    /**
-	     * Function that calculates setNumber to be affected by the cache hit/miss
-	     *
-	     * @param state state
-	     * @param index row-index
-	     * @param tag tag of the block
-	     * @returns {number} set-number
-	     */
-
-	  }, {
-	    key: "getSetNr",
-	    value: function getSetNr() {
-	      var rows = (0, _immutable.List)();
-	      var algorithm = this.state.get('cache').get('replacementAlgorithm');
-	      var row = void 0;
-	      for (var i = 0; i < this.state.get("cache").get("sets").size; i++) {
-	        row = this.state.get("cache").get("sets").get(i).get("rows").get(this.index);
-	        if (this.hit(row)) {
-	          return i;
+	      // render
+	      try {
+	        if (isCollapsed) {
+	          if (colors.title) logger.groupCollapsed("%c " + title, titleCSS);else logger.groupCollapsed(title);
+	        } else {
+	          if (colors.title) logger.group("%c " + title, titleCSS);else logger.group(title);
 	        }
-	        rows = rows.push(row);
+	      } catch (e) {
+	        logger.log(title);
 	      }
-	      for (var _i = 0; _i < rows.size; _i++) {
-	        if (rows.get(_i).get("validbit") === 0) {
-	          return _i;
+
+	      var prevStateLevel = getLogLevel(level, formattedAction, [prevState], "prevState");
+	      var actionLevel = getLogLevel(level, formattedAction, [formattedAction], "action");
+	      var errorLevel = getLogLevel(level, formattedAction, [error, prevState], "error");
+	      var nextStateLevel = getLogLevel(level, formattedAction, [nextState], "nextState");
+
+	      if (prevStateLevel) {
+	        if (colors.prevState) logger[prevStateLevel]("%c prev state", "color: " + colors.prevState(prevState) + "; font-weight: bold", prevState);else logger[prevStateLevel]("prev state", prevState);
+	      }
+
+	      if (actionLevel) {
+	        if (colors.action) logger[actionLevel]("%c action", "color: " + colors.action(formattedAction) + "; font-weight: bold", formattedAction);else logger[actionLevel]("action", formattedAction);
+	      }
+
+	      if (error && errorLevel) {
+	        if (colors.error) logger[errorLevel]("%c error", "color: " + colors.error(error, prevState) + "; font-weight: bold", error);else logger[errorLevel]("error", error);
+	      }
+
+	      if (nextStateLevel) {
+	        if (colors.nextState) logger[nextStateLevel]("%c next state", "color: " + colors.nextState(nextState) + "; font-weight: bold", nextState);else logger[nextStateLevel]("next state", nextState);
+	      }
+
+	      try {
+	        logger.groupEnd();
+	      } catch (e) {
+	        logger.log("—— log end ——");
+	      }
+	    });
+	    logBuffer.length = 0;
+	  }
+
+	  return function (_ref) {
+	    var getState = _ref.getState;
+	    return function (next) {
+	      return function (action) {
+	        // exit early if predicate function returns false
+	        if (typeof predicate === "function" && !predicate(getState, action)) {
+	          return next(action);
 	        }
-	      }
-	      switch (algorithm) {
-	        case "LRU":
-	          return this.lru(rows);
-	        case "FIFO":
-	          return this.fifo(rows);
-	        case "RANDOM":
-	          return this.random(rows);
-	      }
-	    }
 
-	    /**
-	     * Simulates the LRU replacement algorithm
-	     *
-	     * @param rows rows with the same index from different sets
-	     * @returns {number} set-number
-	     */
+	        var logEntry = {};
+	        logBuffer.push(logEntry);
 
-	  }, {
-	    key: "lru",
-	    value: function lru(rows) {
-	      var setNr = 0;
-	      var usedDate = rows.get(0).get("usedDate");
+	        logEntry.started = timer.now();
+	        logEntry.startedTime = new Date();
+	        logEntry.prevState = stateTransformer(getState());
+	        logEntry.action = action;
 
-	      for (var i = 1; i < rows.size; i++) {
-	        if (rows.get(i).get("usedDate") < usedDate) {
-	          setNr = i;
-	          usedDate = rows.get(i).get("usedDate");
+	        var returnedValue = undefined;
+	        if (logErrors) {
+	          try {
+	            returnedValue = next(action);
+	          } catch (e) {
+	            logEntry.error = errorTransformer(e);
+	          }
+	        } else {
+	          returnedValue = next(action);
 	        }
-	      }
-	      return setNr;
-	    }
 
-	    /**
-	     * Simulates  the FIFO replacement algorithm
-	     *
-	     * @param rows rows with the same index from different sets
-	     * @returns {number}set-number
-	     */
+	        logEntry.took = timer.now() - logEntry.started;
+	        logEntry.nextState = stateTransformer(getState());
 
-	  }, {
-	    key: "fifo",
-	    value: function fifo(rows) {
-	      var setNr = 0;
-	      var loadedDate = rows.get(0).get("loadedDate");
+	        printBuffer();
 
-	      for (var i = 1; i < rows.size; i++) {
-	        if (rows.get(i).get("loadedDate") < loadedDate) {
-	          setNr = i;
-	          loadedDate = rows.get(i).get("usedDate");
-	        }
-	      }
-	      return setNr;
-	    }
+	        if (logEntry.error) throw logEntry.error;
+	        return returnedValue;
+	      };
+	    };
+	  };
+	}
 
-	    /**
-	     * Simulates the RANDOM replacement algorithm
-	     *
-	     * @param rows rows with the same index from different sets
-	     * @returns {number} set-number
-	     */
-
-	  }, {
-	    key: "random",
-	    value: function random(rows) {
-	      return Math.floor(Math.random() * rows.size);
-	    }
-
-	    /**
-	     * Returns row-index in the cache
-	     *
-	     * @param tag tag of the block to be fetched
-	     * @param blockCount number of blocks in each set
-	     * @param offsetBits number of offsetbits in the address
-	     * @param indexBits number of indexbits in the address
-	     * @returns {*} row-index
-	     */
-
-	  }, {
-	    key: "getRowIndex",
-	    value: function getRowIndex(blockCount, offsetBits, indexBits) {
-	      if (blockCount === 1) return 0;
-	      var binary = this.createBinaryString(Number(this.tag));
-	      var index = binary.slice(32 - (offsetBits + indexBits), 32 - offsetBits);
-	      return parseInt(index, 2);
-	    }
-
-	    /**
-	     * Returns the tag of the block (a whole block is always fetched on cache miss)
-	     *
-	     * @param tag tag of the instruction
-	     * @param blockSize blocksize
-	     * @returns {number} tag of the block
-	     */
-
-	  }, {
-	    key: "getTag",
-	    value: function getTag(blockSize) {
-	      return Number(this.address) - Number(Number(this.address) % Number(blockSize));
-	    }
-
-	    /**
-	     * Fetches a block of data
-	     *
-	     * @param blockSize block-size in the cache memory
-	     * @param tag address-tag to be fetched
-	     * @param memory main memory
-	     * @returns {Array} block of data
-	     */
-
-	  }, {
-	    key: "getBlock",
-	    value: function getBlock(blockSize, memory) {
-	      var data = [];
-	      for (var i = 0; i < blockSize; i++) {
-	        data.push(this.getData(Number(this.tag) + Number(i), memory));
-	      }
-	      return data;
-	    }
-	  }, {
-	    key: "getWord",
-	    value: function getWord(address, memory) {
-	      var data = [];
-	      for (var i = 0; i < 4; i++) {
-	        data.push(this.getData(Number(address) + Number(i), memory));
-	      }
-	      return data;
-	    }
-
-	    /**
-	     * Fetches the data from the specified main memory address
-	     *
-	     * @param tag address-tag
-	     * @param memory main memory
-	     * @returns {string} data
-	     */
-
-	  }, {
-	    key: "getData",
-	    value: function getData(tag, memory) {
-	      var data = "invalid_address";
-	      memory.map(function (addr) {
-	        if (Number(addr.get('address_number')) === Number(tag)) {
-	          data = addr.get('data_string');
-	          return;
-	        }
-	      });
-	      return data;
-	    }
-
-	    /**
-	     * Stores a word in main memory at the specified tag
-	     *
-	     * @param bytes 4 bytes to store
-	     * @param tag memory address to store at
-	     * @param memory memory to store in
-	     * @returns {*} updated memory
-	     */
-
-	  }, {
-	    key: "storeWord",
-	    value: function storeWord(bytes, memory) {
-	      var newMemory = void 0;
-	      for (var i = 0; i < bytes.length; i++) {
-	        newMemory = this.storeByte(bytes[i], Number(this.tag) + i, memory);
-	        memory = newMemory;
-	      }
-	      return memory;
-	    }
-
-	    /**
-	     * Stores a byte in memory at the specified tag
-	     *
-	     * @param byte byte to store
-	     * @param tag memory address to store at
-	     * @param memory memory to store in
-	     * @returns {*} updated memory
-	     */
-
-	  }, {
-	    key: "storeByte",
-	    value: function storeByte(byte, tag, memory) {
-	      return memory.update(Number(tag), function (m) {
-	        return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte);
-	      });
-	    }
-
-	    /**
-	     * Function that updates instructionhistory
-	     *
-	     * @param row row in the cache affected by the instruction simulation
-	     * @param tag tag of the instruction
-	     * @param operationType operation-type of the instruction
-	     * @param state state to update
-	     * @returns {*} new state with updated instructionHistory
-	     */
-
-	  }, {
-	    key: "updateInstructionHistory",
-	    value: function updateInstructionHistory() {
-	      var result = void 0;
-	      if (this.hit(this.row)) {
-	        result = "HIT";
-	      } else {
-	        result = "MISS";
-	      }
-	      var instruction = (0, _immutable.Map)({
-	        operationType: this.operationType,
-	        address: "0x" + this.tag.toString(16).toUpperCase(),
-	        result: result
-	      });
-	      return this.state.set('instructionHistory', this.state.get('instructionHistory').push(instruction));
-	    }
-
-	    /**
-	     * Checks whether the instruction was a hit in the cache or not.
-	     *
-	     * @param row row calculated by replacementalgorithm and index-bits
-	     * @param tag address-tag of the instruction
-	     * @returns {boolean}
-	     */
-
-	  }, {
-	    key: "hit",
-	    value: function hit(row) {
-	      if (row.get("validbit") === 1) {
-	        if (row.get("tag") === "0x" + this.tag.toString(16).toUpperCase()) return true;else return false;
-	      } else {
-	        return false;
-	      }
-	    }
-
-	    /**
-	     * Checks if the address to be fetched is valid, i.e it can be found in the main memory
-	     *
-	     * @param tag address-tag
-	     * @param memory main memory
-	     * @returns {boolean}
-	     */
-
-	  }, {
-	    key: "memoryHit",
-	    value: function memoryHit(memory) {
-	      if (this.getData(this.tag, memory) !== "invalid_address") return true;else return false;
-	    }
-
-	    /**
-	     * Creates binary string from integer
-	     *
-	     * @param nMask integer
-	     * @returns {string} binary string
-	     */
-
-	  }, {
-	    key: "createBinaryString",
-	    value: function createBinaryString(nMask) {
-	      // nMask must be between -2147483648 and 2147483647
-	      for (var nFlag = 0, nShifted = nMask, sMask = ""; nFlag < 32; nFlag++, sMask += String(nShifted >>> 31), nShifted <<= 1) {}
-	      return sMask;
-	    }
-
-	    /**
-	     * Function that converts 4 bytes in hex format to a word in hex format
-	     * @param data bytes to convert
-	     * @returns {string} hexadecimal string of the word
-	     */
-
-	  }, {
-	    key: "bytesToWord",
-	    value: function bytesToWord(data) {
-	      var byte1 = this.createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
-	      var byte2 = this.createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
-	      var byte3 = this.createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
-	      var byte4 = this.createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
-	      var word = byte1 + byte2 + byte3 + byte4;
-	      return "0x" + parseInt(word, 2).toString(16).toUpperCase();
-	    }
-
-	    /**
-	     * Function that converts a hexadecimal word to 4 bytes in decimal
-	     *
-	     * @param word word to convert
-	     * @returns {*} array of 4 bytes.
-	     */
-
-	  }, {
-	    key: "wordToBytes",
-	    value: function wordToBytes(word) {
-	      var binaryWord = this.createBinaryString(parseInt(word.slice(2, word.length), 16));
-	      var byte4 = binaryWord.slice(0, 8);
-	      var byte3 = binaryWord.slice(8, 16);
-	      var byte2 = binaryWord.slice(16, 24);
-	      var byte1 = binaryWord.slice(24, 32);
-	      var data = [parseInt(byte4, 2), parseInt(byte3, 2), parseInt(byte2, 2), parseInt(byte1, 2)];
-	      return data;
-	    }
-	  }]);
-
-	  return Instruction;
-	}();
-
-	exports.default = Instruction;
+	module.exports = createLogger;
 
 /***/ }
 /******/ ]);

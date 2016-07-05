@@ -21,7 +21,7 @@ class SettingsPanel extends React.Component {
     }
     return (
       <div>
-        <p className="bold center_text"> Large cache-sizes (e.g 1024 bytes) will take a few seconds to render </p>
+        <p className="bold center_text">Large cache-sizes will take longer time to render and simulate </p>
         <CacheFormComponent onSubmit={this.props.cacheHandleSubmit} {...myInitialValues}/>
       </div>
     );
@@ -55,12 +55,13 @@ const mapDispatchToProps = (dispatch) => {
      * @param fields fields of the action
      */
     cacheHandleSubmit: (fields) => {
+      dispatch(actions.startRendering())
       scroller.scrollTo('cache_init_scroll_position', {
         duration: 1500,
         offset: 475,
         smooth: true
       })
-      dispatch(actions.cacheAndMemoryContentInitialization(fields));
+      setTimeout(dispatch, 100, actions.cacheAndMemoryContentInitialization(fields))
     }
   }
 }

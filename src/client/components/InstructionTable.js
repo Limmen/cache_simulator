@@ -34,6 +34,16 @@ class InstructionTable extends React.Component {
             flexGrow={1}
           />
           <Column
+            header={<Cell>Register</Cell>}
+            cell={props => (
+           <Cell {...props}>
+         {this.props.data.get(props.rowIndex).get("register")}
+          </Cell>
+        )}
+            width={50}
+            flexGrow={1}
+          />
+          <Column
             header={<Cell>Address</Cell>}
             cell={props => (
            <Cell {...props}>

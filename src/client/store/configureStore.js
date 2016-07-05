@@ -8,7 +8,7 @@ import { applyMiddleware, createStore } from 'redux'
 import rootReducer from '../reducers'
 import thunk from 'redux-thunk';
 import promise from 'redux-promise';
-//import createLogger from 'redux-logger';
+import createLogger from 'redux-logger';
 
 /**
  * Creates the store of the redux app.
@@ -17,12 +17,12 @@ import promise from 'redux-promise';
  * @returns {*} the single store of the redux app
  */
 export default function configureStore(initialState) {
-  //const logger = createLogger();
+  const logger = createLogger();
   const store = createStore(
     rootReducer,
     initialState,
-    //applyMiddleware(thunk, promise, logger)
-    applyMiddleware(thunk, promise)
+    applyMiddleware(thunk, promise, logger)
+    //applyMiddleware(thunk, promise)
   )
   return store
 }

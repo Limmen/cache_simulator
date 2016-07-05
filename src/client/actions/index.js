@@ -5,6 +5,9 @@
  */
 
 import * as types from '../constants/ActionTypes'
+import initialCacheContent from '../reducers/model/initialCacheContent'
+import initialMemoryContent from '../reducers/model/initialMemoryContent'
+import initialRegisterContent from '../reducers/model/initialRegisterContent'
 
 
 export function cacheAndMemoryContentInitialization(fields) {
@@ -18,6 +21,12 @@ export function cacheContentUpdate(fields) {
   return {
     type: types.CACHE_CONTENT_UPDATE,
     fields
+  }
+}
+
+export function startRendering(){
+  return {
+    type: types.START_RENDERING
   }
 }
 
@@ -44,5 +53,4 @@ export function clearCache() {
     type: types.CLEAR_CACHE
   }
 }
-
 

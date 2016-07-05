@@ -180,6 +180,9 @@ class CacheMem extends React.Component {
                 </button>
               </small>
             </h3>
+            <div className="row centering-block margin-bottom margin-top">
+              {this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)}
+            </div>
             <div className="instructionResult">
               <p id="fade" className="center_text">
                 {this.props.cachecontent.get("instructionResult")}
@@ -192,9 +195,6 @@ class CacheMem extends React.Component {
             </div>
           </div>
         </Element>
-        <div className="row centering-block margin-bottom margin-top">
-          {this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)}
-        </div>
       </div>
     );
   }
