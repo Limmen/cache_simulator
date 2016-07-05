@@ -30203,7 +30203,8 @@
 	  instruction: "",
 	  simulating: false,
 	  isLoadingContent: false,
-	  isRenderingContent: false
+	  isRenderingContent: false,
+	  visualSimulation: true
 	});
 
 	/**
@@ -30224,7 +30225,7 @@
 	      var newcache = (0, _initialCacheContent2.default)(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm);
 	      var newmemory = (0, _initialMemoryContent2.default)(action.fields.memorySize);
 	      var newregister = (0, _initialRegisterContent2.default)();
-	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
+	      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister).set("visualSimulation", action.fields.visualSimulation);
 	    case _ActionTypes.CACHE_CONTENT_UPDATE:
 	      if (state.get("simulating")) return new _Instruction2.default(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType.toUpperCase(), action.fields.register).simulate();else return state;
 	    case _ActionTypes.CLEAR_CACHE:
@@ -37504,16 +37505,22 @@
 	    value: function render() {
 	      var myInitialValues = {
 	        initialValues: {
-	          replacementAlgorithm: 'LRU'
+	          replacementAlgorithm: 'LRU',
+	          visualSimulation: true
 	        }
 	      };
 	      return _react2.default.createElement(
 	        'div',
 	        null,
 	        _react2.default.createElement(
-	          'p',
-	          { className: 'bold center_text' },
-	          'Large cache-sizes will take longer time to render and simulate '
+	          'div',
+	          { className: 'alert alert-warning center_text' },
+	          _react2.default.createElement(
+	            'strong',
+	            null,
+	            'Note:'
+	          ),
+	          ' Larger cache-sizes will take longer to render and simulate. Very large cache-sizes are probably not that useful for simulation purposes.'
 	        ),
 	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
 	      );
@@ -37595,7 +37602,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize'];
+	var fields = exports.fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize', 'visualSimulation'];
 
 	/**
 	 * Function to validate form input parameters.
@@ -37677,6 +37684,7 @@
 	      var associativity = _props$fields.associativity;
 	      var replacementAlgorithm = _props$fields.replacementAlgorithm;
 	      var memorySize = _props$fields.memorySize;
+	      var visualSimulation = _props$fields.visualSimulation;
 	      var resetForm = _props.resetForm;
 	      var handleSubmit = _props.handleSubmit;
 	      var submitting = _props.submitting;
@@ -37836,6 +37844,25 @@
 	                    memorySize.error
 	                  )
 	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_checkbox_visual' },
+	                  'Simulate visually'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8 checkbox' },
+	                  _react2.default.createElement('input', _extends({ type: 'checkbox' }, visualSimulation, { id: 'input_checkbox_visual' }))
+	                ),
+	                _react2.default.createElement('div', { className: 'error' })
 	              )
 	            ),
 	            _react2.default.createElement(
@@ -39508,7 +39535,62 @@
 	      }
 	      return tables;
 	    }
-
+	  }, {
+	    key: 'renderCache',
+	    value: function renderCache() {
+	      if (this.props.cachecontent.get("visualSimulation")) {
+	        return _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(
+	            'h3',
+	            { className: 'bold center_text' },
+	            'Cache Memory',
+	            _react2.default.createElement(
+	              'small',
+	              null,
+	              _react2.default.createElement(
+	                'button',
+	                { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
+	                'Clear Cache'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row centering-block margin-bottom margin-top' },
+	            this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'instructionResult' },
+	            _react2.default.createElement(
+	              'p',
+	              { id: 'fade', className: 'center_text' },
+	              this.props.cachecontent.get("instructionResult"),
+	              _react2.default.createElement('br', null),
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                this.props.cachecontent.get("instruction")
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'cache_mem' },
+	            this.createTables()
+	          )
+	        );
+	      } else return null;
+	    }
+	  }, {
+	    key: 'renderHr',
+	    value: function renderHr() {
+	      if (this.props.cachecontent.get("visualSimulation")) {
+	        return _react2.default.createElement('hr', null);
+	      } else return null;
+	    }
 	    /**
 	     * Returns the bitsize of a given integer
 	     *
@@ -39816,53 +39898,11 @@
 	            )
 	          )
 	        ),
-	        _react2.default.createElement('hr', null),
+	        this.renderHr(),
 	        _react2.default.createElement(
 	          _reactScroll.Element,
 	          { name: 'cache_mem_scroll_position' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row' },
-	            _react2.default.createElement(
-	              'h3',
-	              { className: 'bold center_text' },
-	              'Cache Memory',
-	              _react2.default.createElement(
-	                'small',
-	                null,
-	                _react2.default.createElement(
-	                  'button',
-	                  { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
-	                  'Clear Cache'
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'row centering-block margin-bottom margin-top' },
-	              this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'instructionResult' },
-	              _react2.default.createElement(
-	                'p',
-	                { id: 'fade', className: 'center_text' },
-	                this.props.cachecontent.get("instructionResult"),
-	                _react2.default.createElement('br', null),
-	                _react2.default.createElement(
-	                  'code',
-	                  null,
-	                  this.props.cachecontent.get("instruction")
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'cache_mem' },
-	              this.createTables()
-	            )
-	          )
+	          this.renderCache()
 	        )
 	      );
 	    }

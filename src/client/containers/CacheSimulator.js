@@ -31,7 +31,7 @@ class CacheSimulator extends React.Component {
           </div>
           <hr></hr>
           <h3 className="bold center_text">Instruction Results</h3>
-          <InstructionResultPanel />
+            <InstructionResultPanel />
           <hr></hr>
           <h3 className="bold center_text">Registers</h3>
           <RegisterPanel />
@@ -42,7 +42,7 @@ class CacheSimulator extends React.Component {
       )
     }
     else {
-      if(this.props.isRenderingContent || this.props.isLoadingContent) {
+      if (this.props.isRenderingContent || this.props.isLoadingContent) {
         return (
           <h3 className="bold center_text">Loading... </h3>
         )

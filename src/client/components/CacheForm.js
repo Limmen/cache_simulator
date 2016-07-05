@@ -5,7 +5,7 @@
 
 import React from 'react';
 import {reduxForm} from 'redux-form'
-export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize']
+export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize', 'visualSimulation']
 
 /**
  * Function to validate form input parameters.
@@ -71,7 +71,7 @@ const validate = values => {
 
 class CacheForm extends React.Component {
   render() {
-    const {fields: {cacheSize, blockSize, associativity, replacementAlgorithm, memorySize}, resetForm, handleSubmit, submitting} = this.props
+    const {fields: {cacheSize, blockSize, associativity, replacementAlgorithm, memorySize, visualSimulation}, resetForm, handleSubmit, submitting} = this.props
     return (
       <div className="cacheform-component row">
         <form className="form-horizontal" role="form" onSubmit={handleSubmit}>
@@ -134,6 +134,16 @@ class CacheForm extends React.Component {
                 </div>
                 <div className="error">
                   {memorySize.touched && memorySize.error && <div>{memorySize.error}</div>}
+                </div>
+              </div>
+            </div>
+            <div className="col-sm-6">
+              <div className="form-group">
+                <label className="bold col-md-4 control-label" htmlFor="input_checkbox_visual">Simulate visually</label>
+                <div className="col-md-8 checkbox">
+                  <input type="checkbox" {...visualSimulation} id="input_checkbox_visual"/>
+                </div>
+                <div className="error">
                 </div>
               </div>
             </div>

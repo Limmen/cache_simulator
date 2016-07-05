@@ -26,7 +26,8 @@ const initialState = Map(
     instruction: "",
     simulating: false,
     isLoadingContent: false,
-    isRenderingContent: false
+    isRenderingContent: false,
+    visualSimulation: true
   }
 )
 
@@ -45,7 +46,7 @@ export default function cacheAndMemoryContent(state = initialState, action) {
       let newcache = initialCacheContent(action.fields.cacheSize, action.fields.blockSize, action.fields.associativity, action.fields.replacementAlgorithm)
       let newmemory = initialMemoryContent(action.fields.memorySize)
       let newregister = initialRegisterContent()
-      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister);
+      return state.set('cache', newcache).set('memory', newmemory).set("register", newregister).set("visualSimulation", action.fields.visualSimulation);
     case CACHE_CONTENT_UPDATE:
       if (state.get("simulating"))
         return new Instruction(state, parseInt(action.fields.fetchAddress, 16), action.fields.operationType.toUpperCase(), action.fields.register).simulate();

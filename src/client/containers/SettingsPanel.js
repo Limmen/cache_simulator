@@ -16,12 +16,16 @@ class SettingsPanel extends React.Component {
   render() {
     const myInitialValues = {
       initialValues: {
-        replacementAlgorithm: 'LRU'
+        replacementAlgorithm: 'LRU',
+        visualSimulation: true
       }
     }
     return (
       <div>
-        <p className="bold center_text">Large cache-sizes will take longer time to render and simulate </p>
+        <div className="alert alert-warning center_text">
+          <strong>Note:</strong> Larger cache-sizes will take longer to render and simulate. Very large cache-sizes
+          are probably not that useful for simulation purposes.
+        </div>
         <CacheFormComponent onSubmit={this.props.cacheHandleSubmit} {...myInitialValues}/>
       </div>
     );
