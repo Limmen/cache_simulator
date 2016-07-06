@@ -11,6 +11,7 @@ import {connect} from 'react-redux'
 import Table from '../components/CacheTable'
 import * as actions from '../actions/'
 import {Element} from 'react-scroll';
+import StaticCacheTable from '../components/StaticCacheTable'
 
 class CacheMem extends React.Component {
 
@@ -29,10 +30,19 @@ class CacheMem extends React.Component {
    *
    * @returns {Array} tables
    */
-  createTables() {
+  createVisualTables() {
     let tables = [];
     for (let i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
       tables.push(<Table className="set_margin center center-block" key={i}
+                         data={this.props.cachecontent.get('cache').get('sets').get(i)}/>);
+    }
+    return tables;
+  }
+
+  createTables() {
+    let tables = [];
+    for (let i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
+      tables.push(<StaticCacheTable key={i}
                          data={this.props.cachecontent.get('cache').get('sets').get(i)}/>);
     }
     return tables;
@@ -60,18 +70,23 @@ class CacheMem extends React.Component {
             </p>
           </div>
           <div className="cache_mem">
-            {this.createTables()}
+            {this.createVisualTables()}
           </div>
         </div>
       )
     }
-    else return null;
-  }
-
-  renderHr(){
-    if (this.props.cachecontent.get("visualSimulation")) {
-      return (<hr></hr>)
-    }else return null
+    else return (
+      <div className="row">
+        <h3 className="bold center_text">Cache Memory
+          <small>
+            <button className="btn btn-default" type="button" onClick={this.props.clearCache}>
+              Clear Cache
+            </button>
+          </small>
+        </h3>
+        {this.createTables()}
+      </div>
+    )
   }
   /**
    * Returns the bitsize of a given integer
@@ -205,7 +220,7 @@ class CacheMem extends React.Component {
             </table>
           </div>
         </div>
-        {this.renderHr()}
+        <hr></hr>
         <Element name="cache_mem_scroll_position">
           {this.renderCache()}
         </Element>

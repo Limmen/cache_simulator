@@ -37880,7 +37880,7 @@
 	            null,
 	            'Note:'
 	          ),
-	          ' Larger cache-sizes will take longer to render and simulate. Very large cache-sizes are probably not that useful for simulation purposes.'
+	          ' Visual simulation is not recommended for very large cache-sizes (e.g. 4096 bytes), the point of the visualisation is to be able to see the cache- hits and misses in real time, which is not possible if the cache is too large. Also the rendering time and page responsiveness will be slower.'
 	        ),
 	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
 	      );
@@ -39073,7 +39073,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.fetchHandleSubmit }, myInitialValues, { simulating: this.props.simulating }))
+	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator }, myInitialValues, { simulating: this.props.simulating }))
 	      );
 	    }
 	  }]);
@@ -39082,7 +39082,7 @@
 	}(_react2.default.Component);
 
 	InstructionPanel.propTypes = {
-	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
+	  visualSimulator: _react2.default.PropTypes.func.isRequired
 	};
 
 	/**
@@ -39094,22 +39094,34 @@
 	 */
 	function mapStateToProps(state) {
 	  return {
-	    simulating: state.cacheAndMemoryContent.get("simulating")
+	    simulating: state.cacheAndMemoryContent.get("simulating"),
+	    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
 	  };
 	}
 	/**
 	 * Maps the redux dispatcher to props that this container provides.
 	 *
 	 * @param dispatch redux-dispatcher
-	 * @returns {{fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
 	 */
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
+
+	    simulator: function simulator(fields) {
+	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
+	        duration: 0,
+	        offset: -50,
+	        smooth: true
+	      });
+	      dispatch(actions.startSimulation());
+	      dispatch(actions.cacheContentUpdate(fields));
+	      dispatch(actions.stopSimulation());
+	    },
 	    /**
 	     * Function to handle submission of the fetchform. Dispatches a action.
 	     * @param fields of the action
 	     */
-	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	    visualSimulator: function visualSimulator(fields) {
 	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
 	        duration: 0,
 	        offset: -50,
@@ -39419,7 +39431,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_AssemblyForm2.default, { onSubmit: this.props.fetchHandleSubmit, simulating: this.props.simulating })
+	        _react2.default.createElement(_AssemblyForm2.default, { onSubmit: this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator, simulating: this.props.simulating })
 	      );
 	    }
 	  }]);
@@ -39428,7 +39440,7 @@
 	}(_react2.default.Component);
 
 	AssemblyPanel.propTypes = {
-	  fetchHandleSubmit: _react2.default.PropTypes.func.isRequired
+	  visualSimulator: _react2.default.PropTypes.func.isRequired
 	};
 
 	/**
@@ -39439,22 +39451,47 @@
 	 */
 	function mapStateToProps(state) {
 	  return {
-	    simulating: state.cacheAndMemoryContent.get("simulating")
+	    simulating: state.cacheAndMemoryContent.get("simulating"),
+	    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
 	  };
 	}
 	/**
 	 * Maps the redux dispatcher to props that this container provides.
 	 *
 	 * @param dispatch redux-dispatcher
-	 * @returns {{fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+	 * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
 	 */
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	  return {
+
+	    simulator: function simulator(fields) {
+	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
+	        duration: 1000,
+	        offset: -50,
+	        smooth: true
+	      });
+	      dispatch(actions.startSimulation());
+	      var rows = fields.assembly.split("\n");
+	      for (var i = 0; i < rows.length; i++) {
+	        var row = rows[i];
+	        var tokens = row.replace(/ +(?= )/g, '').split(" ");
+	        var operation = tokens[0];
+	        var register = tokens[1];
+	        var address = tokens[2];
+	        fields = {
+	          fetchAddress: address,
+	          operationType: operation,
+	          register: register
+	        };
+	        dispatch(actions.cacheContentUpdate(fields));
+	      }
+	      dispatch(actions.stopSimulation());
+	    },
 	    /**
 	     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
 	     * @param fields of the action
 	     */
-	    fetchHandleSubmit: function fetchHandleSubmit(fields) {
+	    visualSimulator: function visualSimulator(fields) {
 	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
 	        duration: 1000,
 	        offset: -50,
@@ -39846,6 +39883,10 @@
 
 	var _reactScroll = __webpack_require__(318);
 
+	var _StaticCacheTable = __webpack_require__(546);
+
+	var _StaticCacheTable2 = _interopRequireDefault(_StaticCacheTable);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -39886,11 +39927,21 @@
 	     */
 
 	  }, {
+	    key: 'createVisualTables',
+	    value: function createVisualTables() {
+	      var tables = [];
+	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
+	        tables.push(_react2.default.createElement(_CacheTable2.default, { className: 'set_margin center center-block', key: i,
+	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
+	      }
+	      return tables;
+	    }
+	  }, {
 	    key: 'createTables',
 	    value: function createTables() {
 	      var tables = [];
 	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
-	        tables.push(_react2.default.createElement(_CacheTable2.default, { className: 'set_margin center center-block', key: i,
+	        tables.push(_react2.default.createElement(_StaticCacheTable2.default, { key: i,
 	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
 	      }
 	      return tables;
@@ -39939,17 +39990,28 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'cache_mem' },
-	            this.createTables()
+	            this.createVisualTables()
 	          )
 	        );
-	      } else return null;
-	    }
-	  }, {
-	    key: 'renderHr',
-	    value: function renderHr() {
-	      if (this.props.cachecontent.get("visualSimulation")) {
-	        return _react2.default.createElement('hr', null);
-	      } else return null;
+	      } else return _react2.default.createElement(
+	        'div',
+	        { className: 'row' },
+	        _react2.default.createElement(
+	          'h3',
+	          { className: 'bold center_text' },
+	          'Cache Memory',
+	          _react2.default.createElement(
+	            'small',
+	            null,
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
+	              'Clear Cache'
+	            )
+	          )
+	        ),
+	        this.createTables()
+	      );
 	    }
 	    /**
 	     * Returns the bitsize of a given integer
@@ -40258,7 +40320,7 @@
 	            )
 	          )
 	        ),
-	        this.renderHr(),
+	        _react2.default.createElement('hr', null),
 	        _react2.default.createElement(
 	          _reactScroll.Element,
 	          { name: 'cache_mem_scroll_position' },
@@ -64087,6 +64149,181 @@
 	    ]
 	  };
 	};
+
+/***/ },
+/* 546 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * StaticCacheTableComponent. A component displaying a table, that illustrates a cachestaticcache.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _fixedDataTable = __webpack_require__(346);
+
+	var _reactDimensions = __webpack_require__(396);
+
+	var _reactDimensions2 = _interopRequireDefault(_reactDimensions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var StaticCacheTable = function (_React$Component) {
+	  _inherits(StaticCacheTable, _React$Component);
+
+	  function StaticCacheTable() {
+	    _classCallCheck(this, StaticCacheTable);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(StaticCacheTable).apply(this, arguments));
+	  }
+
+	  _createClass(StaticCacheTable, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'staticcachetable-component' },
+	        _react2.default.createElement(
+	          'h5',
+	          { className: 'bold  center_text2 set_title' },
+	          'Set ',
+	          this.props.data.get("set")
+	        ),
+	        _react2.default.createElement(
+	          _fixedDataTable.Table,
+	          {
+	            rowsCount: this.props.data.get("rows").size,
+	            rowHeight: 75,
+	            headerHeight: 50,
+	            width: this.props.containerWidth,
+	            maxWidth: this.props.containerWidth,
+	            maxHeight: 500 },
+	          _react2.default.createElement(_fixedDataTable.Column, {
+	            header: _react2.default.createElement(
+	              _fixedDataTable.Cell,
+	              null,
+	              'Index'
+	            ),
+	            cell: function cell(props) {
+	              return _react2.default.createElement(
+	                _fixedDataTable.Cell,
+	                props,
+	                _this2.props.data.get("rows").get(props.rowIndex).get('index')
+	              );
+	            },
+	            width: 100,
+	            flexGrow: 1
+	          }),
+	          _react2.default.createElement(_fixedDataTable.Column, {
+	            header: _react2.default.createElement(
+	              _fixedDataTable.Cell,
+	              null,
+	              'Validbit'
+	            ),
+	            cell: function cell(props) {
+	              return _react2.default.createElement(
+	                _fixedDataTable.Cell,
+	                _extends({}, props, { className: 'validbit' }),
+	                _this2.props.data.get("rows").get(props.rowIndex).get('validbit')
+	              );
+	            },
+	            width: 100,
+	            flexGrow: 1
+	          }),
+	          _react2.default.createElement(_fixedDataTable.Column, {
+	            header: _react2.default.createElement(
+	              _fixedDataTable.Cell,
+	              null,
+	              'Tag'
+	            ),
+	            cell: function cell(props) {
+	              return _react2.default.createElement(
+	                _fixedDataTable.Cell,
+	                _extends({}, props, { className: 'tag' }),
+	                _this2.props.data.get("rows").get(props.rowIndex).get('tag')
+	              );
+	            },
+	            width: 100,
+	            flexGrow: 1
+	          }),
+	          this.props.data.get("rows").get(0).get("elements").map(function (element) {
+	            return _react2.default.createElement(_fixedDataTable.Column, {
+	              key: element.get("byte"),
+	              header: _react2.default.createElement(
+	                _fixedDataTable.Cell,
+	                null,
+	                'Byte ',
+	                element.get("byte")
+	              ),
+	              cell: function cell(props) {
+	                return _react2.default.createElement(
+	                  _fixedDataTable.Cell,
+	                  props,
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    _react2.default.createElement(
+	                      'b',
+	                      null,
+	                      'Address:'
+	                    ),
+	                    ' ',
+	                    _this2.props.data.get("rows").get(props.rowIndex).get('elements').get(element.get("byte")).get("address"),
+	                    ' '
+	                  ),
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    _react2.default.createElement(
+	                      'b',
+	                      null,
+	                      ' Data: '
+	                    ),
+	                    _this2.props.data.get("rows").get(props.rowIndex).get('elements').get(element.get("byte")).get("data"),
+	                    ' '
+	                  )
+	                );
+	              },
+	              width: 135,
+	              flexGrow: 1
+	            });
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return StaticCacheTable;
+	}(_react2.default.Component);
+
+	StaticCacheTable.displayName = 'StaticCacheTable';
+	StaticCacheTable.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = (0, _reactDimensions2.default)()(StaticCacheTable);
 
 /***/ }
 /******/ ]);

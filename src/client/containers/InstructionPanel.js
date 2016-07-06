@@ -22,14 +22,14 @@ class InstructionPanel extends React.Component {
     }
     return (
       <div>
-        <FetchFormComponent onSubmit={this.props.fetchHandleSubmit} {...myInitialValues} simulating={this.props.simulating} />
+        <FetchFormComponent onSubmit={this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator} {...myInitialValues} simulating={this.props.simulating} />
       </div>
     );
   }
 }
 
 InstructionPanel.propTypes = {
-  fetchHandleSubmit: React.PropTypes.func.isRequired
+  visualSimulator: React.PropTypes.func.isRequired
 }
 
 /**
@@ -41,22 +41,34 @@ InstructionPanel.propTypes = {
  */
 function mapStateToProps(state) {
   return {
-    simulating: state.cacheAndMemoryContent.get("simulating")
+    simulating: state.cacheAndMemoryContent.get("simulating"),
+    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
   }
 }
 /**
  * Maps the redux dispatcher to props that this container provides.
  *
  * @param dispatch redux-dispatcher
- * @returns {{fetchHandleSubmit: fetchHandleSubmit}} - Object with action creators.
+ * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
  */
 const mapDispatchToProps = (dispatch) => {
   return {
+
+    simulator: (fields) => {
+      scroller.scrollTo('cache_mem_scroll_position', {
+        duration: 0,
+        offset: -50,
+        smooth: true
+      })
+      dispatch(actions.startSimulation())
+      dispatch(actions.cacheContentUpdate(fields))
+      dispatch(actions.stopSimulation())
+    },
     /**
      * Function to handle submission of the fetchform. Dispatches a action.
      * @param fields of the action
      */
-    fetchHandleSubmit: (fields) => {
+    visualSimulator: (fields) => {
       scroller.scrollTo('cache_mem_scroll_position', {
         duration: 0,
         offset: -50,
