@@ -1,10 +1,20 @@
 /**
+ * Instruction class that contains method and state to simulate a instruction given a cache-memory, main memory and registers.
+ *
  * Created by kim on 2016-07-04.
  */
 
 import {Map, List} from 'immutable'
 
 class Instruction {
+  /**
+   * Class constructor to initialize instruction state.
+   *
+   * @param state application state that contians cache-memory, main memory, registers, instruction history and more.
+   * @param address address of the instruction
+   * @param operationType operation-type of the instruction
+   * @param register register of the instruction
+   */
   constructor(state, address, operationType, register) {
     this.state = this.clear(state);
     this.address = address;
@@ -16,7 +26,11 @@ class Instruction {
     this.row = this.state.get('cache').get('sets').get(this.setNr).get('rows').get(this.index);
   }
 
-
+  /**
+   * Entry point for simulating the instruction, returns updated application state.
+   *
+   * @returns {state}
+   */
   simulate() {
     if (this.hit(this.row)) {
       return this.simulateHit();
@@ -25,6 +39,10 @@ class Instruction {
     }
   }
 
+  /**
+   * Method that contians simulation logic that happens when the instruction was a hit in the cache memory
+   * @returns {state}
+   */
   simulateHit() {
     let newRow = this.getNewRowHit();
     this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
@@ -41,6 +59,10 @@ class Instruction {
     return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, (s) => s.set('rows', s.get('rows').update(this.index, () => newRow)))))
   }
 
+  /**
+   * Method that contians simulation logic that happens when the instruction was a miss in the cache memory
+   * @returns {state}
+   */
   simulateMiss() {
     if (this.operationType === "STORE") {
       this.state = this.storeMiss();
@@ -53,29 +75,49 @@ class Instruction {
     }
   }
 
+  /**
+   * Method that contians simulation logic that happens when a STORE-instruction was a miss in the cache memory
+   * @returns {state}
+   */
   storeMiss() {
     let storeData = this.state.get("register").get("registers").get(this.register).get("data");
     let bytes = this.wordToBytes(storeData);
     return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")))
   }
 
+  /**
+   * Method that contians simulation logic that happens when a STORE-instruction was a hit in the cache memory
+   * @returns {state}
+   */
   storeHit() {
     let storeData = this.state.get("register").get("registers").get(this.register).get("data");
     let bytes = this.wordToBytes(storeData);
     return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")))
   }
 
+  /**
+   * Method that contians simulation logic that happens when a LOAD-instruction was a miss in the cache memory
+   * @returns {state}
+   */
   loadMiss() {
     let word = this.bytesToWord(this.getWord(this.address, this.state.get("memory")));
     return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, (reg) => reg.set("data", word))))
   }
 
+  /**
+   * Method that contians simulation logic that happens when a LOAD-instruction was a hit in the cache memory
+   * @returns {state}
+   */
   loadHit() {
     let data = this.getWord(this.address, this.state.get('memory'))
     let word = this.bytesToWord(data);
     return this.state.set("register", this.state.get("register").set("registers", this.state.get("register").get("registers").update(this.register, (reg) => reg.set("data", word))))
   }
 
+  /**
+   * Method for fetching new data from main memory to the cache
+   * @returns {state}
+   */
   memoryFetch() {
     let newRow = this.getNewRowMiss();
     if (this.operationType === "LOAD") {
@@ -85,13 +127,21 @@ class Instruction {
     return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, (s) => s.set('rows', s.get('rows').update(this.index, () => newRow)))))
   }
 
+  /**
+   * Method that returns the updated cache-row after a miss-instruction
+   * @returns {cache-row}
+   */
   getNewRowMiss() {
-    let data = this.getBlock(this.state.get('cache').get('blockSize'),this.state.get('memory'))
+    let data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'))
     return this.row.set('elements', this.row.get('elements').map((e) => {
       return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(this.tag) + Number(e.get('byte'))).toString(16).toUpperCase())
     })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
   }
 
+  /**
+   * Method that returns the updated cache-row after a hit-instruction
+   * @returns {cache-row}
+   */
   getNewRowHit() {
     return this.row.set('elements', this.row.get('elements').map((e) => {
       if ((Number(e.get("byte"))) === (Number(this.address) - Number(this.tag))) {
@@ -289,7 +339,7 @@ class Instruction {
    * @param memory memory to store in
    * @returns {*} updated memory
    */
-  storeByte(byte, tag,  memory) {
+  storeByte(byte, tag, memory) {
     return memory.update(Number(tag), (m) => {
       return m.set("data_string", "0x" + byte.toString(16).toUpperCase()).set("data_number", byte)
     })
