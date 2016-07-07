@@ -24,6 +24,7 @@ class Instruction {
     this.index = this.getRowIndex(this.state.get('cache').get('blockCount'), this.state.get('cache').get('offsetBits'), this.state.get('cache').get('indexBits'));
     this.setNr = this.getSetNr();
     this.row = this.state.get('cache').get('sets').get(this.setNr).get('rows').get(this.index);
+    this.newRow = {};
   }
 
   /**
@@ -40,35 +41,28 @@ class Instruction {
   }
 
   /**
-   * Method that contians simulation logic that happens when the instruction was a hit in the cache memory
+   * Method that contains simulation logic that happens when the instruction was a hit in the cache memory
    * @returns {state}
    */
   simulateHit() {
-    let newRow = this.getNewRowHit();
-    this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
-    if (this.operationType === "STORE") {
-      this.state = this.storeHit();
-      let data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'))
-      newRow = newRow.set('elements', newRow.get('elements').map((e) => {
-        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(this.tag) + Number(e.get('byte'))).toString(16).toUpperCase())
-      })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
-    }
-    if (this.operationType === "LOAD") {
-      this.state = this.loadHit();
-    }
-    return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, (s) => s.set('rows', s.get('rows').update(this.index, () => newRow)))))
-  }
-
-  /**
-   * Method that contians simulation logic that happens when the instruction was a miss in the cache memory
-   * @returns {state}
-   */
-  simulateMiss() {
-    if (this.operationType === "STORE") {
-      this.state = this.storeMiss();
-    }
-    if (this.memoryHit(this.state.get('memory'))) {
-      return this.memoryFetch();
+    if (this.memoryHit(this.state.get('memory'), this.address)) {
+      this.newRow = this.getNewRowHit();
+      this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+      if (this.operationType === "STORE") {
+        if (!this.storeHit(this.state.get('memory'))) {
+          this.state = this.updateInstructionHistory();
+          return this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+        }
+        this.state = this.store();
+        let data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'))
+        this.newRow = this.newRow.set('elements', this.newRow.get('elements').map((e) => {
+          return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(this.tag) + Number(e.get('byte'))).toString(16).toUpperCase())
+        })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
+      }
+      if (this.operationType === "LOAD") {
+        this.state = this.loadHit();
+      }
+      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, (s) => s.set('rows', s.get('rows').update(this.index, () => this.newRow)))))
     } else {
       this.state = this.updateInstructionHistory();
       return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
@@ -76,27 +70,47 @@ class Instruction {
   }
 
   /**
-   * Method that contians simulation logic that happens when a STORE-instruction was a miss in the cache memory
+   * Method that checks if it is possible to store a word at the specified address in main memory
+   * @param memory
+   * @returns {boolean}
+   */
+  storeHit(memory) {
+    return this.memoryHit(memory, this.address + 4)
+  }
+
+  /**
+   * Method that contains simulation logic that happens when the instruction was a miss in the cache memory
    * @returns {state}
    */
-  storeMiss() {
+  simulateMiss() {
+    if (this.operationType === "STORE") {
+      if (!this.storeHit(this.state.get('memory'))) {
+        this.state = this.updateInstructionHistory();
+        return this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+      }
+      this.state = this.store();
+    }
+    if (this.memoryHit(this.state.get('memory'), this.address))
+      return this.memoryFetch();
+    else {
+      this.state = this.updateInstructionHistory();
+      return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+    }
+  }
+
+  /**
+   * Method that contains simulation logic for a STORE-instructions
+   * @returns {state}
+   */
+  store() {
     let storeData = this.state.get("register").get("registers").get(this.register).get("data");
     let bytes = this.wordToBytes(storeData);
     return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")))
   }
 
-  /**
-   * Method that contians simulation logic that happens when a STORE-instruction was a hit in the cache memory
-   * @returns {state}
-   */
-  storeHit() {
-    let storeData = this.state.get("register").get("registers").get(this.register).get("data");
-    let bytes = this.wordToBytes(storeData);
-    return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")))
-  }
 
   /**
-   * Method that contians simulation logic that happens when a LOAD-instruction was a miss in the cache memory
+   * Method that contains simulation logic that happens when a LOAD-instruction was a miss in the cache memory
    * @returns {state}
    */
   loadMiss() {
@@ -119,12 +133,12 @@ class Instruction {
    * @returns {state}
    */
   memoryFetch() {
-    let newRow = this.getNewRowMiss();
+    this.newRow = this.getNewRowMiss();
     if (this.operationType === "LOAD") {
       this.state = this.loadMiss();
     }
     this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
-    return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, (s) => s.set('rows', s.get('rows').update(this.index, () => newRow)))))
+    return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, (s) => s.set('rows', s.get('rows').update(this.index, () => this.newRow)))))
   }
 
   /**
@@ -134,8 +148,9 @@ class Instruction {
   getNewRowMiss() {
     let data = this.getBlock(this.state.get('cache').get('blockSize'), this.state.get('memory'))
     return this.row.set('elements', this.row.get('elements').map((e) => {
-      return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(this.tag) + Number(e.get('byte'))).toString(16).toUpperCase())
-    })).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
+        return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(this.tag) + Number(e.get('byte'))).toString(16).toUpperCase())
+      }
+    )).set("validbit", 1).set("tag", "0x" + this.tag.toString(16).toUpperCase()).set("miss", true).set("loadedDate", Date.now());
   }
 
   /**
@@ -304,7 +319,7 @@ class Instruction {
    * @returns {string} data
    */
   getData(tag, memory) {
-    let data = "invalid_address"
+    let data = "0x0"
     memory.map(function (addr) {
       if (Number(addr.get('address_number')) === Number(tag)) {
         data = addr.get('data_string');
@@ -325,7 +340,7 @@ class Instruction {
   storeWord(bytes, memory) {
     let newMemory;
     for (let i = 0; i < bytes.length; i++) {
-      newMemory = this.storeByte(bytes[i], Number(this.tag) + i, memory);
+      newMemory = this.storeByte(bytes[i], Number(this.address) + i, memory);
       memory = newMemory;
     }
     return memory;
@@ -356,7 +371,7 @@ class Instruction {
    */
   updateInstructionHistory() {
     let result;
-    if (this.hit(this.row)) {
+    if ((this.hit(this.row) && this.memoryHit(this.state.get('memory'), this.address) && this.operationType === "LOAD") || this.hit(this.row) && this.operationType === "STORE" && this.storeHit(this.state.get('memory'))) {
       result = "HIT";
     }
     else {
@@ -371,6 +386,7 @@ class Instruction {
       })
     return this.state.set('instructionHistory', this.state.get('instructionHistory').push(instruction));
   }
+
 
   /**
    * Checks whether the instruction was a hit in the cache or not.
@@ -398,11 +414,17 @@ class Instruction {
    * @param memory main memory
    * @returns {boolean}
    */
-  memoryHit(memory) {
-    if (this.getData(this.tag, memory) !== "invalid_address")
-      return true;
-    else
+  memoryHit(memory, tag) {
+    let data = "-"
+    memory.map(function (addr) {
+      if (Number(addr.get('address_number')) === Number(tag)) {
+        data = addr.get('data_string');
+        return;
+      }
+    })
+    if (data === "-")
       return false;
+    return true;
   }
 
   /**
@@ -424,11 +446,10 @@ class Instruction {
    * @returns {string} hexadecimal string of the word
    */
   bytesToWord(data) {
-    let byte1 = this.createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
-    let byte2 = this.createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
-    let byte3 = this.createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
-    let byte4 = this.createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
-    let word = byte1 + byte2 + byte3 + byte4
+    let word = "";
+    for(let i = 0; i < data.length; i++){
+      word = word + this.createBinaryString(parseInt(data[i].slice(2, data[i].length), 16)).slice(24, 32);
+    }
     return "0x" + parseInt(word, 2).toString(16).toUpperCase();
   }
 

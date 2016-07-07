@@ -22,12 +22,12 @@ class SettingsPanel extends React.Component {
     }
     return (
       <div>
+        <CacheFormComponent onSubmit={this.props.cacheHandleSubmit} {...myInitialValues}/>
         <div className="alert alert-warning center_text">
           <strong>Note:</strong> Visual simulation is not recommended for very large cache-sizes (e.g. 4096 bytes), the point of the visualisation
-           is to be able to see the cache- hits and misses in real time, which is not possible if the cache is too large. Also the rendering
-           time and page responsiveness will be slower.
+          is to be able to see the cache- hits and misses in real time, which is not possible if the cache is too large. Also the rendering
+          time and page responsiveness will be slower.
         </div>
-        <CacheFormComponent onSubmit={this.props.cacheHandleSubmit} {...myInitialValues}/>
       </div>
     );
   }

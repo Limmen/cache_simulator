@@ -5,6 +5,7 @@
 
 import React from 'react';
 import {reduxForm} from 'redux-form'
+import ReactTooltip from 'react-tooltip'
 export const fields = ['cacheSize', 'blockSize', 'associativity', 'replacementAlgorithm', 'memorySize', 'visualSimulation']
 
 /**
@@ -139,10 +140,13 @@ class CacheForm extends React.Component {
             </div>
             <div className="col-sm-6">
               <div className="form-group">
-                <label className="bold col-md-4 control-label" htmlFor="input_checkbox_visual">Simulate visually</label>
+                <label data-tip data-for="simulateVisually" className="bold col-md-4 control-label" htmlFor="input_checkbox_visual">Simulate visually</label>
                 <div className="col-md-8 checkbox">
-                  <input type="checkbox" {...visualSimulation} id="input_checkbox_visual"/>
+                  <input data-tip data-for="simulateVisually" type="checkbox" {...visualSimulation} id="input_checkbox_visual"/>
                 </div>
+                <ReactTooltip id="simulateVisually">
+                  <p>Visual simulation is not recommended for larger cache-size</p>
+                </ReactTooltip>
                 <div className="error">
                 </div>
               </div>

@@ -14,7 +14,7 @@ import {scroller} from 'react-scroll';
 
 class AssemblyPanel extends React.Component {
 
- 
+
   render() {
     return (
       <div>
@@ -49,6 +49,10 @@ function mapStateToProps(state) {
 const mapDispatchToProps = (dispatch) => {
   return {
 
+    /**
+     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
+     * @param fields of the action
+     */
     simulator: (fields) => {
       scroller.scrollTo('cache_mem_scroll_position', {
         duration: 1000,
@@ -73,7 +77,7 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(actions.stopSimulation())
     },
     /**
-     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
+     * Function to handle submission of the assemblyform to do visual simulation. Dispatches actions for each line of assembly.
      * @param fields of the action
      */
     visualSimulator: (fields) => {

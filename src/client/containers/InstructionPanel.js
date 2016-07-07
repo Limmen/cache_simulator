@@ -54,6 +54,10 @@ function mapStateToProps(state) {
 const mapDispatchToProps = (dispatch) => {
   return {
 
+    /**
+     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
+     * @param fields of the action
+     */
     simulator: (fields) => {
       scroller.scrollTo('cache_mem_scroll_position', {
         duration: 0,

@@ -35461,6 +35461,8 @@
 	  value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Instruction class that contains method and state to simulate a instruction given a cache-memory, main memory and registers.
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
@@ -35492,6 +35494,7 @@
 	    this.index = this.getRowIndex(this.state.get('cache').get('blockCount'), this.state.get('cache').get('offsetBits'), this.state.get('cache').get('indexBits'));
 	    this.setNr = this.getSetNr();
 	    this.row = this.state.get('cache').get('sets').get(this.setNr).get('rows').get(this.index);
+	    this.newRow = {};
 	  }
 
 	  /**
@@ -35512,7 +35515,7 @@
 	    }
 
 	    /**
-	     * Method that contians simulation logic that happens when the instruction was a hit in the cache memory
+	     * Method that contains simulation logic that happens when the instruction was a hit in the cache memory
 	     * @returns {state}
 	     */
 
@@ -35521,40 +35524,34 @@
 	    value: function simulateHit() {
 	      var _this = this;
 
-	      var newRow = this.getNewRowHit();
-	      this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
-	      if (this.operationType === "STORE") {
-	        (function () {
-	          _this.state = _this.storeHit();
-	          var data = _this.getBlock(_this.state.get('cache').get('blockSize'), _this.state.get('memory'));
-	          newRow = newRow.set('elements', newRow.get('elements').map(function (e) {
-	            return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
-	          })).set("validbit", 1).set("tag", "0x" + _this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
-	        })();
-	      }
-	      if (this.operationType === "LOAD") {
-	        this.state = this.loadHit();
-	      }
-	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
-	        return s.set('rows', s.get('rows').update(_this.index, function () {
-	          return newRow;
-	        }));
-	      })));
-	    }
+	      if (this.memoryHit(this.state.get('memory'), this.address)) {
+	        this.newRow = this.getNewRowHit();
+	        this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	        if (this.operationType === "STORE") {
+	          var _ret = function () {
+	            if (!_this.storeHit(_this.state.get('memory'))) {
+	              _this.state = _this.updateInstructionHistory();
+	              return {
+	                v: _this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + _this.address + " not enough space in main memory").set("instruction", _this.operationType + " " + _this.register + " 0x" + _this.address.toString(16).toUpperCase())
+	              };
+	            }
+	            _this.state = _this.store();
+	            var data = _this.getBlock(_this.state.get('cache').get('blockSize'), _this.state.get('memory'));
+	            _this.newRow = _this.newRow.set('elements', _this.newRow.get('elements').map(function (e) {
+	              return e.set('data', data[e.get('byte')]).set("address", "0x" + (Number(_this.tag) + Number(e.get('byte'))).toString(16).toUpperCase());
+	            })).set("validbit", 1).set("tag", "0x" + _this.tag.toString(16).toUpperCase()).set("loadedDate", Date.now());
+	          }();
 
-	    /**
-	     * Method that contians simulation logic that happens when the instruction was a miss in the cache memory
-	     * @returns {state}
-	     */
-
-	  }, {
-	    key: "simulateMiss",
-	    value: function simulateMiss() {
-	      if (this.operationType === "STORE") {
-	        this.state = this.storeMiss();
-	      }
-	      if (this.memoryHit(this.state.get('memory'))) {
-	        return this.memoryFetch();
+	          if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
+	        }
+	        if (this.operationType === "LOAD") {
+	          this.state = this.loadHit();
+	        }
+	        return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
+	          return s.set('rows', s.get('rows').update(_this.index, function () {
+	            return _this.newRow;
+	          }));
+	        })));
 	      } else {
 	        this.state = this.updateInstructionHistory();
 	        return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
@@ -35562,33 +35559,53 @@
 	    }
 
 	    /**
-	     * Method that contians simulation logic that happens when a STORE-instruction was a miss in the cache memory
-	     * @returns {state}
-	     */
-
-	  }, {
-	    key: "storeMiss",
-	    value: function storeMiss() {
-	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
-	      var bytes = this.wordToBytes(storeData);
-	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
-	    }
-
-	    /**
-	     * Method that contians simulation logic that happens when a STORE-instruction was a hit in the cache memory
-	     * @returns {state}
+	     * Method that checks if it is possible to store a word at the specified address in main memory
+	     * @param memory
+	     * @returns {boolean}
 	     */
 
 	  }, {
 	    key: "storeHit",
-	    value: function storeHit() {
+	    value: function storeHit(memory) {
+	      return this.memoryHit(memory, this.address + 4);
+	    }
+
+	    /**
+	     * Method that contains simulation logic that happens when the instruction was a miss in the cache memory
+	     * @returns {state}
+	     */
+
+	  }, {
+	    key: "simulateMiss",
+	    value: function simulateMiss() {
+	      if (this.operationType === "STORE") {
+	        if (!this.storeHit(this.state.get('memory'))) {
+	          this.state = this.updateInstructionHistory();
+	          return this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	        }
+	        this.state = this.store();
+	      }
+	      if (this.memoryHit(this.state.get('memory'), this.address)) return this.memoryFetch();else {
+	        this.state = this.updateInstructionHistory();
+	        return this.state.set("instructionResult", "MISS! Address not found in Main Memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	      }
+	    }
+
+	    /**
+	     * Method that contains simulation logic for a STORE-instructions
+	     * @returns {state}
+	     */
+
+	  }, {
+	    key: "store",
+	    value: function store() {
 	      var storeData = this.state.get("register").get("registers").get(this.register).get("data");
 	      var bytes = this.wordToBytes(storeData);
 	      return this.state.set("memory", this.storeWord(bytes, this.state.get("memory")));
 	    }
 
 	    /**
-	     * Method that contians simulation logic that happens when a LOAD-instruction was a miss in the cache memory
+	     * Method that contains simulation logic that happens when a LOAD-instruction was a miss in the cache memory
 	     * @returns {state}
 	     */
 
@@ -35626,14 +35643,14 @@
 	    value: function memoryFetch() {
 	      var _this2 = this;
 
-	      var newRow = this.getNewRowMiss();
+	      this.newRow = this.getNewRowMiss();
 	      if (this.operationType === "LOAD") {
 	        this.state = this.loadMiss();
 	      }
 	      this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
 	      return this.state.set('cache', this.state.get('cache').set('sets', this.state.get('cache').get('sets').update(this.setNr, function (s) {
 	        return s.set('rows', s.get('rows').update(_this2.index, function () {
-	          return newRow;
+	          return _this2.newRow;
 	        }));
 	      })));
 	    }
@@ -35857,7 +35874,7 @@
 	  }, {
 	    key: "getData",
 	    value: function getData(tag, memory) {
-	      var data = "invalid_address";
+	      var data = "0x0";
 	      memory.map(function (addr) {
 	        if (Number(addr.get('address_number')) === Number(tag)) {
 	          data = addr.get('data_string');
@@ -35881,7 +35898,7 @@
 	    value: function storeWord(bytes, memory) {
 	      var newMemory = void 0;
 	      for (var i = 0; i < bytes.length; i++) {
-	        newMemory = this.storeByte(bytes[i], Number(this.tag) + i, memory);
+	        newMemory = this.storeByte(bytes[i], Number(this.address) + i, memory);
 	        memory = newMemory;
 	      }
 	      return memory;
@@ -35918,7 +35935,7 @@
 	    key: "updateInstructionHistory",
 	    value: function updateInstructionHistory() {
 	      var result = void 0;
-	      if (this.hit(this.row)) {
+	      if (this.hit(this.row) && this.memoryHit(this.state.get('memory'), this.address) && this.operationType === "LOAD" || this.hit(this.row) && this.operationType === "STORE" && this.storeHit(this.state.get('memory'))) {
 	        result = "HIT";
 	      } else {
 	        result = "MISS";
@@ -35960,8 +35977,16 @@
 
 	  }, {
 	    key: "memoryHit",
-	    value: function memoryHit(memory) {
-	      if (this.getData(this.tag, memory) !== "invalid_address") return true;else return false;
+	    value: function memoryHit(memory, tag) {
+	      var data = "-";
+	      memory.map(function (addr) {
+	        if (Number(addr.get('address_number')) === Number(tag)) {
+	          data = addr.get('data_string');
+	          return;
+	        }
+	      });
+	      if (data === "-") return false;
+	      return true;
 	    }
 
 	    /**
@@ -35988,11 +36013,10 @@
 	  }, {
 	    key: "bytesToWord",
 	    value: function bytesToWord(data) {
-	      var byte1 = this.createBinaryString(parseInt(data[0].slice(2, data[0].length), 16)).slice(24, 32);
-	      var byte2 = this.createBinaryString(parseInt(data[1].slice(2, data[1].length), 16)).slice(24, 32);
-	      var byte3 = this.createBinaryString(parseInt(data[2].slice(2, data[2].length), 16)).slice(24, 32);
-	      var byte4 = this.createBinaryString(parseInt(data[3].slice(2, data[3].length), 16)).slice(24, 32);
-	      var word = byte1 + byte2 + byte3 + byte4;
+	      var word = "";
+	      for (var i = 0; i < data.length; i++) {
+	        word = word + this.createBinaryString(parseInt(data[i].slice(2, data[i].length), 16)).slice(24, 32);
+	      }
 	      return "0x" + parseInt(word, 2).toString(16).toUpperCase();
 	    }
 
@@ -37586,15 +37610,15 @@
 
 	var _SettingsPanel2 = _interopRequireDefault(_SettingsPanel);
 
-	var _InstructionPanel = __webpack_require__(331);
+	var _InstructionPanel = __webpack_require__(335);
 
 	var _InstructionPanel2 = _interopRequireDefault(_InstructionPanel);
 
-	var _AssemblyPanel = __webpack_require__(333);
+	var _AssemblyPanel = __webpack_require__(337);
 
 	var _AssemblyPanel2 = _interopRequireDefault(_AssemblyPanel);
 
-	var _CacheMem = __webpack_require__(335);
+	var _CacheMem = __webpack_require__(339);
 
 	var _CacheMem2 = _interopRequireDefault(_CacheMem);
 
@@ -37610,7 +37634,7 @@
 
 	var _InstructionResultPanel2 = _interopRequireDefault(_InstructionResultPanel);
 
-	var _reactScroll = __webpack_require__(317);
+	var _reactScroll = __webpack_require__(321);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -37784,7 +37808,7 @@
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _reactScroll = __webpack_require__(317);
+	var _reactScroll = __webpack_require__(321);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -37817,6 +37841,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
+	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues)),
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'alert alert-warning center_text' },
@@ -37826,8 +37851,7 @@
 	            'Note:'
 	          ),
 	          ' Visual simulation is not recommended for very large cache-sizes (e.g. 4096 bytes), the point of the visualisation is to be able to see the cache- hits and misses in real time, which is not possible if the cache is too large. Also the rendering time and page responsiveness will be slower.'
-	        ),
-	        _react2.default.createElement(_CacheForm2.default, _extends({ onSubmit: this.props.cacheHandleSubmit }, myInitialValues))
+	        )
 	      );
 	    }
 	  }]);
@@ -37898,6 +37922,10 @@
 	var _react2 = _interopRequireDefault(_react);
 
 	var _reduxForm = __webpack_require__(247);
+
+	var _reactTooltip = __webpack_require__(317);
+
+	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38159,13 +38187,22 @@
 	                { className: 'form-group' },
 	                _react2.default.createElement(
 	                  'label',
-	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_checkbox_visual' },
+	                  { 'data-tip': true, 'data-for': 'simulateVisually', className: 'bold col-md-4 control-label', htmlFor: 'input_checkbox_visual' },
 	                  'Simulate visually'
 	                ),
 	                _react2.default.createElement(
 	                  'div',
 	                  { className: 'col-md-8 checkbox' },
-	                  _react2.default.createElement('input', _extends({ type: 'checkbox' }, visualSimulation, { id: 'input_checkbox_visual' }))
+	                  _react2.default.createElement('input', _extends({ 'data-tip': true, 'data-for': 'simulateVisually', type: 'checkbox' }, visualSimulation, { id: 'input_checkbox_visual' }))
+	                ),
+	                _react2.default.createElement(
+	                  _reactTooltip2.default,
+	                  { id: 'simulateVisually' },
+	                  _react2.default.createElement(
+	                    'p',
+	                    null,
+	                    'Visual simulation is not recommended for larger cache-size'
+	                  )
 	                ),
 	                _react2.default.createElement('div', { className: 'error' })
 	              )
@@ -38220,2531 +38257,13 @@
 /* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports.Link = __webpack_require__(318);
-	exports.DirectLink = __webpack_require__(327);
-	exports.Button = __webpack_require__(329);
-	exports.Element = __webpack_require__(330);
-	exports.Helpers = __webpack_require__(319);
-	exports.scroller = __webpack_require__(326);
-	exports.directScroller = __webpack_require__(328);
-	exports.Events = __webpack_require__(324);
-	exports.scrollSpy = __webpack_require__(325);
-	exports.animateScroll = __webpack_require__(320);
+	'use strict'
+
+	module.exports = __webpack_require__(318)
 
 
 /***/ },
 /* 318 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(1);
-	var Helpers = __webpack_require__(319);
-
-	var Link = React.createClass({
-	  render: function () {
-	    return React.DOM.a(this.props, this.props.children);
-	  }
-	});
-
-	module.exports = Helpers.Scroll(Link);
-
-
-/***/ },
-/* 319 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(1);
-	var ReactDOM = __webpack_require__(158);
-
-	var animateScroll = __webpack_require__(320);
-	var scrollSpy = __webpack_require__(325);
-	var defaultScroller = __webpack_require__(326);
-
-	var Helpers = {
-
-	  Scroll: function (Component, customScroller) {
-
-	    var scroller = customScroller || defaultScroller;
-
-	    return React.createClass({
-
-	      propTypes: {
-	        to: React.PropTypes.string.isRequired,
-	        offset: React.PropTypes.number,
-	        delay: React.PropTypes.number,
-	        isDynamic: React.PropTypes.bool,
-	        onClick: React.PropTypes.func,
-	        duration: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.func])
-	      },
-	      
-	      getDefaultProps: function() {
-	        return {offset: 0};
-	      },
-
-	      scrollTo : function(to, props) {
-	          scroller.scrollTo(to, props);
-	      },
-
-	      handleClick: function(event) {
-
-	        /*
-	         * give the posibility to override onClick
-	         */
-
-	        if(this.props.onClick) {
-	          this.props.onClick(event);
-	        }
-
-	        /*
-	         * dont bubble the navigation
-	         */
-
-	        if (event.stopPropagation) event.stopPropagation();
-	        if (event.preventDefault) event.preventDefault();
-
-	        /*
-	         * do the magic!
-	         */
-
-	        this.scrollTo(this.props.to, this.props);
-
-	      },
-
-	      spyHandler: function(y) {
-	        var element = scroller.get(this.props.to);
-	        if (!element) return;
-	        var cords = element.getBoundingClientRect();
-	        var topBound = cords.top + y;
-	        var bottomBound = topBound + cords.height;
-	        var offsetY = y - this.props.offset;
-	        var to = this.props.to;
-	        var isInside = (offsetY >= topBound && offsetY <= bottomBound);
-	        var isOutside = (offsetY < topBound || offsetY > bottomBound);
-	        var activeLink = scroller.getActiveLink();
-
-	        if (isOutside && activeLink === to) {
-	          scroller.setActiveLink(void 0);
-	          this.setState({ active : false });
-
-	        } else if (isInside && activeLink != to) {
-	          scroller.setActiveLink(to);
-	          this.setState({ active : true });
-
-	          if(this.props.onSetActive) {
-	            this.props.onSetActive(to);
-	          }
-
-	          scrollSpy.updateStates();
-	        }
-	      },
-
-	      componentDidMount: function() {
-
-	        scrollSpy.mount();
-	      
-
-	        if(this.props.spy) {
-	          var to = this.props.to;
-	          var element = null;
-	          var elemTopBound = 0;
-	          var elemBottomBound = 0;
-
-	          scrollSpy.addStateHandler((function() {
-	            if(scroller.getActiveLink() != to) {
-	                this.setState({ active : false });
-	            }
-	          }).bind(this));
-
-	          scrollSpy.addSpyHandler((function(y) {
-
-	            if(!element || this.props.isDynamic) {
-	                element = scroller.get(to);
-	                if(!element){ return;}
-
-	                var cords = element.getBoundingClientRect();
-	                elemTopBound = (cords.top + y);
-	                elemBottomBound = elemTopBound + cords.height;
-	            }
-
-	            var offsetY = y - this.props.offset;
-	            var isInside = (offsetY >= elemTopBound && offsetY <= elemBottomBound);
-	            var isOutside = (offsetY < elemTopBound || offsetY > elemBottomBound);
-	            var activeLink = scroller.getActiveLink();
-
-	            if (isOutside && activeLink === to) {
-	              scroller.setActiveLink(void 0);
-	              this.setState({ active : false });
-
-	            } else if (isInside && activeLink != to) {
-	              scroller.setActiveLink(to);
-	              this.setState({ active : true });
-
-	              if(this.props.onSetActive) {
-	                this.props.onSetActive(to);
-	              }
-
-	              scrollSpy.updateStates();
-
-	            }
-	          }).bind(this));
-	        }
-	      },
-	      componentWillUnmount: function() {
-	        scrollSpy.unmount();
-	      },
-	      render: function() {
-	        var className = "";
-	        if(this.state && this.state.active) {
-	          className = ((this.props.className || "") + " " + (this.props.activeClass || "active")).trim();
-	        } else {
-	          className = this.props.className
-	        }
-
-	        var props = {};
-	        for(var prop in this.props) {
-	          props[prop] = this.props[prop];
-	        }
-
-	        props.className = className;
-	        props.onClick = this.handleClick;
-
-	        return React.createElement(Component, props);
-	      }
-	    });
-	  },
-
-
-	  Element: function(Component) {
-	    return React.createClass({
-	      propTypes: {
-	        name: React.PropTypes.string.isRequired
-	      },
-	      componentDidMount: function() {
-	        var domNode = ReactDOM.findDOMNode(this);
-	        defaultScroller.register(this.props.name, domNode);
-	      },
-	      componentWillUnmount: function() {
-	        defaultScroller.unregister(this.props.name);
-	      },
-	      render: function() {
-	        return React.createElement(Component, this.props);
-	      }
-	    });
-	  }
-	};
-
-	module.exports = Helpers;
-
-
-/***/ },
-/* 320 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var assign = __webpack_require__(321);
-
-	var smooth = __webpack_require__(322);
-
-	var easing = smooth.defaultEasing;
-
-	var cancelEvents = __webpack_require__(323);
-
-	var events = __webpack_require__(324);
-
-	/*
-	 * Function helper
-	 */
-	var functionWrapper = function(value) {
-	  return typeof value === 'function' ? value : function() { return value; };
-	};
-
-	/*
-	 * Sets the cancel trigger
-	 */
-
-	cancelEvents.register(function() {
-	  __cancel = true;
-	});
-
-	/*
-	 * Wraps window properties to allow server side rendering
-	 */
-	var currentWindowProperties = function() {
-	  if (typeof window !== 'undefined') {
-	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame;
-	  }
-	};
-
-	/*
-	 * Helper function to never extend 60fps on the webpage.
-	 */
-	var requestAnimationFrameHelper = (function () {
-	  return  currentWindowProperties() ||
-	          function (callback, element, delay) {
-	              window.setTimeout(callback, delay || (1000/60), new Date().getTime());
-	          };
-	})();
-
-
-	var __currentPositionY  = 0;
-	var __startPositionY    = 0;
-	var __targetPositionY   = 0;
-	var __progress          = 0;
-	var __duration          = 0;
-	var __cancel            = false;
-
-	var __target;
-	var __to;
-	var __start;
-	var __deltaTop;
-	var __percent;
-	var __delayTimeout;
-
-
-	var currentPositionY = function() {
-	  var supportPageOffset = window.pageXOffset !== undefined;
-	  var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
-	  return supportPageOffset ? window.pageYOffset : isCSS1Compat ?
-	         document.documentElement.scrollTop : document.body.scrollTop;
-	};
-
-	var pageHeight = function() {
-	  var body = document.body;
-	  var html = document.documentElement;
-
-	  return Math.max(
-	      body.scrollHeight,
-	      body.offsetHeight,
-	      html.clientHeight,
-	      html.scrollHeight,
-	      html.offsetHeight
-	  );
-	};
-
-	var animateTopScroll = function(timestamp) {
-	  // Cancel on specific events
-	  if(__cancel) { return };
-
-	  __deltaTop = Math.round(__targetPositionY - __startPositionY);
-
-	  if (__start === null) {
-	    __start = timestamp;
-	  }
-
-	  __progress = timestamp - __start;
-
-	  __percent = (__progress >= __duration ? 1 : easing(__progress/__duration));
-
-	  __currentPositionY = __startPositionY + Math.ceil(__deltaTop * __percent);
-
-	  window.scrollTo(0, __currentPositionY);
-
-	  if(__percent < 1) {
-	    requestAnimationFrameHelper.call(window, animateTopScroll);
-	    return;
-	  }
-
-	  if(events.registered['end']) {
-	    events.registered['end'](__to, __target, __currentPositionY);
-	  }
-
-	};
-
-	var startAnimateTopScroll = function(y, options, to, target) {
-
-
-	  window.clearTimeout(__delayTimeout);
-
-	  __start           = null;
-	  __cancel          = false;
-	  __startPositionY  = currentPositionY();
-	  __targetPositionY = options.absolute ? y : y + __startPositionY;
-	  __deltaTop        = Math.round(__targetPositionY - __startPositionY);
-
-	  __duration        = functionWrapper(options.duration)(__deltaTop);
-	  __duration        = isNaN(parseFloat(__duration)) ? 1000 : parseFloat(__duration);
-	  __to              = to;
-	  __target          = target;
-
-	  if(options && options.delay > 0) {
-	    __delayTimeout = window.setTimeout(function animate() {
-	      requestAnimationFrameHelper.call(window, animateTopScroll);
-	    }, options.delay);
-	    return;
-	  }
-
-	  requestAnimationFrameHelper.call(window, animateTopScroll);
-
-	};
-
-	var scrollToTop = function (options) {
-	  startAnimateTopScroll(0, assign(options || {}, { absolute : true }));
-	};
-
-	var scrollTo = function (toY, options) {
-	  startAnimateTopScroll(toY, assign(options || {}, { absolute : true }));
-	};
-
-	var scrollToBottom = function(options) {
-	  startAnimateTopScroll(pageHeight(), assign(options || {}, { absolute : true }));
-	};
-
-	var scrollMore = function(toY, options) {
-	  startAnimateTopScroll(currentPositionY() + toY, assign(options || {}, { absolute : true }));
-	};
-
-	module.exports = {
-	  animateTopScroll: startAnimateTopScroll,
-	  scrollToTop: scrollToTop,
-	  scrollToBottom: scrollToBottom,
-	  scrollTo: scrollTo,
-	  scrollMore: scrollMore,
-	};
-
-
-/***/ },
-/* 321 */
-/***/ function(module, exports) {
-
-	'use strict';
-	/* eslint-disable no-unused-vars */
-	var hasOwnProperty = Object.prototype.hasOwnProperty;
-	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-	function toObject(val) {
-		if (val === null || val === undefined) {
-			throw new TypeError('Object.assign cannot be called with null or undefined');
-		}
-
-		return Object(val);
-	}
-
-	function shouldUseNative() {
-		try {
-			if (!Object.assign) {
-				return false;
-			}
-
-			// Detect buggy property enumeration order in older V8 versions.
-
-			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line
-			test1[5] = 'de';
-			if (Object.getOwnPropertyNames(test1)[0] === '5') {
-				return false;
-			}
-
-			// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-			var test2 = {};
-			for (var i = 0; i < 10; i++) {
-				test2['_' + String.fromCharCode(i)] = i;
-			}
-			var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-				return test2[n];
-			});
-			if (order2.join('') !== '0123456789') {
-				return false;
-			}
-
-			// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-			var test3 = {};
-			'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-				test3[letter] = letter;
-			});
-			if (Object.keys(Object.assign({}, test3)).join('') !==
-					'abcdefghijklmnopqrst') {
-				return false;
-			}
-
-			return true;
-		} catch (e) {
-			// We don't expect any of the above to throw, but better to be safe.
-			return false;
-		}
-	}
-
-	module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-		var from;
-		var to = toObject(target);
-		var symbols;
-
-		for (var s = 1; s < arguments.length; s++) {
-			from = Object(arguments[s]);
-
-			for (var key in from) {
-				if (hasOwnProperty.call(from, key)) {
-					to[key] = from[key];
-				}
-			}
-
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
-				for (var i = 0; i < symbols.length; i++) {
-					if (propIsEnumerable.call(from, symbols[i])) {
-						to[symbols[i]] = from[symbols[i]];
-					}
-				}
-			}
-		}
-
-		return to;
-	};
-
-
-/***/ },
-/* 322 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	 /*
-	  * https://github.com/oblador/angular-scroll (duScrollDefaultEasing)
-	  */
-	  defaultEasing : function (x) {
-	    'use strict';
-
-	    if(x < 0.5) {
-	      return Math.pow(x*2, 2)/2;
-	    }
-	    return 1-Math.pow((1-x)*2, 2)/2;
-	  }
-	}
-
-/***/ },
-/* 323 */
-/***/ function(module, exports) {
-
-	var events = ['mousedown', 'mousewheel', 'touchmove', 'keydown']
-
-	module.exports = {
-		register : function(cancelEvent) {
-			if (typeof document === 'undefined') {
-				return;
-			}
-
-			for(var i = 0; i < events.length; i = i + 1) {
-				document.addEventListener(events[i], cancelEvent);
-			}
-		}
-	};
-
-
-/***/ },
-/* 324 */
-/***/ function(module, exports) {
-
-	
-	var Events = {
-		registered : {},
-		scrollEvent : {
-			register: function(evtName, callback) {
-				Events.registered[evtName] = callback;
-			},
-			remove: function(evtName) {
-				Events.registered[evtName] = null;
-			}
-		}
-	};
-
-	module.exports = Events;
-
-/***/ },
-/* 325 */
-/***/ function(module, exports) {
-
-	var scrollSpy = {
-	  
-	  spyCallbacks: [],
-	  spySetState: [],
-
-	  mount: function () {
-	    if (typeof document !== 'undefined') {
-	      document.addEventListener('scroll', this.scrollHandler.bind(this));
-	    }
-	  },
-	  currentPositionY: function () {
-	    var supportPageOffset = window.pageXOffset !== undefined;
-	    var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
-	    return supportPageOffset ? window.pageYOffset : isCSS1Compat ?
-	            document.documentElement.scrollTop : document.body.scrollTop;
-	  },
-
-	  scrollHandler: function () {
-	    for(var i = 0; i < this.spyCallbacks.length; i++) {
-	      this.spyCallbacks[i](this.currentPositionY());
-	    }
-	  },
-
-	  addStateHandler: function(handler){
-	    this.spySetState.push(handler);
-	  },
-
-	  addSpyHandler: function(handler){
-	    this.spyCallbacks.push(handler);
-	  },
-
-	  updateStates: function(){
-	    var length = this.spySetState.length;
-
-	    for(var i = 0; i < length; i++) {
-	      this.spySetState[i]();
-	    }
-	  },
-	  unmount: function () { 
-	    this.spyCallbacks = [];
-	    this.spySetState = [];
-
-	    document.removeEventListener('scroll', this.scrollHandler);
-	  }
-	}
-
-	module.exports = scrollSpy;
-
-/***/ },
-/* 326 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var animateScroll = __webpack_require__(320);
-	var events = __webpack_require__(324);
-
-	var __mapped = {};
-	var __activeLink;
-
-	module.exports = {
-
-	  unmount: function() {
-	    __mapped = {};
-	  },
-
-	  register: function(name, element){
-	    __mapped[name] = element;
-	  },
-
-	  unregister: function(name) {
-	    delete __mapped[name];
-	  },
-
-	  get: function(name) {
-	    return __mapped[name];
-	  },
-
-	  setActiveLink: function(link) {
-	    __activeLink = link;
-	  },
-
-	  getActiveLink: function() {
-	    return __activeLink;
-	  },
-
-	  scrollTo: function(to, props) {
-
-	     /*
-	     * get the mapped DOM element
-	     */
-
-	      var target = this.get(to);
-
-	      if(!target) {
-	        throw new Error("target Element not found");
-	      }
-
-	      props = props || {};
-
-	      var coordinates = target.getBoundingClientRect();
-
-	      if(events.registered['begin']) {
-	        events.registered['begin'](to, target);
-	      }
-	      /*
-	       * if animate is not provided just scroll into the view
-	       */
-	      if(!props.smooth) {
-	        var bodyRect = document.body.getBoundingClientRect();
-	        var scrollOffset = coordinates.top - bodyRect.top;
-	        window.scrollTo(0, scrollOffset + (props.offset || 0));
-
-	        if(events.registered['end']) {
-	          events.registered['end'](to, target);
-	        }
-
-	        return;
-	      }
-
-	      /*
-	       * Animate scrolling
-	       */
-
-	      animateScroll.animateTopScroll(coordinates.top + (props.offset || 0), props, to, target);
-	  }
-	};
-
-
-
-/***/ },
-/* 327 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(1);
-	var Helpers = __webpack_require__(319);
-	var directScroller = __webpack_require__(328);
-
-	var DirectLink = React.createClass({
-	  render: function () {
-	    return React.DOM.a(this.props, this.props.children);
-	  }
-	});
-
-	module.exports = Helpers.Scroll(DirectLink, directScroller);
-
-
-/***/ },
-/* 328 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Helpers  = __webpack_require__(319);
-	var scroller = __webpack_require__(326);
-
-	var mappedGet = scroller.get;
-
-	// Get element by its ID attribute
-	scroller.get = function(name) {
-	  return mappedGet(name) || document.getElementById(name);
-	};
-
-	module.exports = scroller;
-
-
-/***/ },
-/* 329 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(1);
-	var Helpers = __webpack_require__(319);
-
-	var Button = React.createClass({
-	  render: function () {
-	    return React.DOM.input(this.props, this.props.children);
-	  }
-	});
-
-	module.exports = Helpers.Scroll(Button);
-
-
-/***/ },
-/* 330 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var React = __webpack_require__(1);
-	var Helpers = __webpack_require__(319);
-
-	var Element = React.createClass({
-	  render: function () {
-	    return React.DOM.div(this.props, this.props.children);
-	  }
-	});
-
-	module.exports = Helpers.Element(Element);
-
-/***/ },
-/* 331 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * InstructionPanel redux-container. Connects the instruction panel to the redux-store.
-	 *
-	 * Created by kim on 2016-05-11.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _FetchForm = __webpack_require__(332);
-
-	var _FetchForm2 = _interopRequireDefault(_FetchForm);
-
-	var _actions = __webpack_require__(313);
-
-	var actions = _interopRequireWildcard(_actions);
-
-	var _reactScroll = __webpack_require__(317);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var InstructionPanel = function (_React$Component) {
-	  _inherits(InstructionPanel, _React$Component);
-
-	  function InstructionPanel() {
-	    _classCallCheck(this, InstructionPanel);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(InstructionPanel).apply(this, arguments));
-	  }
-
-	  _createClass(InstructionPanel, [{
-	    key: 'render',
-	    value: function render() {
-	      var myInitialValues = {
-	        initialValues: {
-	          operationType: 'LOAD'
-	        }
-	      };
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator }, myInitialValues, { simulating: this.props.simulating }))
-	      );
-	    }
-	  }]);
-
-	  return InstructionPanel;
-	}(_react2.default.Component);
-
-	InstructionPanel.propTypes = {
-	  visualSimulator: _react2.default.PropTypes.func.isRequired
-	};
-
-	/**
-	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
-	 * Its result must be a plain object*, and it will be merged into the component’s props.
-	 * If you omit it, the component will not be subscribed to the Redux store.
-	 *
-	 * @returns {{}}
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    simulating: state.cacheAndMemoryContent.get("simulating"),
-	    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
-	  };
-	}
-	/**
-	 * Maps the redux dispatcher to props that this container provides.
-	 *
-	 * @param dispatch redux-dispatcher
-	 * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
-	 */
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-
-	    simulator: function simulator(fields) {
-	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
-	        duration: 0,
-	        offset: -50,
-	        smooth: true
-	      });
-	      dispatch(actions.startSimulation());
-	      dispatch(actions.cacheContentUpdate(fields));
-	      dispatch(actions.stopSimulation());
-	    },
-	    /**
-	     * Function to handle submission of the fetchform. Dispatches a action.
-	     * @param fields of the action
-	     */
-	    visualSimulator: function visualSimulator(fields) {
-	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
-	        duration: 0,
-	        offset: -50,
-	        smooth: true
-	      });
-	      dispatch(actions.startSimulation());
-	      dispatch(actions.cacheContentUpdate(fields));
-	      setTimeout(dispatch, 3600, actions.stopSimulation());
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
-
-/***/ },
-/* 332 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * FetchForm Component. A component containing a form for attempting to load from the cache.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.fields = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reduxForm = __webpack_require__(247);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var fields = exports.fields = ['fetchAddress', 'operationType', 'register'];
-
-	/**
-	 * Function to validate form input parameters.
-	 *
-	 * @param values to validate
-	 * @returns {{}} - object that contains errors if the exists.
-	 */
-	var validate = function validate(values) {
-	  var errors = {};
-
-	  if (!values.fetchAddress) {
-	    errors.fetchAddress = 'Required';
-	  } else if (!new RegExp("[0-9A-Fa-f]+").test(values.fetchAddress)) {
-	    errors.fetchAddress = 'Address needs to be a valid hexadecimal number';
-	    return errors;
-	  } else if (isNaN(parseInt(values.fetchAddress, 16))) {
-	    errors.fetchAddress = "address needs to be a hexadecimal number";
-	    return errors;
-	  } else if (parseInt(values.fetchAddress, 16) % 4 !== 0) {
-	    errors.fetchAddress = 'Address needs to be a multipel of 4, remember that you need to enter the address in hexadecimal';
-	    return errors;
-	  }
-
-	  if (!values.operationType) {
-	    errors.operationType = 'Required';
-	  }
-	  if (!values.register) {
-	    errors.register = 'Required';
-	  } else if (isNaN(values.register)) {
-	    errors.register = "register needs to be a number between 0 - 31";
-	    return errors;
-	  } else if (values.register < 0 || values.register > 31) {
-	    errors.register = "register needs to be a number between 0 - 31";
-	    return errors;
-	  }
-	  return errors;
-	};
-
-	var FetchForm = function (_React$Component) {
-	  _inherits(FetchForm, _React$Component);
-
-	  function FetchForm() {
-	    _classCallCheck(this, FetchForm);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(FetchForm).apply(this, arguments));
-	  }
-
-	  _createClass(FetchForm, [{
-	    key: 'render',
-	    value: function render() {
-	      var _props = this.props;
-	      var _props$fields = _props.fields;
-	      var fetchAddress = _props$fields.fetchAddress;
-	      var operationType = _props$fields.operationType;
-	      var register = _props$fields.register;
-	      var resetForm = _props.resetForm;
-	      var handleSubmit = _props.handleSubmit;
-	      var submitting = _props.submitting;
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'fetchform-component row' },
-	        _react2.default.createElement(
-	          'form',
-	          { className: 'form-horizontal', role: 'form', onSubmit: handleSubmit },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row' },
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'col-sm-6' },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'form-group' },
-	                _react2.default.createElement(
-	                  'label',
-	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_operation_type' },
-	                  'Operation type'
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'col-md-8' },
-	                  _react2.default.createElement(
-	                    'select',
-	                    _extends({ id: 'input_operation_type', className: 'form-control' }, operationType),
-	                    _react2.default.createElement(
-	                      'option',
-	                      null,
-	                      'LOAD'
-	                    ),
-	                    _react2.default.createElement(
-	                      'option',
-	                      null,
-	                      'STORE'
-	                    )
-	                  ),
-	                  _react2.default.createElement(
-	                    'div',
-	                    { className: 'error' },
-	                    operationType.touched && operationType.error && _react2.default.createElement(
-	                      'div',
-	                      null,
-	                      operationType.error
-	                    )
-	                  )
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'col-sm-6' },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'form-group' },
-	                _react2.default.createElement(
-	                  'label',
-	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_register' },
-	                  'Register (0-31)'
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'col-md-8' },
-	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory register', id: 'input_register' }, register, { className: 'form-control' }))
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'error' },
-	                  register.touched && register.error && _react2.default.createElement(
-	                    'div',
-	                    null,
-	                    register.error
-	                  )
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'col-sm-6' },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'form-group' },
-	                _react2.default.createElement(
-	                  'label',
-	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_hexaddress' },
-	                  'Address (hexadecimal)'
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'col-md-8' },
-	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory address' }, fetchAddress, { id: 'input_hexaddress', className: 'form-control' }))
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'error' },
-	                  fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
-	                    'div',
-	                    null,
-	                    fetchAddress.error
-	                  )
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'col-sm-6' },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'form-group' },
-	                _react2.default.createElement(
-	                  'div',
-	                  { className: 'col-md-12' },
-	                  _react2.default.createElement(
-	                    'button',
-	                    { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
-	                    submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	                    ' Run'
-	                  ),
-	                  _react2.default.createElement(
-	                    'button',
-	                    { type: 'button', onClick: resetForm, className: 'btn btn-default' },
-	                    'Clear Values'
-	                  )
-	                )
-	              )
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return FetchForm;
-	}(_react2.default.Component);
-
-	FetchForm.displayName = 'FetchForm';
-
-	FetchForm.propTypes = {
-	  fields: _react2.default.PropTypes.object.isRequired,
-	  handleSubmit: _react2.default.PropTypes.func.isRequired,
-	  submitting: _react2.default.PropTypes.bool.isRequired
-	};
-
-	exports.default = (0, _reduxForm.reduxForm)({
-	  form: 'synchronousValidation',
-	  fields: fields,
-	  validate: validate
-	})(FetchForm);
-
-/***/ },
-/* 333 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * AssemblyPanel redux-container. Connects the assembly panel to the redux-store.
-	 *
-	 * Created by kim on 2016-06-16.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _AssemblyForm = __webpack_require__(334);
-
-	var _AssemblyForm2 = _interopRequireDefault(_AssemblyForm);
-
-	var _actions = __webpack_require__(313);
-
-	var actions = _interopRequireWildcard(_actions);
-
-	var _reactScroll = __webpack_require__(317);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var AssemblyPanel = function (_React$Component) {
-	  _inherits(AssemblyPanel, _React$Component);
-
-	  function AssemblyPanel() {
-	    _classCallCheck(this, AssemblyPanel);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(AssemblyPanel).apply(this, arguments));
-	  }
-
-	  _createClass(AssemblyPanel, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(_AssemblyForm2.default, { onSubmit: this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator, simulating: this.props.simulating })
-	      );
-	    }
-	  }]);
-
-	  return AssemblyPanel;
-	}(_react2.default.Component);
-
-	AssemblyPanel.propTypes = {
-	  visualSimulator: _react2.default.PropTypes.func.isRequired
-	};
-
-	/**
-	 * Maps application state that is used in this container to props.
-	 *
-	 * @param state
-	 * @returns {{simulating: *}} object with props
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    simulating: state.cacheAndMemoryContent.get("simulating"),
-	    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
-	  };
-	}
-	/**
-	 * Maps the redux dispatcher to props that this container provides.
-	 *
-	 * @param dispatch redux-dispatcher
-	 * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
-	 */
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-
-	    simulator: function simulator(fields) {
-	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
-	        duration: 1000,
-	        offset: -50,
-	        smooth: true
-	      });
-	      dispatch(actions.startSimulation());
-	      var rows = fields.assembly.split("\n");
-	      for (var i = 0; i < rows.length; i++) {
-	        var row = rows[i];
-	        var tokens = row.replace(/ +(?= )/g, '').split(" ");
-	        var operation = tokens[0];
-	        var register = tokens[1];
-	        var address = tokens[2];
-	        fields = {
-	          fetchAddress: address,
-	          operationType: operation,
-	          register: register
-	        };
-	        dispatch(actions.cacheContentUpdate(fields));
-	      }
-	      dispatch(actions.stopSimulation());
-	    },
-	    /**
-	     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
-	     * @param fields of the action
-	     */
-	    visualSimulator: function visualSimulator(fields) {
-	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
-	        duration: 1000,
-	        offset: -50,
-	        smooth: true
-	      });
-	      dispatch(actions.startSimulation());
-	      var rows = fields.assembly.split("\n");
-	      var row = rows[0];
-	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
-	      var operation = tokens[0];
-	      var register = tokens[1];
-	      var address = tokens[2];
-	      fields = {
-	        fetchAddress: address,
-	        operationType: operation,
-	        register: register
-	      };
-	      dispatch(actions.cacheContentUpdate(fields));
-
-	      for (var i = 1; i < rows.length; i++) {
-	        var _row = rows[i];
-	        var _tokens = _row.replace(/ +(?= )/g, '').split(" ");
-	        var _operation = _tokens[0];
-	        var _register = _tokens[1];
-	        var _address = _tokens[2];
-	        fields = {
-	          fetchAddress: _address,
-	          operationType: _operation,
-	          register: _register
-	        };
-	        setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
-	      }
-	      setTimeout(dispatch, rows.length * 3600, actions.stopSimulation());
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(AssemblyPanel);
-
-/***/ },
-/* 334 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * AssemblyForm Component. A component containing a form for attempting to load from the cache.
-	 */
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.fields = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reduxForm = __webpack_require__(247);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var fields = exports.fields = ['assembly'];
-
-	var validate = function validate(values) {
-	  var errors = {};
-	  if (!values.assembly) {
-	    errors.assembly = 'Required';
-	  }
-
-	  if (values.assembly !== undefined) {
-	    var rows = values.assembly.split("\n");
-	    var row = void 0;
-	    for (var i = 0; i < rows.length; i++) {
-	      row = rows[i].trim();
-	      if (row === "") {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
-	      }
-	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
-	      if (tokens.length !== 3) {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
-	        return errors;
-	      }
-	      var operation = tokens[0];
-	      var register = tokens[1];
-	      var address = tokens[2];
-	      if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
-	        return errors;
-	      }
-	      if (isNaN(register)) {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
-	        return errors;
-	      }
-	      if (register < 0 || register > 31) {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
-	        return errors;
-	      }
-	      if (!new RegExp("[0-9A-Fa-f]+").test(address)) {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
-	        return errors;
-	      }
-	      if (isNaN(parseInt(address, 16))) {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
-	        return errors;
-	      }
-	      if (parseInt(address, 16) % 4 !== 0) {
-	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4. Remember that you need to enter the address in hexadecimal';
-	        return errors;
-	      }
-	    }
-	  }
-
-	  return errors;
-	};
-
-	var AssemblyForm = function (_React$Component) {
-	  _inherits(AssemblyForm, _React$Component);
-
-	  function AssemblyForm() {
-	    _classCallCheck(this, AssemblyForm);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(AssemblyForm).apply(this, arguments));
-	  }
-
-	  _createClass(AssemblyForm, [{
-	    key: 'render',
-	    value: function render() {
-	      var _props = this.props;
-	      var assembly = _props.fields.assembly;
-	      var resetForm = _props.resetForm;
-	      var handleSubmit = _props.handleSubmit;
-	      var submitting = _props.submitting;
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'fetchform-component row' },
-	        _react2.default.createElement(
-	          'div',
-	          { id: 'infoModal', className: 'modal fade', role: 'dialog' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'modal-dialog' },
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'modal-content' },
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'modal-header' },
-	                _react2.default.createElement(
-	                  'button',
-	                  { type: 'button', className: 'close', 'data-dismiss': 'modal' },
-	                  '×'
-	                ),
-	                _react2.default.createElement(
-	                  'h3',
-	                  { className: 'modal-title bold' },
-	                  'Assembly Input Guidelines'
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'modal-body row' },
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'One statement on each row.'
-	                ),
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'A statement has the following form: ',
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    '<Operation><space><Register>< space><Address>'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'Allowed operations are: ',
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD'
-	                  ),
-	                  ' and ',
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'STORE'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'p',
-	                  { className: 'bold' },
-	                  'Example:'
-	                ),
-	                _react2.default.createElement(
-	                  'div',
-	                  null,
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD 1 10 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD 2 10 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'STORE 2 19 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD C 1 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD 23 0 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD 17 0 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD 9 1 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'STORE 2 26 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null),
-	                  _react2.default.createElement(
-	                    'code',
-	                    null,
-	                    'LOAD 2 33 '
-	                  ),
-	                  ' ',
-	                  _react2.default.createElement('br', null)
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'div',
-	                { className: 'modal-footer' },
-	                _react2.default.createElement(
-	                  'button',
-	                  { type: 'button', className: 'btn btn-default', 'data-dismiss': 'modal' },
-	                  'Close'
-	                )
-	              )
-	            )
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'form',
-	          {
-	            onSubmit: handleSubmit },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-12 assembly_input' },
-	            _react2.default.createElement(
-	              'p',
-	              { className: 'bold row' },
-	              'Assembly input'
-	            ),
-	            _react2.default.createElement('textarea', _extends({
-	              className: 'form-control',
-	              rows: '5',
-	              id: 'comment'
-	            }, assembly)),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'error_without_margin' },
-	              assembly.touched && assembly.error && _react2.default.createElement(
-	                'div',
-	                null,
-	                assembly.error
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'form-group col-sm-6 assembly_buttongroup' },
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
-	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
-	              ' Run'
-	            ),
-	            _react2.default.createElement(
-	              'button',
-	              { className: 'btn btn-default', type: 'button', disabled: submitting, onClick: resetForm },
-	              'Clear'
-	            ),
-	            _react2.default.createElement(
-	              'button',
-	              { type: 'button', className: 'btn btn-default', 'data-toggle': 'modal', 'data-target': '#infoModal' },
-	              _react2.default.createElement('span', { className: 'glyphicon glyphicon-info-sign' })
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return AssemblyForm;
-	}(_react2.default.Component);
-
-	AssemblyForm.displayName = 'AssemblyForm';
-
-	AssemblyForm.propTypes = {
-	  fields: _react2.default.PropTypes.object.isRequired,
-	  handleSubmit: _react2.default.PropTypes.func.isRequired,
-	  submitting: _react2.default.PropTypes.bool.isRequired
-	};
-
-	exports.default = (0, _reduxForm.reduxForm)({
-	  form: 'synchronousValidation',
-	  fields: fields,
-	  validate: validate
-	})(AssemblyForm);
-
-/***/ },
-/* 335 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheMemory redux-container. Connects the cachememory layout with the redux store.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(220);
-
-	var _CacheTable = __webpack_require__(336);
-
-	var _CacheTable2 = _interopRequireDefault(_CacheTable);
-
-	var _actions = __webpack_require__(313);
-
-	var actions = _interopRequireWildcard(_actions);
-
-	var _reactScroll = __webpack_require__(317);
-
-	var _StaticCacheTable = __webpack_require__(343);
-
-	var _StaticCacheTable2 = _interopRequireDefault(_StaticCacheTable);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CacheMem = function (_React$Component) {
-	  _inherits(CacheMem, _React$Component);
-
-	  function CacheMem() {
-	    _classCallCheck(this, CacheMem);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheMem).apply(this, arguments));
-	  }
-
-	  _createClass(CacheMem, [{
-	    key: 'instructionResult',
-
-
-	    /**
-	     * Visual effect after a instruction simulation
-	     */
-	    value: function instructionResult() {
-	      $("#fade").fadeIn("slow");
-	      setTimeout(function () {
-	        $("#fade").fadeOut("slow");
-	      }, 2500);
-	    }
-
-	    /**
-	     * Creates cache tables for the view by the given state properties
-	     *
-	     * @returns {Array} tables
-	     */
-
-	  }, {
-	    key: 'createVisualTables',
-	    value: function createVisualTables() {
-	      var tables = [];
-	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
-	        tables.push(_react2.default.createElement(_CacheTable2.default, { className: 'set_margin center center-block', key: i,
-	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
-	      }
-	      return tables;
-	    }
-	  }, {
-	    key: 'createTables',
-	    value: function createTables() {
-	      var tables = [];
-	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
-	        tables.push(_react2.default.createElement(_StaticCacheTable2.default, { key: i,
-	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
-	      }
-	      return tables;
-	    }
-	  }, {
-	    key: 'renderCache',
-	    value: function renderCache() {
-	      if (this.props.cachecontent.get("visualSimulation")) {
-	        return _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(
-	            'h3',
-	            { className: 'bold center_text' },
-	            'Cache Memory',
-	            _react2.default.createElement(
-	              'small',
-	              null,
-	              _react2.default.createElement(
-	                'button',
-	                { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
-	                'Clear Cache'
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'row centering-block margin-bottom margin-top' },
-	            this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'instructionResult' },
-	            _react2.default.createElement(
-	              'p',
-	              { id: 'fade', className: 'center_text' },
-	              this.props.cachecontent.get("instructionResult"),
-	              _react2.default.createElement('br', null),
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                this.props.cachecontent.get("instruction")
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'cache_mem' },
-	            this.createVisualTables()
-	          )
-	        );
-	      } else return _react2.default.createElement(
-	        'div',
-	        { className: 'row' },
-	        _react2.default.createElement(
-	          'h3',
-	          { className: 'bold center_text' },
-	          'Cache Memory',
-	          _react2.default.createElement(
-	            'small',
-	            null,
-	            _react2.default.createElement(
-	              'button',
-	              { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
-	              'Clear Cache'
-	            )
-	          )
-	        ),
-	        this.createTables()
-	      );
-	    }
-	    /**
-	     * Returns the bitsize of a given integer
-	     *
-	     * @param num integer
-	     * @returns {*} bitsize
-	     */
-
-	  }, {
-	    key: 'bitSize',
-	    value: function bitSize(num) {
-	      return num.toString(2).length;
-	    }
-
-	    /**
-	     * Returns the hitrate
-	     *
-	     * @returns {number}
-	     */
-
-	  }, {
-	    key: 'getHitRate',
-	    value: function getHitRate() {
-	      if (this.props.cachecontent.get("instructionHistory").size > 0) {
-	        return Math.round(this.props.cachecontent.get("instructionHistory").filter(function (i) {
-	          return i.get("result") === "HIT";
-	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
-	      } else return 0;
-	    }
-
-	    /**
-	     * Returns the missrate
-	     *
-	     * @returns {number}
-	     */
-
-	  }, {
-	    key: 'getMissRate',
-	    value: function getMissRate() {
-	      if (this.props.cachecontent.get("instructionHistory").size > 0) {
-	        return Math.round(this.props.cachecontent.get("instructionHistory").filter(function (i) {
-	          return i.get("result") === "MISS";
-	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
-	      } else return 0;
-	    }
-
-	    /**
-	     * Returns a ui-component to display when simulation is ongoing.
-	     *
-	     * @param simulating boolean
-	     * @param cancelSimulation function to for cancelling simulation.
-	     * @returns {XML}
-	     */
-
-	  }, {
-	    key: 'simulationMessage',
-	    value: function simulationMessage(simulating, cancelSimulation) {
-	      if (simulating) return _react2.default.createElement(
-	        'div',
-	        { className: 'center centering-block center_text' },
-	        _react2.default.createElement(
-	          'label',
-	          { className: 'bold green' },
-	          'ONGOING SIMULATION '
-	        ),
-	        _react2.default.createElement(
-	          'button',
-	          { className: 'btn btn-default margin-left', type: 'button', onClick: cancelSimulation },
-	          'Stop Simulation'
-	        )
-	      );else return _react2.default.createElement('div', null);
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      this.instructionResult();
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(
-	            'h3',
-	            { className: 'bold center_text' },
-	            'Cache Information'
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'col-sm-4 table-scrollable' },
-	            _react2.default.createElement(
-	              'table',
-	              { className: 'table table-striped center-table' },
-	              _react2.default.createElement(
-	                'caption',
-	                null,
-	                'Cache properties'
-	              ),
-	              _react2.default.createElement(
-	                'tbody',
-	                null,
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Address length'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    '32 bits'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Word size'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    '32 bits'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Cache size'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cachecontent.get('cache').get('cacheSize'),
-	                    ' Bytes'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Associativity'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cachecontent.get('cache').get('associativity')
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Block Count'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cachecontent.get('cache').get('blockCount')
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Block Size'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cachecontent.get('cache').get('blockSize'),
-	                    ' Bytes'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Replacement Algorithm'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.props.cachecontent.get('cache').get('replacementAlgorithm')
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Write Policy'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Write-through'
-	                  )
-	                )
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'col-sm-4 table-scrollable' },
-	            _react2.default.createElement(
-	              'table',
-	              { className: 'address_layout table-bordered center-table' },
-	              _react2.default.createElement(
-	                'caption',
-	                null,
-	                'Address Layout'
-	              ),
-	              _react2.default.createElement(
-	                'tbody',
-	                null,
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    { className: 'center_text_2' },
-	                    'Tag(',
-	                    this.props.cachecontent.get("cache").get("tagBits"),
-	                    ' bits)'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    { className: 'center_text_2' },
-	                    'Index(',
-	                    this.props.cachecontent.get("cache").get("indexBits"),
-	                    ' bits)'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    { className: 'center_text_2' },
-	                    'Offset(',
-	                    this.props.cachecontent.get("cache").get("offsetBits"),
-	                    ' bits)'
-	                  )
-	                )
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'col-sm-4 table-scrollable' },
-	            _react2.default.createElement(
-	              'table',
-	              { className: 'table table-striped center-table' },
-	              _react2.default.createElement(
-	                'caption',
-	                null,
-	                'Cache performance and locality'
-	              ),
-	              _react2.default.createElement(
-	                'tbody',
-	                null,
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Hit rate'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.getHitRate(),
-	                    '%'
-	                  )
-	                ),
-	                _react2.default.createElement(
-	                  'tr',
-	                  null,
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    'Miss rate'
-	                  ),
-	                  _react2.default.createElement(
-	                    'td',
-	                    null,
-	                    this.getMissRate(),
-	                    '%'
-	                  )
-	                )
-	              )
-	            )
-	          )
-	        ),
-	        _react2.default.createElement('hr', null),
-	        _react2.default.createElement(
-	          _reactScroll.Element,
-	          { name: 'cache_mem_scroll_position' },
-	          this.renderCache()
-	        )
-	      );
-	    }
-	  }]);
-
-	  return CacheMem;
-	}(_react2.default.Component);
-
-	CacheMem.propTypes = {};
-
-	/**
-	 * Maps application state that is used in this container to props.
-	 *
-	 * @param state
-	 * @returns {{cachecontent: *}} object with props
-	 */
-	function mapStateToProps(state) {
-	  return {
-	    cachecontent: state.cacheAndMemoryContent
-	  };
-	}
-
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	  return {
-	    cancelSimulation: function cancelSimulation() {
-	      dispatch(actions.stopSimulation());
-	    },
-	    clearCache: function clearCache() {
-	      dispatch(actions.clearCache());
-	    }
-	  };
-	};
-
-	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
-
-/***/ },
-/* 336 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheTableComponent. A component displaying a table, that illustrates a cachememory.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _CacheTableRow = __webpack_require__(337);
-
-	var _CacheTableRow2 = _interopRequireDefault(_CacheTableRow);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CacheTable = function (_React$Component) {
-	  _inherits(CacheTable, _React$Component);
-
-	  function CacheTable() {
-	    _classCallCheck(this, CacheTable);
-
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTable).apply(this, arguments));
-	  }
-
-	  _createClass(CacheTable, [{
-	    key: 'createRows',
-
-
-	    /**
-	     * Creates table rows.
-	     *
-	     * @returns {Array} array of rows.
-	     */
-	    value: function createRows() {
-	      var rows = [];
-	      for (var i = 0; i < this.props.data.get('rows').size; i++) {
-	        rows.push(_react2.default.createElement(_CacheTableRow2.default, { data: this.props.data.get('rows').get(i), key: i }));
-	      }
-	      return rows;
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'cachetable-component' },
-	        _react2.default.createElement(
-	          'table',
-	          { className: 'table table-bordered cache center-table', id: "cache_table_set_" + this.props.data.get("set") },
-	          _react2.default.createElement(
-	            'caption',
-	            null,
-	            'Set: ',
-	            this.props.data.get('set')
-	          ),
-	          _react2.default.createElement(
-	            'thead',
-	            null,
-	            _react2.default.createElement(
-	              'tr',
-	              null,
-	              _react2.default.createElement(
-	                'td',
-	                { className: 'bold center_text cache_element' },
-	                'Valid Bit'
-	              ),
-	              _react2.default.createElement(
-	                'td',
-	                { className: 'bold center_text cache_element' },
-	                'Tag'
-	              ),
-	              _react2.default.createElement(
-	                'td',
-	                { className: 'bold center_text cache_element', colSpan: this.props.data.get('nr_elements') },
-	                'Data'
-	              )
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'tbody',
-	            null,
-	            this.createRows()
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return CacheTable;
-	}(_react2.default.Component);
-
-	CacheTable.displayName = 'CacheTable';
-
-	CacheTable.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-
-	exports.default = CacheTable;
-
-/***/ },
-/* 337 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheTableRow component. Constitutes as a row in a table.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _CacheTableElement = __webpack_require__(338);
-
-	var _CacheTableElement2 = _interopRequireDefault(_CacheTableElement);
-
-	var _reactTooltip = __webpack_require__(339);
-
-	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CacheTableRow = function (_React$Component) {
-	  _inherits(CacheTableRow, _React$Component);
-
-	  /**
-	   * Class constructor. Called when instantiated.
-	   *
-	   * @param props
-	   * @param context
-	   */
-
-	  function CacheTableRow(props, context) {
-	    _classCallCheck(this, CacheTableRow);
-
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableRow).call(this, props, context));
-
-	    _this.red = false;
-	    return _this;
-	  }
-
-	  /**
-	   * Function to create elements in the row based on the given props.
-	   *
-	   * @returns {Array}
-	   */
-
-
-	  _createClass(CacheTableRow, [{
-	    key: 'createElements',
-	    value: function createElements() {
-	      var elements = [];
-	      for (var i = 0; i < this.props.data.get('elements').size; i++) {
-	        elements.push(_react2.default.createElement(_CacheTableElement2.default, { key: i, data: this.props.data.get('elements').get(i) }));
-	      }
-	      return elements;
-	    }
-
-	    /**
-	     * Visual effect for instruction miss
-	     *
-	     * @returns {boolean}
-	     */
-
-	  }, {
-	    key: 'animateMiss',
-	    value: function animateMiss() {
-	      if (this.props.data.get("miss")) {
-	        for (var i = 0; i < 6; i++) {
-	          setTimeout(this.changeColor.bind(this), i * 500);
-	        }
-	        setTimeout(this.removeBackground.bind(this), 7 * 500);
-	      }
-	      return true;
-	    }
-
-	    /**
-	     * Visual effect
-	     */
-
-	  }, {
-	    key: 'removeBackground',
-	    value: function removeBackground() {
-	      $("#" + this.props.data.get("id")).css("background-color", "");
-	    }
-
-	    /**
-	     * Visual effect
-	     */
-
-	  }, {
-	    key: 'changeColor',
-	    value: function changeColor() {
-	      if (this.red) {
-	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'white' }, 250, 'linear', function () {});
-	        this.red = false;
-	      } else {
-	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'red' }, 250, 'linear', function () {});
-	        this.red = true;
-	      }
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      this.animateMiss.bind(this)();
-	      return _react2.default.createElement(
-	        'tr',
-	        { id: this.props.data.get('id'), className: 'cache_row cachetablerow-component' },
-	        _react2.default.createElement(
-	          'td',
-	          { 'data-tip': true, 'data-for': this.props.data.get('id'), className: 'center_text_2 validbit' },
-	          this.props.data.get('validbit'),
-	          _react2.default.createElement(
-	            _reactTooltip2.default,
-	            _extends({ id: this.props.data.get('id') }, this.props),
-	            _react2.default.createElement(
-	              'p',
-	              null,
-	              this.props.data.get('validbit') === 1 ? "Valid" : "Not Valid"
-	            )
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'td',
-	          { 'data-tip': true, 'data-for': this.props.data.get('id') + "index", className: 'center_text_2 tag' },
-	          this.props.data.get("tag"),
-	          _react2.default.createElement(
-	            _reactTooltip2.default,
-	            _extends({ id: this.props.data.get('id') + "index" }, this.props),
-	            _react2.default.createElement(
-	              'p',
-	              null,
-	              'Index: ',
-	              this.props.data.get('index')
-	            )
-	          )
-	        ),
-	        this.createElements()
-	      );
-	    }
-	  }]);
-
-	  return CacheTableRow;
-	}(_react2.default.Component);
-
-	CacheTableRow.displayName = 'CacheTableRow';
-	CacheTableRow.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-
-	exports.default = CacheTableRow;
-
-/***/ },
-/* 338 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * CacheTableElementComponent. Functional stateless component that constitutes as a element in a table.
-	 *
-	 * Created by kim on 2016-05-12.
-	 */
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactTooltip = __webpack_require__(339);
-
-	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CacheTableElement = function (_React$Component) {
-	  _inherits(CacheTableElement, _React$Component);
-
-	  /**
-	   * Class constructor. Called when instantiated.
-	   *
-	   * @param props
-	   * @param context
-	   */
-
-	  function CacheTableElement(props, context) {
-	    _classCallCheck(this, CacheTableElement);
-
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableElement).call(this, props, context));
-
-	    _this.green = false;
-	    return _this;
-	  }
-
-	  /**
-	   * Visual effect when a instruction hit on this element occurs
-	   * @returns {boolean}
-	   */
-
-
-	  _createClass(CacheTableElement, [{
-	    key: 'animateHit',
-	    value: function animateHit() {
-	      if (this.props.data.get("hit")) {
-	        for (var i = 0; i < 6; i++) {
-	          setTimeout(this.changeColor.bind(this), i * 500);
-	        }
-	        setTimeout(this.removeBackground.bind(this), 7 * 500);
-	      }
-	      return true;
-	    }
-
-	    /**
-	     * Visual effect
-	     */
-
-	  }, {
-	    key: 'removeBackground',
-	    value: function removeBackground() {
-	      $("#" + this.props.data.get("id")).css("background-color", "");
-	    }
-
-	    /**
-	     * Visual effect
-	     */
-
-	  }, {
-	    key: 'changeColor',
-	    value: function changeColor() {
-	      if (this.green) {
-	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'white' }, 250, 'linear', function () {});
-	        this.green = false;
-	      } else {
-	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'green' }, 250, 'linear', function () {});
-	        this.green = true;
-	      }
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      this.animateHit.bind(this)();
-	      return _react2.default.createElement(
-	        'td',
-	        { 'data-tip': true, 'data-for': this.props.data.get('id'), id: this.props.data.get('id'),
-	          className: 'cache_element cachetableelement-component center_text_2' },
-	        this.props.data.get('data'),
-	        _react2.default.createElement(
-	          _reactTooltip2.default,
-	          _extends({ id: this.props.data.get('id') }, this.props),
-	          _react2.default.createElement(
-	            'p',
-	            null,
-	            'Byte: ',
-	            this.props.data.get('byte')
-	          ),
-	          _react2.default.createElement(
-	            'p',
-	            null,
-	            'Address: ',
-	            this.props.data.get('address')
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return CacheTableElement;
-	}(_react2.default.Component);
-
-	CacheTableElement.displayName = 'CacheTableElement';
-	CacheTableElement.propTypes = {
-	  data: _react2.default.PropTypes.object.isRequired
-	};
-	exports.default = CacheTableElement;
-
-/***/ },
-/* 339 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict'
-
-	module.exports = __webpack_require__(340)
-
-
-/***/ },
-/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40759,11 +38278,11 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _classnames = __webpack_require__(341);
+	var _classnames = __webpack_require__(319);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _style = __webpack_require__(342);
+	var _style = __webpack_require__(320);
 
 	var _style2 = _interopRequireDefault(_style);
 
@@ -41525,7 +39044,7 @@
 
 
 /***/ },
-/* 341 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -41579,7 +39098,7 @@
 
 
 /***/ },
-/* 342 */
+/* 320 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -41589,6 +39108,2532 @@
 	});
 	exports.default = '.__react_component_tooltip{border-radius:3px;display:inline-block;font-size:13px;left:-999em;opacity:0;padding:8px 21px;position:fixed;pointer-events:none;transition:opacity 0.3s ease-out , margin-top 0.3s ease-out, margin-left 0.3s ease-out;top:-999em;visibility:hidden;z-index:999}.__react_component_tooltip:before,.__react_component_tooltip:after{content:"";width:0;height:0;position:absolute}.__react_component_tooltip.show{opacity:0.9;margin-top:0px;margin-left:0px;visibility:visible}.__react_component_tooltip.type-dark{color:#fff;background-color:#222}.__react_component_tooltip.type-dark.place-top:after{border-top:6px solid #222}.__react_component_tooltip.type-dark.place-bottom:after{border-bottom:6px solid #222}.__react_component_tooltip.type-dark.place-left:after{border-left:6px solid #222}.__react_component_tooltip.type-dark.place-right:after{border-right:6px solid #222}.__react_component_tooltip.type-dark.border{border:1px solid #fff}.__react_component_tooltip.type-dark.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-dark.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-dark.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-dark.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-success{color:#fff;background-color:#8DC572}.__react_component_tooltip.type-success.place-top:after{border-top:6px solid #8DC572}.__react_component_tooltip.type-success.place-bottom:after{border-bottom:6px solid #8DC572}.__react_component_tooltip.type-success.place-left:after{border-left:6px solid #8DC572}.__react_component_tooltip.type-success.place-right:after{border-right:6px solid #8DC572}.__react_component_tooltip.type-success.border{border:1px solid #fff}.__react_component_tooltip.type-success.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-success.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-success.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-success.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-warning{color:#fff;background-color:#F0AD4E}.__react_component_tooltip.type-warning.place-top:after{border-top:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-bottom:after{border-bottom:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-left:after{border-left:6px solid #F0AD4E}.__react_component_tooltip.type-warning.place-right:after{border-right:6px solid #F0AD4E}.__react_component_tooltip.type-warning.border{border:1px solid #fff}.__react_component_tooltip.type-warning.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-warning.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-warning.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-warning.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-error{color:#fff;background-color:#BE6464}.__react_component_tooltip.type-error.place-top:after{border-top:6px solid #BE6464}.__react_component_tooltip.type-error.place-bottom:after{border-bottom:6px solid #BE6464}.__react_component_tooltip.type-error.place-left:after{border-left:6px solid #BE6464}.__react_component_tooltip.type-error.place-right:after{border-right:6px solid #BE6464}.__react_component_tooltip.type-error.border{border:1px solid #fff}.__react_component_tooltip.type-error.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-error.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-error.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-error.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-info{color:#fff;background-color:#337AB7}.__react_component_tooltip.type-info.place-top:after{border-top:6px solid #337AB7}.__react_component_tooltip.type-info.place-bottom:after{border-bottom:6px solid #337AB7}.__react_component_tooltip.type-info.place-left:after{border-left:6px solid #337AB7}.__react_component_tooltip.type-info.place-right:after{border-right:6px solid #337AB7}.__react_component_tooltip.type-info.border{border:1px solid #fff}.__react_component_tooltip.type-info.border.place-top:before{border-top:8px solid #fff}.__react_component_tooltip.type-info.border.place-bottom:before{border-bottom:8px solid #fff}.__react_component_tooltip.type-info.border.place-left:before{border-left:8px solid #fff}.__react_component_tooltip.type-info.border.place-right:before{border-right:8px solid #fff}.__react_component_tooltip.type-light{color:#222;background-color:#fff}.__react_component_tooltip.type-light.place-top:after{border-top:6px solid #fff}.__react_component_tooltip.type-light.place-bottom:after{border-bottom:6px solid #fff}.__react_component_tooltip.type-light.place-left:after{border-left:6px solid #fff}.__react_component_tooltip.type-light.place-right:after{border-right:6px solid #fff}.__react_component_tooltip.type-light.border{border:1px solid #222}.__react_component_tooltip.type-light.border.place-top:before{border-top:8px solid #222}.__react_component_tooltip.type-light.border.place-bottom:before{border-bottom:8px solid #222}.__react_component_tooltip.type-light.border.place-left:before{border-left:8px solid #222}.__react_component_tooltip.type-light.border.place-right:before{border-right:8px solid #222}.__react_component_tooltip.place-top{margin-top:-10px}.__react_component_tooltip.place-top:before{border-left:10px solid transparent;border-right:10px solid transparent;bottom:-8px;left:50%;margin-left:-10px}.__react_component_tooltip.place-top:after{border-left:8px solid transparent;border-right:8px solid transparent;bottom:-6px;left:50%;margin-left:-8px}.__react_component_tooltip.place-bottom{margin-top:10px}.__react_component_tooltip.place-bottom:before{border-left:10px solid transparent;border-right:10px solid transparent;top:-8px;left:50%;margin-left:-10px}.__react_component_tooltip.place-bottom:after{border-left:8px solid transparent;border-right:8px solid transparent;top:-6px;left:50%;margin-left:-8px}.__react_component_tooltip.place-left{margin-left:-10px}.__react_component_tooltip.place-left:before{border-top:6px solid transparent;border-bottom:6px solid transparent;right:-8px;top:50%;margin-top:-5px}.__react_component_tooltip.place-left:after{border-top:5px solid transparent;border-bottom:5px solid transparent;right:-6px;top:50%;margin-top:-4px}.__react_component_tooltip.place-right{margin-left:10px}.__react_component_tooltip.place-right:before{border-top:6px solid transparent;border-bottom:6px solid transparent;left:-8px;top:50%;margin-top:-5px}.__react_component_tooltip.place-right:after{border-top:5px solid transparent;border-bottom:5px solid transparent;left:-6px;top:50%;margin-top:-4px}.__react_component_tooltip .multi-line{display:block;padding:2px 0px;text-align:center}';
 
+
+/***/ },
+/* 321 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports.Link = __webpack_require__(322);
+	exports.DirectLink = __webpack_require__(331);
+	exports.Button = __webpack_require__(333);
+	exports.Element = __webpack_require__(334);
+	exports.Helpers = __webpack_require__(323);
+	exports.scroller = __webpack_require__(330);
+	exports.directScroller = __webpack_require__(332);
+	exports.Events = __webpack_require__(328);
+	exports.scrollSpy = __webpack_require__(329);
+	exports.animateScroll = __webpack_require__(324);
+
+
+/***/ },
+/* 322 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+	var Helpers = __webpack_require__(323);
+
+	var Link = React.createClass({
+	  render: function () {
+	    return React.DOM.a(this.props, this.props.children);
+	  }
+	});
+
+	module.exports = Helpers.Scroll(Link);
+
+
+/***/ },
+/* 323 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(158);
+
+	var animateScroll = __webpack_require__(324);
+	var scrollSpy = __webpack_require__(329);
+	var defaultScroller = __webpack_require__(330);
+
+	var Helpers = {
+
+	  Scroll: function (Component, customScroller) {
+
+	    var scroller = customScroller || defaultScroller;
+
+	    return React.createClass({
+
+	      propTypes: {
+	        to: React.PropTypes.string.isRequired,
+	        offset: React.PropTypes.number,
+	        delay: React.PropTypes.number,
+	        isDynamic: React.PropTypes.bool,
+	        onClick: React.PropTypes.func,
+	        duration: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.func])
+	      },
+	      
+	      getDefaultProps: function() {
+	        return {offset: 0};
+	      },
+
+	      scrollTo : function(to, props) {
+	          scroller.scrollTo(to, props);
+	      },
+
+	      handleClick: function(event) {
+
+	        /*
+	         * give the posibility to override onClick
+	         */
+
+	        if(this.props.onClick) {
+	          this.props.onClick(event);
+	        }
+
+	        /*
+	         * dont bubble the navigation
+	         */
+
+	        if (event.stopPropagation) event.stopPropagation();
+	        if (event.preventDefault) event.preventDefault();
+
+	        /*
+	         * do the magic!
+	         */
+
+	        this.scrollTo(this.props.to, this.props);
+
+	      },
+
+	      spyHandler: function(y) {
+	        var element = scroller.get(this.props.to);
+	        if (!element) return;
+	        var cords = element.getBoundingClientRect();
+	        var topBound = cords.top + y;
+	        var bottomBound = topBound + cords.height;
+	        var offsetY = y - this.props.offset;
+	        var to = this.props.to;
+	        var isInside = (offsetY >= topBound && offsetY <= bottomBound);
+	        var isOutside = (offsetY < topBound || offsetY > bottomBound);
+	        var activeLink = scroller.getActiveLink();
+
+	        if (isOutside && activeLink === to) {
+	          scroller.setActiveLink(void 0);
+	          this.setState({ active : false });
+
+	        } else if (isInside && activeLink != to) {
+	          scroller.setActiveLink(to);
+	          this.setState({ active : true });
+
+	          if(this.props.onSetActive) {
+	            this.props.onSetActive(to);
+	          }
+
+	          scrollSpy.updateStates();
+	        }
+	      },
+
+	      componentDidMount: function() {
+
+	        scrollSpy.mount();
+	      
+
+	        if(this.props.spy) {
+	          var to = this.props.to;
+	          var element = null;
+	          var elemTopBound = 0;
+	          var elemBottomBound = 0;
+
+	          scrollSpy.addStateHandler((function() {
+	            if(scroller.getActiveLink() != to) {
+	                this.setState({ active : false });
+	            }
+	          }).bind(this));
+
+	          scrollSpy.addSpyHandler((function(y) {
+
+	            if(!element || this.props.isDynamic) {
+	                element = scroller.get(to);
+	                if(!element){ return;}
+
+	                var cords = element.getBoundingClientRect();
+	                elemTopBound = (cords.top + y);
+	                elemBottomBound = elemTopBound + cords.height;
+	            }
+
+	            var offsetY = y - this.props.offset;
+	            var isInside = (offsetY >= elemTopBound && offsetY <= elemBottomBound);
+	            var isOutside = (offsetY < elemTopBound || offsetY > elemBottomBound);
+	            var activeLink = scroller.getActiveLink();
+
+	            if (isOutside && activeLink === to) {
+	              scroller.setActiveLink(void 0);
+	              this.setState({ active : false });
+
+	            } else if (isInside && activeLink != to) {
+	              scroller.setActiveLink(to);
+	              this.setState({ active : true });
+
+	              if(this.props.onSetActive) {
+	                this.props.onSetActive(to);
+	              }
+
+	              scrollSpy.updateStates();
+
+	            }
+	          }).bind(this));
+	        }
+	      },
+	      componentWillUnmount: function() {
+	        scrollSpy.unmount();
+	      },
+	      render: function() {
+	        var className = "";
+	        if(this.state && this.state.active) {
+	          className = ((this.props.className || "") + " " + (this.props.activeClass || "active")).trim();
+	        } else {
+	          className = this.props.className
+	        }
+
+	        var props = {};
+	        for(var prop in this.props) {
+	          props[prop] = this.props[prop];
+	        }
+
+	        props.className = className;
+	        props.onClick = this.handleClick;
+
+	        return React.createElement(Component, props);
+	      }
+	    });
+	  },
+
+
+	  Element: function(Component) {
+	    return React.createClass({
+	      propTypes: {
+	        name: React.PropTypes.string.isRequired
+	      },
+	      componentDidMount: function() {
+	        var domNode = ReactDOM.findDOMNode(this);
+	        defaultScroller.register(this.props.name, domNode);
+	      },
+	      componentWillUnmount: function() {
+	        defaultScroller.unregister(this.props.name);
+	      },
+	      render: function() {
+	        return React.createElement(Component, this.props);
+	      }
+	    });
+	  }
+	};
+
+	module.exports = Helpers;
+
+
+/***/ },
+/* 324 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var assign = __webpack_require__(325);
+
+	var smooth = __webpack_require__(326);
+
+	var easing = smooth.defaultEasing;
+
+	var cancelEvents = __webpack_require__(327);
+
+	var events = __webpack_require__(328);
+
+	/*
+	 * Function helper
+	 */
+	var functionWrapper = function(value) {
+	  return typeof value === 'function' ? value : function() { return value; };
+	};
+
+	/*
+	 * Sets the cancel trigger
+	 */
+
+	cancelEvents.register(function() {
+	  __cancel = true;
+	});
+
+	/*
+	 * Wraps window properties to allow server side rendering
+	 */
+	var currentWindowProperties = function() {
+	  if (typeof window !== 'undefined') {
+	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame;
+	  }
+	};
+
+	/*
+	 * Helper function to never extend 60fps on the webpage.
+	 */
+	var requestAnimationFrameHelper = (function () {
+	  return  currentWindowProperties() ||
+	          function (callback, element, delay) {
+	              window.setTimeout(callback, delay || (1000/60), new Date().getTime());
+	          };
+	})();
+
+
+	var __currentPositionY  = 0;
+	var __startPositionY    = 0;
+	var __targetPositionY   = 0;
+	var __progress          = 0;
+	var __duration          = 0;
+	var __cancel            = false;
+
+	var __target;
+	var __to;
+	var __start;
+	var __deltaTop;
+	var __percent;
+	var __delayTimeout;
+
+
+	var currentPositionY = function() {
+	  var supportPageOffset = window.pageXOffset !== undefined;
+	  var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
+	  return supportPageOffset ? window.pageYOffset : isCSS1Compat ?
+	         document.documentElement.scrollTop : document.body.scrollTop;
+	};
+
+	var pageHeight = function() {
+	  var body = document.body;
+	  var html = document.documentElement;
+
+	  return Math.max(
+	      body.scrollHeight,
+	      body.offsetHeight,
+	      html.clientHeight,
+	      html.scrollHeight,
+	      html.offsetHeight
+	  );
+	};
+
+	var animateTopScroll = function(timestamp) {
+	  // Cancel on specific events
+	  if(__cancel) { return };
+
+	  __deltaTop = Math.round(__targetPositionY - __startPositionY);
+
+	  if (__start === null) {
+	    __start = timestamp;
+	  }
+
+	  __progress = timestamp - __start;
+
+	  __percent = (__progress >= __duration ? 1 : easing(__progress/__duration));
+
+	  __currentPositionY = __startPositionY + Math.ceil(__deltaTop * __percent);
+
+	  window.scrollTo(0, __currentPositionY);
+
+	  if(__percent < 1) {
+	    requestAnimationFrameHelper.call(window, animateTopScroll);
+	    return;
+	  }
+
+	  if(events.registered['end']) {
+	    events.registered['end'](__to, __target, __currentPositionY);
+	  }
+
+	};
+
+	var startAnimateTopScroll = function(y, options, to, target) {
+
+
+	  window.clearTimeout(__delayTimeout);
+
+	  __start           = null;
+	  __cancel          = false;
+	  __startPositionY  = currentPositionY();
+	  __targetPositionY = options.absolute ? y : y + __startPositionY;
+	  __deltaTop        = Math.round(__targetPositionY - __startPositionY);
+
+	  __duration        = functionWrapper(options.duration)(__deltaTop);
+	  __duration        = isNaN(parseFloat(__duration)) ? 1000 : parseFloat(__duration);
+	  __to              = to;
+	  __target          = target;
+
+	  if(options && options.delay > 0) {
+	    __delayTimeout = window.setTimeout(function animate() {
+	      requestAnimationFrameHelper.call(window, animateTopScroll);
+	    }, options.delay);
+	    return;
+	  }
+
+	  requestAnimationFrameHelper.call(window, animateTopScroll);
+
+	};
+
+	var scrollToTop = function (options) {
+	  startAnimateTopScroll(0, assign(options || {}, { absolute : true }));
+	};
+
+	var scrollTo = function (toY, options) {
+	  startAnimateTopScroll(toY, assign(options || {}, { absolute : true }));
+	};
+
+	var scrollToBottom = function(options) {
+	  startAnimateTopScroll(pageHeight(), assign(options || {}, { absolute : true }));
+	};
+
+	var scrollMore = function(toY, options) {
+	  startAnimateTopScroll(currentPositionY() + toY, assign(options || {}, { absolute : true }));
+	};
+
+	module.exports = {
+	  animateTopScroll: startAnimateTopScroll,
+	  scrollToTop: scrollToTop,
+	  scrollToBottom: scrollToBottom,
+	  scrollTo: scrollTo,
+	  scrollMore: scrollMore,
+	};
+
+
+/***/ },
+/* 325 */
+/***/ function(module, exports) {
+
+	'use strict';
+	/* eslint-disable no-unused-vars */
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+	function toObject(val) {
+		if (val === null || val === undefined) {
+			throw new TypeError('Object.assign cannot be called with null or undefined');
+		}
+
+		return Object(val);
+	}
+
+	function shouldUseNative() {
+		try {
+			if (!Object.assign) {
+				return false;
+			}
+
+			// Detect buggy property enumeration order in older V8 versions.
+
+			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+			var test1 = new String('abc');  // eslint-disable-line
+			test1[5] = 'de';
+			if (Object.getOwnPropertyNames(test1)[0] === '5') {
+				return false;
+			}
+
+			// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+			var test2 = {};
+			for (var i = 0; i < 10; i++) {
+				test2['_' + String.fromCharCode(i)] = i;
+			}
+			var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+				return test2[n];
+			});
+			if (order2.join('') !== '0123456789') {
+				return false;
+			}
+
+			// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+			var test3 = {};
+			'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+				test3[letter] = letter;
+			});
+			if (Object.keys(Object.assign({}, test3)).join('') !==
+					'abcdefghijklmnopqrst') {
+				return false;
+			}
+
+			return true;
+		} catch (e) {
+			// We don't expect any of the above to throw, but better to be safe.
+			return false;
+		}
+	}
+
+	module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+		var from;
+		var to = toObject(target);
+		var symbols;
+
+		for (var s = 1; s < arguments.length; s++) {
+			from = Object(arguments[s]);
+
+			for (var key in from) {
+				if (hasOwnProperty.call(from, key)) {
+					to[key] = from[key];
+				}
+			}
+
+			if (Object.getOwnPropertySymbols) {
+				symbols = Object.getOwnPropertySymbols(from);
+				for (var i = 0; i < symbols.length; i++) {
+					if (propIsEnumerable.call(from, symbols[i])) {
+						to[symbols[i]] = from[symbols[i]];
+					}
+				}
+			}
+		}
+
+		return to;
+	};
+
+
+/***/ },
+/* 326 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	 /*
+	  * https://github.com/oblador/angular-scroll (duScrollDefaultEasing)
+	  */
+	  defaultEasing : function (x) {
+	    'use strict';
+
+	    if(x < 0.5) {
+	      return Math.pow(x*2, 2)/2;
+	    }
+	    return 1-Math.pow((1-x)*2, 2)/2;
+	  }
+	}
+
+/***/ },
+/* 327 */
+/***/ function(module, exports) {
+
+	var events = ['mousedown', 'mousewheel', 'touchmove', 'keydown']
+
+	module.exports = {
+		register : function(cancelEvent) {
+			if (typeof document === 'undefined') {
+				return;
+			}
+
+			for(var i = 0; i < events.length; i = i + 1) {
+				document.addEventListener(events[i], cancelEvent);
+			}
+		}
+	};
+
+
+/***/ },
+/* 328 */
+/***/ function(module, exports) {
+
+	
+	var Events = {
+		registered : {},
+		scrollEvent : {
+			register: function(evtName, callback) {
+				Events.registered[evtName] = callback;
+			},
+			remove: function(evtName) {
+				Events.registered[evtName] = null;
+			}
+		}
+	};
+
+	module.exports = Events;
+
+/***/ },
+/* 329 */
+/***/ function(module, exports) {
+
+	var scrollSpy = {
+	  
+	  spyCallbacks: [],
+	  spySetState: [],
+
+	  mount: function () {
+	    if (typeof document !== 'undefined') {
+	      document.addEventListener('scroll', this.scrollHandler.bind(this));
+	    }
+	  },
+	  currentPositionY: function () {
+	    var supportPageOffset = window.pageXOffset !== undefined;
+	    var isCSS1Compat = ((document.compatMode || "") === "CSS1Compat");
+	    return supportPageOffset ? window.pageYOffset : isCSS1Compat ?
+	            document.documentElement.scrollTop : document.body.scrollTop;
+	  },
+
+	  scrollHandler: function () {
+	    for(var i = 0; i < this.spyCallbacks.length; i++) {
+	      this.spyCallbacks[i](this.currentPositionY());
+	    }
+	  },
+
+	  addStateHandler: function(handler){
+	    this.spySetState.push(handler);
+	  },
+
+	  addSpyHandler: function(handler){
+	    this.spyCallbacks.push(handler);
+	  },
+
+	  updateStates: function(){
+	    var length = this.spySetState.length;
+
+	    for(var i = 0; i < length; i++) {
+	      this.spySetState[i]();
+	    }
+	  },
+	  unmount: function () { 
+	    this.spyCallbacks = [];
+	    this.spySetState = [];
+
+	    document.removeEventListener('scroll', this.scrollHandler);
+	  }
+	}
+
+	module.exports = scrollSpy;
+
+/***/ },
+/* 330 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var animateScroll = __webpack_require__(324);
+	var events = __webpack_require__(328);
+
+	var __mapped = {};
+	var __activeLink;
+
+	module.exports = {
+
+	  unmount: function() {
+	    __mapped = {};
+	  },
+
+	  register: function(name, element){
+	    __mapped[name] = element;
+	  },
+
+	  unregister: function(name) {
+	    delete __mapped[name];
+	  },
+
+	  get: function(name) {
+	    return __mapped[name];
+	  },
+
+	  setActiveLink: function(link) {
+	    __activeLink = link;
+	  },
+
+	  getActiveLink: function() {
+	    return __activeLink;
+	  },
+
+	  scrollTo: function(to, props) {
+
+	     /*
+	     * get the mapped DOM element
+	     */
+
+	      var target = this.get(to);
+
+	      if(!target) {
+	        throw new Error("target Element not found");
+	      }
+
+	      props = props || {};
+
+	      var coordinates = target.getBoundingClientRect();
+
+	      if(events.registered['begin']) {
+	        events.registered['begin'](to, target);
+	      }
+	      /*
+	       * if animate is not provided just scroll into the view
+	       */
+	      if(!props.smooth) {
+	        var bodyRect = document.body.getBoundingClientRect();
+	        var scrollOffset = coordinates.top - bodyRect.top;
+	        window.scrollTo(0, scrollOffset + (props.offset || 0));
+
+	        if(events.registered['end']) {
+	          events.registered['end'](to, target);
+	        }
+
+	        return;
+	      }
+
+	      /*
+	       * Animate scrolling
+	       */
+
+	      animateScroll.animateTopScroll(coordinates.top + (props.offset || 0), props, to, target);
+	  }
+	};
+
+
+
+/***/ },
+/* 331 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+	var Helpers = __webpack_require__(323);
+	var directScroller = __webpack_require__(332);
+
+	var DirectLink = React.createClass({
+	  render: function () {
+	    return React.DOM.a(this.props, this.props.children);
+	  }
+	});
+
+	module.exports = Helpers.Scroll(DirectLink, directScroller);
+
+
+/***/ },
+/* 332 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Helpers  = __webpack_require__(323);
+	var scroller = __webpack_require__(330);
+
+	var mappedGet = scroller.get;
+
+	// Get element by its ID attribute
+	scroller.get = function(name) {
+	  return mappedGet(name) || document.getElementById(name);
+	};
+
+	module.exports = scroller;
+
+
+/***/ },
+/* 333 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+	var Helpers = __webpack_require__(323);
+
+	var Button = React.createClass({
+	  render: function () {
+	    return React.DOM.input(this.props, this.props.children);
+	  }
+	});
+
+	module.exports = Helpers.Scroll(Button);
+
+
+/***/ },
+/* 334 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(1);
+	var Helpers = __webpack_require__(323);
+
+	var Element = React.createClass({
+	  render: function () {
+	    return React.DOM.div(this.props, this.props.children);
+	  }
+	});
+
+	module.exports = Helpers.Element(Element);
+
+/***/ },
+/* 335 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * InstructionPanel redux-container. Connects the instruction panel to the redux-store.
+	 *
+	 * Created by kim on 2016-05-11.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _FetchForm = __webpack_require__(336);
+
+	var _FetchForm2 = _interopRequireDefault(_FetchForm);
+
+	var _actions = __webpack_require__(313);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	var _reactScroll = __webpack_require__(321);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var InstructionPanel = function (_React$Component) {
+	  _inherits(InstructionPanel, _React$Component);
+
+	  function InstructionPanel() {
+	    _classCallCheck(this, InstructionPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(InstructionPanel).apply(this, arguments));
+	  }
+
+	  _createClass(InstructionPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      var myInitialValues = {
+	        initialValues: {
+	          operationType: 'LOAD'
+	        }
+	      };
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_FetchForm2.default, _extends({ onSubmit: this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator }, myInitialValues, { simulating: this.props.simulating }))
+	      );
+	    }
+	  }]);
+
+	  return InstructionPanel;
+	}(_react2.default.Component);
+
+	InstructionPanel.propTypes = {
+	  visualSimulator: _react2.default.PropTypes.func.isRequired
+	};
+
+	/**
+	 * If specified, the component will subscribe to Redux store updates. Any time it updates, mapStateToProps will be called.
+	 * Its result must be a plain object*, and it will be merged into the component’s props.
+	 * If you omit it, the component will not be subscribed to the Redux store.
+	 *
+	 * @returns {{}}
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    simulating: state.cacheAndMemoryContent.get("simulating"),
+	    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
+	  };
+	}
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
+	 */
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+
+	    /**
+	     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
+	     * @param fields of the action
+	     */
+	    simulator: function simulator(fields) {
+	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
+	        duration: 0,
+	        offset: -50,
+	        smooth: true
+	      });
+	      dispatch(actions.startSimulation());
+	      dispatch(actions.cacheContentUpdate(fields));
+	      dispatch(actions.stopSimulation());
+	    },
+	    /**
+	     * Function to handle submission of the fetchform. Dispatches a action.
+	     * @param fields of the action
+	     */
+	    visualSimulator: function visualSimulator(fields) {
+	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
+	        duration: 0,
+	        offset: -50,
+	        smooth: true
+	      });
+	      dispatch(actions.startSimulation());
+	      dispatch(actions.cacheContentUpdate(fields));
+	      setTimeout(dispatch, 3600, actions.stopSimulation());
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(InstructionPanel);
+
+/***/ },
+/* 336 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * FetchForm Component. A component containing a form for attempting to load from the cache.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.fields = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reduxForm = __webpack_require__(247);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var fields = exports.fields = ['fetchAddress', 'operationType', 'register'];
+
+	/**
+	 * Function to validate form input parameters.
+	 *
+	 * @param values to validate
+	 * @returns {{}} - object that contains errors if the exists.
+	 */
+	var validate = function validate(values) {
+	  var errors = {};
+
+	  if (!values.fetchAddress) {
+	    errors.fetchAddress = 'Required';
+	  } else if (!new RegExp("[0-9A-Fa-f]+").test(values.fetchAddress)) {
+	    errors.fetchAddress = 'Address needs to be a valid hexadecimal number';
+	    return errors;
+	  } else if (isNaN(parseInt(values.fetchAddress, 16))) {
+	    errors.fetchAddress = "address needs to be a hexadecimal number";
+	    return errors;
+	  } else if (parseInt(values.fetchAddress, 16) % 4 !== 0) {
+	    errors.fetchAddress = 'Address needs to be a multipel of 4, remember that you need to enter the address in hexadecimal';
+	    return errors;
+	  }
+
+	  if (!values.operationType) {
+	    errors.operationType = 'Required';
+	  }
+	  if (!values.register) {
+	    errors.register = 'Required';
+	  } else if (isNaN(values.register)) {
+	    errors.register = "register needs to be a number between 0 - 31";
+	    return errors;
+	  } else if (values.register < 0 || values.register > 31) {
+	    errors.register = "register needs to be a number between 0 - 31";
+	    return errors;
+	  }
+	  return errors;
+	};
+
+	var FetchForm = function (_React$Component) {
+	  _inherits(FetchForm, _React$Component);
+
+	  function FetchForm() {
+	    _classCallCheck(this, FetchForm);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(FetchForm).apply(this, arguments));
+	  }
+
+	  _createClass(FetchForm, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var _props$fields = _props.fields;
+	      var fetchAddress = _props$fields.fetchAddress;
+	      var operationType = _props$fields.operationType;
+	      var register = _props$fields.register;
+	      var resetForm = _props.resetForm;
+	      var handleSubmit = _props.handleSubmit;
+	      var submitting = _props.submitting;
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'fetchform-component row' },
+	        _react2.default.createElement(
+	          'form',
+	          { className: 'form-horizontal', role: 'form', onSubmit: handleSubmit },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row' },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_operation_type' },
+	                  'Operation type'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement(
+	                    'select',
+	                    _extends({ id: 'input_operation_type', className: 'form-control' }, operationType),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'LOAD'
+	                    ),
+	                    _react2.default.createElement(
+	                      'option',
+	                      null,
+	                      'STORE'
+	                    )
+	                  ),
+	                  _react2.default.createElement(
+	                    'div',
+	                    { className: 'error' },
+	                    operationType.touched && operationType.error && _react2.default.createElement(
+	                      'div',
+	                      null,
+	                      operationType.error
+	                    )
+	                  )
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_register' },
+	                  'Register (0-31)'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory register', id: 'input_register' }, register, { className: 'form-control' }))
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'error' },
+	                  register.touched && register.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    register.error
+	                  )
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'label',
+	                  { className: 'bold col-md-4 control-label', htmlFor: 'input_hexaddress' },
+	                  'Address (hexadecimal)'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-8' },
+	                  _react2.default.createElement('input', _extends({ type: 'text', placeholder: 'memory address' }, fetchAddress, { id: 'input_hexaddress', className: 'form-control' }))
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'error' },
+	                  fetchAddress.touched && fetchAddress.error && _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    fetchAddress.error
+	                  )
+	                )
+	              )
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'col-sm-6' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'form-group' },
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'col-md-12' },
+	                  _react2.default.createElement(
+	                    'button',
+	                    { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
+	                    submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
+	                    ' Run'
+	                  ),
+	                  _react2.default.createElement(
+	                    'button',
+	                    { type: 'button', onClick: resetForm, className: 'btn btn-default' },
+	                    'Clear Values'
+	                  )
+	                )
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return FetchForm;
+	}(_react2.default.Component);
+
+	FetchForm.displayName = 'FetchForm';
+
+	FetchForm.propTypes = {
+	  fields: _react2.default.PropTypes.object.isRequired,
+	  handleSubmit: _react2.default.PropTypes.func.isRequired,
+	  submitting: _react2.default.PropTypes.bool.isRequired
+	};
+
+	exports.default = (0, _reduxForm.reduxForm)({
+	  form: 'synchronousValidation',
+	  fields: fields,
+	  validate: validate
+	})(FetchForm);
+
+/***/ },
+/* 337 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * AssemblyPanel redux-container. Connects the assembly panel to the redux-store.
+	 *
+	 * Created by kim on 2016-06-16.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _AssemblyForm = __webpack_require__(338);
+
+	var _AssemblyForm2 = _interopRequireDefault(_AssemblyForm);
+
+	var _actions = __webpack_require__(313);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	var _reactScroll = __webpack_require__(321);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var AssemblyPanel = function (_React$Component) {
+	  _inherits(AssemblyPanel, _React$Component);
+
+	  function AssemblyPanel() {
+	    _classCallCheck(this, AssemblyPanel);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(AssemblyPanel).apply(this, arguments));
+	  }
+
+	  _createClass(AssemblyPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_AssemblyForm2.default, { onSubmit: this.props.visualSimulation ? this.props.visualSimulator : this.props.simulator, simulating: this.props.simulating })
+	      );
+	    }
+	  }]);
+
+	  return AssemblyPanel;
+	}(_react2.default.Component);
+
+	AssemblyPanel.propTypes = {
+	  visualSimulator: _react2.default.PropTypes.func.isRequired
+	};
+
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state
+	 * @returns {{simulating: *}} object with props
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    simulating: state.cacheAndMemoryContent.get("simulating"),
+	    visualSimulation: state.cacheAndMemoryContent.get("visualSimulation")
+	  };
+	}
+	/**
+	 * Maps the redux dispatcher to props that this container provides.
+	 *
+	 * @param dispatch redux-dispatcher
+	 * @returns {{fetchHandleSubmit: visualSimulation}} - Object with action creators.
+	 */
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+
+	    /**
+	     * Function to handle submission of the assemblyform. Dispatches actions for each line of assembly.
+	     * @param fields of the action
+	     */
+	    simulator: function simulator(fields) {
+	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
+	        duration: 1000,
+	        offset: -50,
+	        smooth: true
+	      });
+	      dispatch(actions.startSimulation());
+	      var rows = fields.assembly.split("\n");
+	      for (var i = 0; i < rows.length; i++) {
+	        var row = rows[i];
+	        var tokens = row.replace(/ +(?= )/g, '').split(" ");
+	        var operation = tokens[0];
+	        var register = tokens[1];
+	        var address = tokens[2];
+	        fields = {
+	          fetchAddress: address,
+	          operationType: operation,
+	          register: register
+	        };
+	        dispatch(actions.cacheContentUpdate(fields));
+	      }
+	      dispatch(actions.stopSimulation());
+	    },
+	    /**
+	     * Function to handle submission of the assemblyform to do visual simulation. Dispatches actions for each line of assembly.
+	     * @param fields of the action
+	     */
+	    visualSimulator: function visualSimulator(fields) {
+	      _reactScroll.scroller.scrollTo('cache_mem_scroll_position', {
+	        duration: 1000,
+	        offset: -50,
+	        smooth: true
+	      });
+	      dispatch(actions.startSimulation());
+	      var rows = fields.assembly.split("\n");
+	      var row = rows[0];
+	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
+	      var operation = tokens[0];
+	      var register = tokens[1];
+	      var address = tokens[2];
+	      fields = {
+	        fetchAddress: address,
+	        operationType: operation,
+	        register: register
+	      };
+	      dispatch(actions.cacheContentUpdate(fields));
+
+	      for (var i = 1; i < rows.length; i++) {
+	        var _row = rows[i];
+	        var _tokens = _row.replace(/ +(?= )/g, '').split(" ");
+	        var _operation = _tokens[0];
+	        var _register = _tokens[1];
+	        var _address = _tokens[2];
+	        fields = {
+	          fetchAddress: _address,
+	          operationType: _operation,
+	          register: _register
+	        };
+	        setTimeout(dispatch, i * 3600, actions.cacheContentUpdate(fields));
+	      }
+	      setTimeout(dispatch, rows.length * 3600, actions.stopSimulation());
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(AssemblyPanel);
+
+/***/ },
+/* 338 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * AssemblyForm Component. A component containing a form for attempting to load from the cache.
+	 */
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.fields = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reduxForm = __webpack_require__(247);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var fields = exports.fields = ['assembly'];
+
+	var validate = function validate(values) {
+	  var errors = {};
+	  if (!values.assembly) {
+	    errors.assembly = 'Required';
+	  }
+
+	  if (values.assembly !== undefined) {
+	    var rows = values.assembly.split("\n");
+	    var row = void 0;
+	    for (var i = 0; i < rows.length; i++) {
+	      row = rows[i].trim();
+	      if (row === "") {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
+	      }
+	      var tokens = row.replace(/ +(?= )/g, '').split(" ");
+	      if (tokens.length !== 3) {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Assembly line input need to be on the form: OPERATION \<space\> REGISTER \<space\> ADDRESS";
+	        return errors;
+	      }
+	      var operation = tokens[0];
+	      var register = tokens[1];
+	      var address = tokens[2];
+	      if (operation.toUpperCase() !== "LOAD" && operation.toUpperCase() !== "STORE") {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid operation, needs to be LOAD or STORE";
+	        return errors;
+	      }
+	      if (isNaN(register)) {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+	        return errors;
+	      }
+	      if (register < 0 || register > 31) {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid register, needs to be a number between 0-31";
+	        return errors;
+	      }
+	      if (!new RegExp("[0-9A-Fa-f]+").test(address)) {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
+	        return errors;
+	      }
+	      if (isNaN(parseInt(address, 16))) {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + "Invalid address, needs to be a hexadecimal number";
+	        return errors;
+	      }
+	      if (parseInt(address, 16) % 4 !== 0) {
+	        errors.assembly = "Error on line " + (i + 1) + " '" + row + "'" + ".\n" + 'Invalid address, needs to be a multipel of 4. Remember that you need to enter the address in hexadecimal';
+	        return errors;
+	      }
+	    }
+	  }
+
+	  return errors;
+	};
+
+	var AssemblyForm = function (_React$Component) {
+	  _inherits(AssemblyForm, _React$Component);
+
+	  function AssemblyForm() {
+	    _classCallCheck(this, AssemblyForm);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(AssemblyForm).apply(this, arguments));
+	  }
+
+	  _createClass(AssemblyForm, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props;
+	      var assembly = _props.fields.assembly;
+	      var resetForm = _props.resetForm;
+	      var handleSubmit = _props.handleSubmit;
+	      var submitting = _props.submitting;
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'fetchform-component row' },
+	        _react2.default.createElement(
+	          'div',
+	          { id: 'infoModal', className: 'modal fade', role: 'dialog' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'modal-dialog' },
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'modal-content' },
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'modal-header' },
+	                _react2.default.createElement(
+	                  'button',
+	                  { type: 'button', className: 'close', 'data-dismiss': 'modal' },
+	                  '×'
+	                ),
+	                _react2.default.createElement(
+	                  'h3',
+	                  { className: 'modal-title bold' },
+	                  'Assembly Input Guidelines'
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'modal-body row' },
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'One statement on each row.'
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'A statement has the following form: ',
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    '<Operation><space><Register>< space><Address>'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  null,
+	                  'Allowed operations are: ',
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD'
+	                  ),
+	                  ' and ',
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'STORE'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'p',
+	                  { className: 'bold' },
+	                  'Example:'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  null,
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 1 10 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 2 10 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'STORE 2 19 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD C 1 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 23 0 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 17 0 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 9 1 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'STORE 2 26 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null),
+	                  _react2.default.createElement(
+	                    'code',
+	                    null,
+	                    'LOAD 2 33 '
+	                  ),
+	                  ' ',
+	                  _react2.default.createElement('br', null)
+	                )
+	              ),
+	              _react2.default.createElement(
+	                'div',
+	                { className: 'modal-footer' },
+	                _react2.default.createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-default', 'data-dismiss': 'modal' },
+	                  'Close'
+	                )
+	              )
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'form',
+	          {
+	            onSubmit: handleSubmit },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-12 assembly_input' },
+	            _react2.default.createElement(
+	              'p',
+	              { className: 'bold row' },
+	              'Assembly input'
+	            ),
+	            _react2.default.createElement('textarea', _extends({
+	              className: 'form-control',
+	              rows: '5',
+	              id: 'comment'
+	            }, assembly)),
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'error_without_margin' },
+	              assembly.touched && assembly.error && _react2.default.createElement(
+	                'div',
+	                null,
+	                assembly.error
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'form-group col-sm-6 assembly_buttongroup' },
+	            _react2.default.createElement(
+	              'button',
+	              { type: 'submit', disabled: this.props.simulating || submitting, className: 'btn btn-default' },
+	              submitting ? _react2.default.createElement('i', null) : _react2.default.createElement('i', null),
+	              ' Run'
+	            ),
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'btn btn-default', type: 'button', disabled: submitting, onClick: resetForm },
+	              'Clear'
+	            ),
+	            _react2.default.createElement(
+	              'button',
+	              { type: 'button', className: 'btn btn-default', 'data-toggle': 'modal', 'data-target': '#infoModal' },
+	              _react2.default.createElement('span', { className: 'glyphicon glyphicon-info-sign' })
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return AssemblyForm;
+	}(_react2.default.Component);
+
+	AssemblyForm.displayName = 'AssemblyForm';
+
+	AssemblyForm.propTypes = {
+	  fields: _react2.default.PropTypes.object.isRequired,
+	  handleSubmit: _react2.default.PropTypes.func.isRequired,
+	  submitting: _react2.default.PropTypes.bool.isRequired
+	};
+
+	exports.default = (0, _reduxForm.reduxForm)({
+	  form: 'synchronousValidation',
+	  fields: fields,
+	  validate: validate
+	})(AssemblyForm);
+
+/***/ },
+/* 339 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheMemory redux-container. Connects the cachememory layout with the redux store.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(220);
+
+	var _CacheTable = __webpack_require__(340);
+
+	var _CacheTable2 = _interopRequireDefault(_CacheTable);
+
+	var _actions = __webpack_require__(313);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	var _reactScroll = __webpack_require__(321);
+
+	var _StaticCacheTable = __webpack_require__(343);
+
+	var _StaticCacheTable2 = _interopRequireDefault(_StaticCacheTable);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheMem = function (_React$Component) {
+	  _inherits(CacheMem, _React$Component);
+
+	  function CacheMem() {
+	    _classCallCheck(this, CacheMem);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheMem).apply(this, arguments));
+	  }
+
+	  _createClass(CacheMem, [{
+	    key: 'instructionResult',
+
+
+	    /**
+	     * Visual effect after a instruction simulation
+	     */
+	    value: function instructionResult() {
+	      $("#fade").fadeIn("slow");
+	      setTimeout(function () {
+	        $("#fade").fadeOut("slow");
+	      }, 2500);
+	    }
+
+	    /**
+	     * Creates cache tables for the view by the given state properties
+	     *
+	     * @returns {Array} tables
+	     */
+
+	  }, {
+	    key: 'createVisualTables',
+	    value: function createVisualTables() {
+	      var tables = [];
+	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
+	        tables.push(_react2.default.createElement(_CacheTable2.default, { className: 'set_margin center center-block', key: i,
+	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
+	      }
+	      return tables;
+	    }
+	  }, {
+	    key: 'createTables',
+	    value: function createTables() {
+	      var tables = [];
+	      for (var i = 0; i < this.props.cachecontent.get('cache').get('sets').size; i++) {
+	        tables.push(_react2.default.createElement(_StaticCacheTable2.default, { key: i,
+	          data: this.props.cachecontent.get('cache').get('sets').get(i) }));
+	      }
+	      return tables;
+	    }
+	  }, {
+	    key: 'renderCache',
+	    value: function renderCache() {
+	      if (this.props.cachecontent.get("visualSimulation")) {
+	        return _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(
+	            'h3',
+	            { className: 'bold center_text' },
+	            'Cache Memory',
+	            _react2.default.createElement(
+	              'small',
+	              null,
+	              _react2.default.createElement(
+	                'button',
+	                { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
+	                'Clear Cache'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'row centering-block margin-bottom margin-top' },
+	            this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'instructionResult' },
+	            _react2.default.createElement(
+	              'p',
+	              { id: 'fade', className: 'center_text' },
+	              this.props.cachecontent.get("instructionResult"),
+	              _react2.default.createElement('br', null),
+	              _react2.default.createElement(
+	                'code',
+	                null,
+	                this.props.cachecontent.get("instruction")
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'cache_mem' },
+	            this.createVisualTables()
+	          )
+	        );
+	      } else return _react2.default.createElement(
+	        'div',
+	        { className: 'row' },
+	        _react2.default.createElement(
+	          'h3',
+	          { className: 'bold center_text' },
+	          'Cache Memory',
+	          _react2.default.createElement(
+	            'small',
+	            null,
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'btn btn-default', type: 'button', onClick: this.props.clearCache },
+	              'Clear Cache'
+	            )
+	          )
+	        ),
+	        this.createTables()
+	      );
+	    }
+	    /**
+	     * Returns the bitsize of a given integer
+	     *
+	     * @param num integer
+	     * @returns {*} bitsize
+	     */
+
+	  }, {
+	    key: 'bitSize',
+	    value: function bitSize(num) {
+	      return num.toString(2).length;
+	    }
+
+	    /**
+	     * Returns the hitrate
+	     *
+	     * @returns {number}
+	     */
+
+	  }, {
+	    key: 'getHitRate',
+	    value: function getHitRate() {
+	      if (this.props.cachecontent.get("instructionHistory").size > 0) {
+	        return Math.round(this.props.cachecontent.get("instructionHistory").filter(function (i) {
+	          return i.get("result") === "HIT";
+	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
+	      } else return 0;
+	    }
+
+	    /**
+	     * Returns the missrate
+	     *
+	     * @returns {number}
+	     */
+
+	  }, {
+	    key: 'getMissRate',
+	    value: function getMissRate() {
+	      if (this.props.cachecontent.get("instructionHistory").size > 0) {
+	        return Math.round(this.props.cachecontent.get("instructionHistory").filter(function (i) {
+	          return i.get("result") === "MISS";
+	        }).size / this.props.cachecontent.get("instructionHistory").size * 100) / 100 * 100;
+	      } else return 0;
+	    }
+
+	    /**
+	     * Returns a ui-component to display when simulation is ongoing.
+	     *
+	     * @param simulating boolean
+	     * @param cancelSimulation function to for cancelling simulation.
+	     * @returns {XML}
+	     */
+
+	  }, {
+	    key: 'simulationMessage',
+	    value: function simulationMessage(simulating, cancelSimulation) {
+	      if (simulating) return _react2.default.createElement(
+	        'div',
+	        { className: 'center centering-block center_text' },
+	        _react2.default.createElement(
+	          'label',
+	          { className: 'bold green' },
+	          'ONGOING SIMULATION '
+	        ),
+	        _react2.default.createElement(
+	          'button',
+	          { className: 'btn btn-default margin-left', type: 'button', onClick: cancelSimulation },
+	          'Stop Simulation'
+	        )
+	      );else return _react2.default.createElement('div', null);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      this.instructionResult();
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'row' },
+	          _react2.default.createElement(
+	            'h3',
+	            { className: 'bold center_text' },
+	            'Cache Information'
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col-sm-4 table-scrollable' },
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'table table-striped center-table' },
+	              _react2.default.createElement(
+	                'caption',
+	                null,
+	                'Cache properties'
+	              ),
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Address length'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    '32 bits'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Word size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    '32 bits'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Cache size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.get('cache').get('cacheSize'),
+	                    ' Bytes'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Associativity'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.get('cache').get('associativity')
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Block Count'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.get('cache').get('blockCount')
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Block Size'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.get('cache').get('blockSize'),
+	                    ' Bytes'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Replacement Algorithm'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.props.cachecontent.get('cache').get('replacementAlgorithm')
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Write Policy'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Write-through'
+	                  )
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col-sm-4 table-scrollable' },
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'address_layout table-bordered center-table' },
+	              _react2.default.createElement(
+	                'caption',
+	                null,
+	                'Address Layout'
+	              ),
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    { className: 'center_text_2' },
+	                    'Tag(',
+	                    this.props.cachecontent.get("cache").get("tagBits"),
+	                    ' bits)'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    { className: 'center_text_2' },
+	                    'Index(',
+	                    this.props.cachecontent.get("cache").get("indexBits"),
+	                    ' bits)'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    { className: 'center_text_2' },
+	                    'Offset(',
+	                    this.props.cachecontent.get("cache").get("offsetBits"),
+	                    ' bits)'
+	                  )
+	                )
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'col-sm-4 table-scrollable' },
+	            _react2.default.createElement(
+	              'table',
+	              { className: 'table table-striped center-table' },
+	              _react2.default.createElement(
+	                'caption',
+	                null,
+	                'Cache performance and locality'
+	              ),
+	              _react2.default.createElement(
+	                'tbody',
+	                null,
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Hit rate'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.getHitRate(),
+	                    '%'
+	                  )
+	                ),
+	                _react2.default.createElement(
+	                  'tr',
+	                  null,
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    'Miss rate'
+	                  ),
+	                  _react2.default.createElement(
+	                    'td',
+	                    null,
+	                    this.getMissRate(),
+	                    '%'
+	                  )
+	                )
+	              )
+	            )
+	          )
+	        ),
+	        _react2.default.createElement('hr', null),
+	        _react2.default.createElement(
+	          _reactScroll.Element,
+	          { name: 'cache_mem_scroll_position' },
+	          this.renderCache()
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheMem;
+	}(_react2.default.Component);
+
+	CacheMem.propTypes = {};
+
+	/**
+	 * Maps application state that is used in this container to props.
+	 *
+	 * @param state
+	 * @returns {{cachecontent: *}} object with props
+	 */
+	function mapStateToProps(state) {
+	  return {
+	    cachecontent: state.cacheAndMemoryContent
+	  };
+	}
+
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	  return {
+	    cancelSimulation: function cancelSimulation() {
+	      dispatch(actions.stopSimulation());
+	    },
+	    clearCache: function clearCache() {
+	      dispatch(actions.clearCache());
+	    }
+	  };
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CacheMem);
+
+/***/ },
+/* 340 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheTableComponent. A component displaying a table, that illustrates a cachememory.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _CacheTableRow = __webpack_require__(341);
+
+	var _CacheTableRow2 = _interopRequireDefault(_CacheTableRow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheTable = function (_React$Component) {
+	  _inherits(CacheTable, _React$Component);
+
+	  function CacheTable() {
+	    _classCallCheck(this, CacheTable);
+
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTable).apply(this, arguments));
+	  }
+
+	  _createClass(CacheTable, [{
+	    key: 'createRows',
+
+
+	    /**
+	     * Creates table rows.
+	     *
+	     * @returns {Array} array of rows.
+	     */
+	    value: function createRows() {
+	      var rows = [];
+	      for (var i = 0; i < this.props.data.get('rows').size; i++) {
+	        rows.push(_react2.default.createElement(_CacheTableRow2.default, { data: this.props.data.get('rows').get(i), key: i }));
+	      }
+	      return rows;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'cachetable-component' },
+	        _react2.default.createElement(
+	          'table',
+	          { className: 'table table-bordered cache center-table', id: "cache_table_set_" + this.props.data.get("set") },
+	          _react2.default.createElement(
+	            'caption',
+	            null,
+	            'Set: ',
+	            this.props.data.get('set')
+	          ),
+	          _react2.default.createElement(
+	            'thead',
+	            null,
+	            _react2.default.createElement(
+	              'tr',
+	              null,
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text cache_element' },
+	                'Valid Bit'
+	              ),
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text cache_element' },
+	                'Tag'
+	              ),
+	              _react2.default.createElement(
+	                'td',
+	                { className: 'bold center_text cache_element', colSpan: this.props.data.get('nr_elements') },
+	                'Data'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'tbody',
+	            null,
+	            this.createRows()
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheTable;
+	}(_react2.default.Component);
+
+	CacheTable.displayName = 'CacheTable';
+
+	CacheTable.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = CacheTable;
+
+/***/ },
+/* 341 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheTableRow component. Constitutes as a row in a table.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _CacheTableElement = __webpack_require__(342);
+
+	var _CacheTableElement2 = _interopRequireDefault(_CacheTableElement);
+
+	var _reactTooltip = __webpack_require__(317);
+
+	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheTableRow = function (_React$Component) {
+	  _inherits(CacheTableRow, _React$Component);
+
+	  /**
+	   * Class constructor. Called when instantiated.
+	   *
+	   * @param props
+	   * @param context
+	   */
+
+	  function CacheTableRow(props, context) {
+	    _classCallCheck(this, CacheTableRow);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableRow).call(this, props, context));
+
+	    _this.red = false;
+	    return _this;
+	  }
+
+	  /**
+	   * Function to create elements in the row based on the given props.
+	   *
+	   * @returns {Array}
+	   */
+
+
+	  _createClass(CacheTableRow, [{
+	    key: 'createElements',
+	    value: function createElements() {
+	      var elements = [];
+	      for (var i = 0; i < this.props.data.get('elements').size; i++) {
+	        elements.push(_react2.default.createElement(_CacheTableElement2.default, { key: i, data: this.props.data.get('elements').get(i) }));
+	      }
+	      return elements;
+	    }
+
+	    /**
+	     * Visual effect for instruction miss
+	     *
+	     * @returns {boolean}
+	     */
+
+	  }, {
+	    key: 'animateMiss',
+	    value: function animateMiss() {
+	      if (this.props.data.get("miss")) {
+	        for (var i = 0; i < 6; i++) {
+	          setTimeout(this.changeColor.bind(this), i * 500);
+	        }
+	        setTimeout(this.removeBackground.bind(this), 7 * 500);
+	      }
+	      return true;
+	    }
+
+	    /**
+	     * Visual effect
+	     */
+
+	  }, {
+	    key: 'removeBackground',
+	    value: function removeBackground() {
+	      $("#" + this.props.data.get("id")).css("background-color", "");
+	    }
+
+	    /**
+	     * Visual effect
+	     */
+
+	  }, {
+	    key: 'changeColor',
+	    value: function changeColor() {
+	      if (this.red) {
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'white' }, 250, 'linear', function () {});
+	        this.red = false;
+	      } else {
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'red' }, 250, 'linear', function () {});
+	        this.red = true;
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      this.animateMiss.bind(this)();
+	      return _react2.default.createElement(
+	        'tr',
+	        { id: this.props.data.get('id'), className: 'cache_row cachetablerow-component' },
+	        _react2.default.createElement(
+	          'td',
+	          { 'data-tip': true, 'data-for': this.props.data.get('id'), className: 'center_text_2 validbit' },
+	          this.props.data.get('validbit'),
+	          _react2.default.createElement(
+	            _reactTooltip2.default,
+	            _extends({ id: this.props.data.get('id') }, this.props),
+	            _react2.default.createElement(
+	              'p',
+	              null,
+	              this.props.data.get('validbit') === 1 ? "Valid" : "Not Valid"
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'td',
+	          { 'data-tip': true, 'data-for': this.props.data.get('id') + "index", className: 'center_text_2 tag' },
+	          this.props.data.get("tag"),
+	          _react2.default.createElement(
+	            _reactTooltip2.default,
+	            _extends({ id: this.props.data.get('id') + "index" }, this.props),
+	            _react2.default.createElement(
+	              'p',
+	              null,
+	              'Index: ',
+	              this.props.data.get('index')
+	            )
+	          )
+	        ),
+	        this.createElements()
+	      );
+	    }
+	  }]);
+
+	  return CacheTableRow;
+	}(_react2.default.Component);
+
+	CacheTableRow.displayName = 'CacheTableRow';
+	CacheTableRow.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = CacheTableRow;
+
+/***/ },
+/* 342 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * CacheTableElementComponent. Functional stateless component that constitutes as a element in a table.
+	 *
+	 * Created by kim on 2016-05-12.
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactTooltip = __webpack_require__(317);
+
+	var _reactTooltip2 = _interopRequireDefault(_reactTooltip);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CacheTableElement = function (_React$Component) {
+	  _inherits(CacheTableElement, _React$Component);
+
+	  /**
+	   * Class constructor. Called when instantiated.
+	   *
+	   * @param props
+	   * @param context
+	   */
+
+	  function CacheTableElement(props, context) {
+	    _classCallCheck(this, CacheTableElement);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CacheTableElement).call(this, props, context));
+
+	    _this.green = false;
+	    return _this;
+	  }
+
+	  /**
+	   * Visual effect when a instruction hit on this element occurs
+	   * @returns {boolean}
+	   */
+
+
+	  _createClass(CacheTableElement, [{
+	    key: 'animateHit',
+	    value: function animateHit() {
+	      if (this.props.data.get("hit")) {
+	        for (var i = 0; i < 6; i++) {
+	          setTimeout(this.changeColor.bind(this), i * 500);
+	        }
+	        setTimeout(this.removeBackground.bind(this), 7 * 500);
+	      }
+	      return true;
+	    }
+
+	    /**
+	     * Visual effect
+	     */
+
+	  }, {
+	    key: 'removeBackground',
+	    value: function removeBackground() {
+	      $("#" + this.props.data.get("id")).css("background-color", "");
+	    }
+
+	    /**
+	     * Visual effect
+	     */
+
+	  }, {
+	    key: 'changeColor',
+	    value: function changeColor() {
+	      if (this.green) {
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'white' }, 250, 'linear', function () {});
+	        this.green = false;
+	      } else {
+	        $("#" + this.props.data.get("id")).animate({ 'backgroundColor': 'green' }, 250, 'linear', function () {});
+	        this.green = true;
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      this.animateHit.bind(this)();
+	      return _react2.default.createElement(
+	        'td',
+	        { 'data-tip': true, 'data-for': this.props.data.get('id'), id: this.props.data.get('id'),
+	          className: 'cache_element cachetableelement-component center_text_2' },
+	        this.props.data.get('data'),
+	        _react2.default.createElement(
+	          _reactTooltip2.default,
+	          _extends({ id: this.props.data.get('id') }, this.props),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'Byte: ',
+	            this.props.data.get('byte')
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'Address: ',
+	            this.props.data.get('address')
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CacheTableElement;
+	}(_react2.default.Component);
+
+	CacheTableElement.displayName = 'CacheTableElement';
+	CacheTableElement.propTypes = {
+	  data: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = CacheTableElement;
 
 /***/ },
 /* 343 */
@@ -49663,7 +49708,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'A cache is a hardware or software component that stores data so future requests for that data can be served faster. A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the cost to access data from the main memory. The idea behind it is that the cache memory allows faster access than the regular main memory (RAM). Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time will be reduced. Logically since the cache memory provides faster access than the main memory it is also more expensive. So to keep the price budget on a resonable level we get to choose between a large but slow memory (main memory) and a small but fast memory (cache memory). The most common strategy that is not too costly and still provides performance gains is to use both.'
+	      'A cache is a hardware or software component that stores data so future requests for that data can be served quicker. A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the cost to access data from the main memory. The idea behind it is that the cache memory allows faster access than the regular main memory (RAM). Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time will be reduced. Logically since the cache memory provides more rapid access than the main memory it is also more expensive. So to keep the price budget on a resonable level we get to choose between a large but slow memory (main memory) and a fast but small memory (cache memory). The most common strategy that is not too costly and still provides performance gains is to use both.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/cache_arch.png', alt: 'Cache memory architecture', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
@@ -49679,7 +49724,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Cache memories vary in size, the bigger the more pricey. When using the simulator you start off by specifying cache size, block size, associativity count and replacement algorithm. Cache size is entered in bytes and specify the size of the whole cache memory. As far as possible you want to design the cache and the program to be ran such that the CPU can avoid accessing the main memory and fetch form the cache memory instead. When the processor finds the address it\'s looking or in the cache we say that it is a ',
+	      'Cache memories vary in size, the bigger the more pricey. When using the simulator you start off by specifying cache size, block size, associativity count and replacement algorithm. Cache size is entered in bytes and specify the size of the whole cache memory. As far as possible you want to design the cache and the program to be ran such that the CPU can avoid having to access the main memory and fetch form the cache memory instead. When the processor finds the address it\'s looking or in the cache we say that it is a ',
 	      _react2.default.createElement(
 	        'i',
 	        null,
@@ -49707,7 +49752,13 @@
 	        null,
 	        'blocks'
 	      ),
-	      ' is used. Blocks have fixed size and every time data is fetched from the main memory and the cache memory gets updated, instead of just putting the referenced main memory address in the cache, a block is fetched from main memory and put in the cache. There is a purpose for this that we\'ll get to later. In the simulator, block size is just as cache size, entered in bytes.'
+	      ' is used. Blocks have fixed size and every time the cache memory is updated after accessing the main memory, instead of just updating the cache memory with only the referenced main memory address, the cache is updated with a ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'block'
+	      ),
+	      ' of memory addresses. There is a purpose for this that we\'ll get to later. In the simulator, block size is just as cache size, entered in bytes.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49746,7 +49797,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The address translation just described gives information about row number and byte number but it does\'nt say anything about which set. With an associativity count > 1 we have multiple blocks on the same row (same index) in the cache. This means that a main memory address can match more than one block in the cache memory. In order to know if a main memory address generates a cache hit or not we need to go through all of the matching blocks.'
+	      'The address translation just described gives information about row number and byte number in the cache but it does\'nt say anything about which set. With an associativity count > 1 we have multiple blocks on the same row (same index) in the cache. This means that a main memory address can match more than one block in the cache memory. In order to know if a main memory address generates a cache hit or miss we need to go through all of the matching blocks.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49757,7 +49808,13 @@
 	        null,
 	        'replacement algorithm'
 	      ),
-	      ' is used. Obviously if one or more block positions in the right cache row are empty we place the fetched block in any one of the block-positions, but if all blocks in the row with the right index are occupied we need to replace the contents of one block position. Which one to replace is decided by the replacement algorithm. The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM.'
+	      ' is used. Obviously if one or more block positions in the matching cache row are empty we place the fetched block in any one of the empty block positions, but if all block positions in the row with the right index are occupied we need to replace the contents of one block position. Which one to replace is decided by the replacement algorithm. The most common replacement algorithms are LRU (Least Recently Used), FIFO (First In First Out) and RANDOM. Each block in the cache contains one bit called the ',
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        'valid bit'
+	      ),
+	      ' that tells if the block is valid or not. The valid bit will be looked at by the replacement algorithms.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/replacement_algo.png', alt: 'Replacement Algorithm', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
@@ -49818,7 +49875,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead of just fetching the referenced address, a whole block is fetched (the block contains nearby addresses also). The assembly-like program above shows a high spatial locality. For example if we have a cache memory with block size of 16 bytes, when the program above is ran, the first line will generate a cache miss by the CPU and a block of memory addresses 0-15 will be fetched to the cache memory. This means that the remaining operations in the program will be hits in the cache and don\'t require any access to main memory.'
+	      'Cache memories take advantage of both of these types of locality. Temporal locality is utilized by placing instructions that recently have been accessed in the cache memory. Spatial locality is utilized by, when fetching from main memory, instead of just fetching the referenced address, a whole block is fetched (the block contains nearby addresses also). The assembly-like program above shows a high spatial locality. For example if we have a cache memory with a block size of 16 bytes; when the program above is ran, the first line will generate a cache miss by the CPU and a block of memory addresses 0-15 will be retrieved from the main memory to the cache memory. This means that the remaining operations in the program will be hits in the cache and don\'t require any further access to the main memory.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49848,9 +49905,9 @@
 	      _react2.default.createElement(
 	        'i',
 	        null,
-	        'policy'
+	        ' policy '
 	      ),
-	      ' for STORE instructions. Simply put, it means that the main memory and the cache memory will always be consistent. When a STORE instruction is issued, both main memory and cache memory is updated. An alternative policy is (write-back) which can provide less latency than write-through but exposes certain risks when it comes to keeping the data in the cache consistent with the main memory.'
+	      ' for STORE instructions. Simply put, it means that the main memory and the cache memory will always be consistent. When a STORE instruction is issued, both main memory and cache memory is updated. An alternative policy is write-back which can provide less latency than write-through but exposes certain risks when it comes to keeping the data in the cache consistent with the main memory.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49883,7 +49940,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The instruction above will load the content of memory address 0x00 into register 1. Another example:'
+	      'The instruction above will load the content of memory address 0x0 into register 1. Another example:'
 	    ),
 	    _react2.default.createElement(
 	      'code',
@@ -49897,7 +49954,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The instruction above will store the content of register 1 into memory address 0x00'
+	      'The instruction above will store the content of register 1 into memory address 0x0'
 	    ),
 	    _react2.default.createElement(
 	      'div',
@@ -49926,7 +49983,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The function of cache memories is to shorten the time to execute instructions by avoiding having to fetch from main memory. The cache memory is generally smaller than the main memory, hence when we look for a certain memory address in the cache it can be either a hit or a miss. Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count, associativity count, block size and replacement algorithm. There are many different flavors of caches but in essence they do the same thing and have the same purpose.'
+	      'The function of cache memories is to shorten the time to execute instructions by avoiding having to access the main memory. The cache memory is generally smaller than the main memory, hence when we look for a certain memory address in the cache it can be either a hit or a miss. Where to lookup memory addresses in the cache and how to update the cache memory is decided by the block count, associativity count, block size and replacement algorithm. There are many different flavors of caches but in essence they do the same thing and have the same purpose.'
 	    )
 	  );
 	};
