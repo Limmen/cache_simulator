@@ -1,35 +1,33 @@
-body
-{
+body {
   font-size: 150%;
   font-family: 'Droid Serif', serif;
 }
-.bold
-{
+
+.bold {
   font-weight: bolder;
 }
 
-.colophon-component
-{
+.colophon-component {
   text-align: center;
 }
-.about-component
-{
+
+.about-component {
   text-align: center;
 }
-.center_text
-{
+
+.center_text {
   text-align: center;
   margin-bottom: 5%;
 }
-.center_text_2
-{
+
+.center_text_2 {
   text-align: center;
 }
-.centering-block
-{
+
+.centering-block {
   display: block;
-  float:none;
-  margin:0 auto
+  float: none;
+  margin: 0 auto
 }
 
 .example-enter {
@@ -50,68 +48,67 @@ body
   transition: opacity 300ms ease-in;
 }
 
-.green
-{
+.green {
   color: limegreen;
 }
 
-.margin-left
-{
+.margin-left {
   margin-left: 10%;
 }
 
-.margin-bottom
-{
+.margin-bottom {
   margin-bottom: 5%;
 }
-.margin-top
-{
+
+.margin-top {
   margin-top: 5%
 }
-.instructionResult
-{
+
+.instructionResult {
   height: 5px;
   width: 100%;
 }
-.empty
-{
+
+.empty {
   height: 20px;
 }
 
-.form-horizontal .form-group
-{
+.form-horizontal .form-group {
   height: 80px;
 }
 
-.inline
-{
+.inline {
   display: inline-block;
 }
-nav
-{
+
+nav {
   text-align: center;
 }
-.assembly_input
-{
+
+.assembly_input {
   margin-bottom: 0;
 }
-.assembly_buttongroup
-{
+
+.assembly_buttongroup {
   margin-top: 0
 }
-.left_align_text
-{
+
+.left_align_text {
   text-align: left;
 }
 
-.center-image
-{
+.center-image {
   display: block;
   margin: 0 auto;
   margin-top: 20px;
   margin-bottom: 20px;
 }
-.set_title
-{
+
+.set_title {
   margin-top: 5%;
+}
+
+#input_checkbox_visual
+{
+  margin-left: 0;
 }

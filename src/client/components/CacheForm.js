@@ -142,7 +142,7 @@ class CacheForm extends React.Component {
               <div className="form-group">
                 <label data-tip data-for="simulateVisually" className="bold col-md-4 control-label" htmlFor="input_checkbox_visual">Simulate visually</label>
                 <div className="col-md-8 checkbox">
-                  <input data-tip data-for="simulateVisually" type="checkbox" {...visualSimulation} id="input_checkbox_visual"/>
+                  <input data-tip data-for="simulateVisually" type="checkbox" {...visualSimulation} id="input_checkbox_visual" className="input_checkbox"/>
                 </div>
                 <ReactTooltip id="simulateVisually">
                   <p>Visual simulation is not recommended for larger cache-size</p>

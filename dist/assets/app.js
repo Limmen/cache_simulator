@@ -27076,10 +27076,10 @@
 	 * @returns {*} the single store of the redux app
 	 */
 	function configureStore(initialState) {
-	  //const logger = createLogger();
-	  var store = (0, _redux.createStore)(_reducers2.default, initialState,
-	  //applyMiddleware(thunk, promise, logger)
-	  (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default));
+	  var logger = (0, _reduxLogger2.default)();
+	  var store = (0, _redux.createStore)(_reducers2.default, initialState, (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxPromise2.default, logger)
+	  //applyMiddleware(thunk, promise)
+	  );
 	  return store;
 	} /**
 	   * Function to create and bootstrap the store with reducers, initialstate and middleware.
@@ -38197,7 +38197,7 @@
 	                _react2.default.createElement(
 	                  'div',
 	                  { className: 'col-md-8 checkbox' },
-	                  _react2.default.createElement('input', _extends({ 'data-tip': true, 'data-for': 'simulateVisually', type: 'checkbox' }, visualSimulation, { id: 'input_checkbox_visual' }))
+	                  _react2.default.createElement('input', _extends({ 'data-tip': true, 'data-for': 'simulateVisually', type: 'checkbox' }, visualSimulation, { id: 'input_checkbox_visual', className: 'input_checkbox' }))
 	                ),
 	                _react2.default.createElement(
 	                  _reactTooltip2.default,
@@ -40802,6 +40802,21 @@
 	      return tables;
 	    }
 	  }, {
+	    key: 'getInstruction',
+	    value: function getInstruction() {
+	      if (this.props.cachecontent.get("instruction") === "") return null;else return _react2.default.createElement(
+	        'p',
+	        { id: 'fade', className: 'center_text' },
+	        this.props.cachecontent.get("instructionResult"),
+	        _react2.default.createElement('br', null),
+	        _react2.default.createElement(
+	          'code',
+	          null,
+	          this.props.cachecontent.get("instruction")
+	        )
+	      );
+	    }
+	  }, {
 	    key: 'renderCache',
 	    value: function renderCache() {
 	      if (this.props.cachecontent.get("visualSimulation")) {
@@ -40830,17 +40845,7 @@
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'instructionResult' },
-	            _react2.default.createElement(
-	              'p',
-	              { id: 'fade', className: 'center_text' },
-	              this.props.cachecontent.get("instructionResult"),
-	              _react2.default.createElement('br', null),
-	              _react2.default.createElement(
-	                'code',
-	                null,
-	                this.props.cachecontent.get("instruction")
-	              )
-	            )
+	            this.getInstruction()
 	          ),
 	          _react2.default.createElement(
 	            'div',

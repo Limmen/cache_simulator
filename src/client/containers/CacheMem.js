@@ -48,6 +48,18 @@ class CacheMem extends React.Component {
     return tables;
   }
 
+  getInstruction(){
+    if(this.props.cachecontent.get("instruction") === "")
+      return null
+    else return (
+      <p id="fade" className="center_text">
+        {this.props.cachecontent.get("instructionResult")}
+        <br/>
+        <code>{this.props.cachecontent.get("instruction")}</code>
+      </p>
+    )
+  }
+
   renderCache() {
     if (this.props.cachecontent.get("visualSimulation")) {
       return (
@@ -63,11 +75,7 @@ class CacheMem extends React.Component {
             {this.simulationMessage(this.props.cachecontent.get("simulating"), this.props.cancelSimulation)}
           </div>
           <div className="instructionResult">
-            <p id="fade" className="center_text">
-              {this.props.cachecontent.get("instructionResult")}
-              <br/>
-              <code>{this.props.cachecontent.get("instruction")}</code>
-            </p>
+            {this.getInstruction()}
           </div>
           <div className="cache_mem">
             {this.createVisualTables()}
