@@ -49,7 +49,7 @@ class Instruction {
       this.newRow = this.getNewRowHit();
       this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
       if (this.operationType === "STORE") {
-        if (!this.storeHit(this.state.get('memory'))) {
+        if (!this.wordHit(this.state.get('memory'))) {
           this.state = this.updateInstructionHistory();
           return this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
         }
@@ -73,8 +73,8 @@ class Instruction {
    * Method that checks if it is possible to store a word at the specified address in main memory
    * @param memory
    * @returns {boolean}
-   */
-  storeHit(memory) {
+   * */
+  wordHit(memory) {
     return this.memoryHit(memory, this.address + 4)
   }
 
@@ -84,7 +84,7 @@ class Instruction {
    */
   simulateMiss() {
     if (this.operationType === "STORE") {
-      if (!this.storeHit(this.state.get('memory'))) {
+      if (!this.wordHit(this.state.get('memory'))) {
         this.state = this.updateInstructionHistory();
         return this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
       }
@@ -135,6 +135,10 @@ class Instruction {
   memoryFetch() {
     this.newRow = this.getNewRowMiss();
     if (this.operationType === "LOAD") {
+      if (!this.wordHit(this.state.get('memory'))) {
+        this.state = this.updateInstructionHistory();
+        return this.state.set("instructionResult", "MISS! Cannot load 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+      }
       this.state = this.loadMiss();
     }
     this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
@@ -371,7 +375,7 @@ class Instruction {
    */
   updateInstructionHistory() {
     let result;
-    if ((this.hit(this.row) && this.memoryHit(this.state.get('memory'), this.address) && this.operationType === "LOAD") || this.hit(this.row) && this.operationType === "STORE" && this.storeHit(this.state.get('memory'))) {
+    if (this.hit(this.row) && this.wordHit(this.state.get('memory'), this.address)) {
       result = "HIT";
     }
     else {
@@ -391,7 +395,7 @@ class Instruction {
   /**
    * Checks whether the instruction was a hit in the cache or not.
    *
-   * @param row row calculated by replacementalgorithm and index-bits
+   * @param row row calculated by replacement algorithm and index-bits
    * @param tag address-tag of the instruction
    * @returns {boolean}
    */
@@ -447,7 +451,7 @@ class Instruction {
    */
   bytesToWord(data) {
     let word = "";
-    for(let i = 0; i < data.length; i++){
+    for (let i = 0; i < data.length; i++) {
       word = word + this.createBinaryString(parseInt(data[i].slice(2, data[i].length), 16)).slice(24, 32);
     }
     return "0x" + parseInt(word, 2).toString(16).toUpperCase();

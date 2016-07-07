@@ -13,6 +13,7 @@ import Dimensions from 'react-dimensions'
 class MemoryTable extends React.Component {
 
   render() {
+    if(this.props.data.size > 0)
     return (
       <div className="memorytable-component">
         <Table
@@ -44,6 +45,8 @@ class MemoryTable extends React.Component {
           </Table>
       </div>
     );
+    else
+      return(<div className="memorytable-component"> <p className="center_text">There is no main memory (size 0 bytes)</p></div>)
   }
 }
 

@@ -35529,7 +35529,7 @@
 	        this.state = this.updateInstructionHistory().set("instructionResult", "HIT!").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
 	        if (this.operationType === "STORE") {
 	          var _ret = function () {
-	            if (!_this.storeHit(_this.state.get('memory'))) {
+	            if (!_this.wordHit(_this.state.get('memory'))) {
 	              _this.state = _this.updateInstructionHistory();
 	              return {
 	                v: _this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + _this.address + " not enough space in main memory").set("instruction", _this.operationType + " " + _this.register + " 0x" + _this.address.toString(16).toUpperCase())
@@ -35562,11 +35562,11 @@
 	     * Method that checks if it is possible to store a word at the specified address in main memory
 	     * @param memory
 	     * @returns {boolean}
-	     */
+	     * */
 
 	  }, {
-	    key: "storeHit",
-	    value: function storeHit(memory) {
+	    key: "wordHit",
+	    value: function wordHit(memory) {
 	      return this.memoryHit(memory, this.address + 4);
 	    }
 
@@ -35579,7 +35579,7 @@
 	    key: "simulateMiss",
 	    value: function simulateMiss() {
 	      if (this.operationType === "STORE") {
-	        if (!this.storeHit(this.state.get('memory'))) {
+	        if (!this.wordHit(this.state.get('memory'))) {
 	          this.state = this.updateInstructionHistory();
 	          return this.state.set("instructionResult", "MISS! Cannot store 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
 	        }
@@ -35645,6 +35645,10 @@
 
 	      this.newRow = this.getNewRowMiss();
 	      if (this.operationType === "LOAD") {
+	        if (!this.wordHit(this.state.get('memory'))) {
+	          this.state = this.updateInstructionHistory();
+	          return this.state.set("instructionResult", "MISS! Cannot load 4-byte word at address " + this.address + " not enough space in main memory").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
+	        }
 	        this.state = this.loadMiss();
 	      }
 	      this.state = this.updateInstructionHistory().set("instructionResult", "MISS! Cache updated").set("instruction", this.operationType + " " + this.register + " 0x" + this.address.toString(16).toUpperCase());
@@ -35935,7 +35939,7 @@
 	    key: "updateInstructionHistory",
 	    value: function updateInstructionHistory() {
 	      var result = void 0;
-	      if (this.hit(this.row) && this.memoryHit(this.state.get('memory'), this.address) && this.operationType === "LOAD" || this.hit(this.row) && this.operationType === "STORE" && this.storeHit(this.state.get('memory'))) {
+	      if (this.hit(this.row) && this.wordHit(this.state.get('memory'), this.address)) {
 	        result = "HIT";
 	      } else {
 	        result = "MISS";
@@ -35952,7 +35956,7 @@
 	    /**
 	     * Checks whether the instruction was a hit in the cache or not.
 	     *
-	     * @param row row calculated by replacementalgorithm and index-bits
+	     * @param row row calculated by replacement algorithm and index-bits
 	     * @param tag address-tag of the instruction
 	     * @returns {boolean}
 	     */
@@ -49009,7 +49013,7 @@
 	    value: function render() {
 	      var _this2 = this;
 
-	      return _react2.default.createElement(
+	      if (this.props.data.size > 0) return _react2.default.createElement(
 	        'div',
 	        { className: 'memorytable-component' },
 	        _react2.default.createElement(
@@ -49052,6 +49056,15 @@
 	            width: 50,
 	            flexGrow: 1
 	          })
+	        )
+	      );else return _react2.default.createElement(
+	        'div',
+	        { className: 'memorytable-component' },
+	        ' ',
+	        _react2.default.createElement(
+	          'p',
+	          { className: 'center_text' },
+	          'There is no main memory (size 0 bytes)'
 	        )
 	      );
 	    }
