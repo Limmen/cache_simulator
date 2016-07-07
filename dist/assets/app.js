@@ -39199,7 +39199,6 @@
 	                  _react2.default.createElement(
 	                    'select',
 	                    _extends({ id: 'input_operation_type', className: 'form-control' }, operationType),
-	                    _react2.default.createElement('option', null),
 	                    _react2.default.createElement(
 	                      'option',
 	                      null,
@@ -49558,7 +49557,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Before simulation you enter properties for the cache and you have the freedom to decide yourself if you want to simulate a direct-mapped cache or a set-associative cache-'
+	      'Before simulation you enter properties for the cache and you have the freedom to decide yourself if you want to simulate a direct-mapped cache or a set-associative cache'
 	    ),
 	    _react2.default.createElement(
 	      'h4',

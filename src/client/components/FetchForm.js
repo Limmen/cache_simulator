@@ -57,7 +57,6 @@ class FetchForm extends React.Component {
                 <label className="bold col-md-4 control-label" htmlFor="input_operation_type">Operation type</label>
                 <div className="col-md-8">
                   <select id="input_operation_type" className="form-control" {...operationType}>
-                    <option></option>
                     <option>LOAD</option>
                     <option>STORE</option>
                   </select>
