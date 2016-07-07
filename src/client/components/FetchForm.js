@@ -47,7 +47,7 @@ const validate = values => {
 class FetchForm extends React.Component {
 
   render() {
-    const {fields: {fetchAddress, operationType, register}, handleSubmit, submitting} = this.props
+    const {fields: {fetchAddress, operationType, register}, resetForm, handleSubmit, submitting} = this.props
     return (
       <div className="fetchform-component row">
         <form className="form-horizontal" role="form" onSubmit={handleSubmit}>
@@ -94,6 +94,9 @@ class FetchForm extends React.Component {
                 <div className="col-md-12">
                   <button type="submit" disabled={(this.props.simulating|| submitting)} className="btn btn-default">
                     {submitting ? <i/> : <i/>} Run
+                  </button>
+                  <button type="button" onClick={resetForm} className="btn btn-default">
+                    Clear Values
                   </button>
                 </div>
               </div>

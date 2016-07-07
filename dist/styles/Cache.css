@@ -59,3 +59,8 @@
 {
   background-color: #dddddd;
 }
+
+.table-scrollable
+{
+  overflow: auto;
+}

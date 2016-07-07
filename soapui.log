@@ -1,0 +1,3 @@
+2016-07-07 08:55:56,284 WARN  [DefaultSoapUICore] Missing folder [/home/kim/ext] for external libraries
+2016-07-07 08:55:56,391 INFO  [DefaultSoapUICore] initialized soapui-settings from [/home/kim/soapui-settings.xml]
+2016-07-07 08:55:56,612 INFO  [WorkspaceImpl] Loading workspace from [/home/kim/intellij-soapui-workspace.xml]
