@@ -189,7 +189,7 @@ let Tutorial = () => (
       STORE 1 4
     </code> <br/> <br/>
     <p>
-      The instruction above will store the content of register 1 into memory address 0x0
+      The instruction above will store the content of register 1 into memory address 0x4
     </p>
     <div className="alert alert-info">
       <strong>Note:</strong> For simplicity, all instructions in the simulator handles WORDS of data (4 bytes).

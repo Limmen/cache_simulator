@@ -76,8 +76,7 @@ class AssemblyForm extends React.Component {
                   One statement on each row.
                 </p>
                 <p>
-                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;
-                  space&gt;&lt;Address&gt;</code>
+                  A statement has the following form: <code>&lt;Operation&gt;&lt;space&gt;&lt;Register&gt;&lt;space&gt;&lt;Address&gt;</code>
                 </p>
                 <p>
                   Allowed operations are: <code>LOAD</code> and <code>STORE</code>
@@ -86,13 +85,13 @@ class AssemblyForm extends React.Component {
                 <div>
                   <code>LOAD 1 10 </code> <br/>
                   <code>LOAD 2 10 </code> <br/>
-                  <code>STORE 2 19 </code> <br/>
-                  <code>LOAD C 1 </code> <br/>
+                  <code>STORE 2 1C </code> <br/>
+                  <code>LOAD 1 C</code> <br/>
                   <code>LOAD 23 0 </code> <br/>
                   <code>LOAD 17 0 </code> <br/>
                   <code>LOAD 9 1 </code> <br/>
-                  <code>STORE 2 26 </code> <br/>
-                  <code>LOAD 2 33 </code> <br/>
+                  <code>STORE 2 28 </code> <br/>
+                  <code>LOAD 2 34 </code> <br/>
                 </div>
               </div>
               <div className="modal-footer">
