@@ -89,6 +89,8 @@ Bug reports and ideas for development extensions are welcome.
 
 ## Copyright and license
 
-The MIT License (MIT)
+[LICENSE](LICENSE.md)
+
+Creative Commons Attribution-ShareAlike 4.0 International
 
 Copyright (c) 2016 Kim Hammar
