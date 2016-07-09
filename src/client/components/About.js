@@ -16,16 +16,16 @@ let About = () => (
       by issuing LOAD/STORE instructions on a simulated cache and main memory.</p>
     <p>The simulator works under the assumption that address length and word size are 32 bit and that the simulated
       processor uses a load-store architecture.
-      Additionally, the simulator uses a write-through policy for memory writes.
+      Additionally, the simulator uses a write-through policy for STORE instructions.
     </p>
-    <p>Before simulation you enter properties for the cache and you have the freedom to decide yourself if you want to
-      simulate a direct-mapped cache or a set-associative cache</p>
-    <p>For a introduction to the simulator and cache memories in general, see <a href="tutorial">Tutorial</a></p>
+    <p>Before simulation you enter properties for the cache and you decide yourself if you want to
+      simulate a direct-mapped cache or a set-associative cache.</p>
+    <p>For a introduction to the simulator and cache memories in general, see the <a href="tutorial">Tutorial</a>.</p>
     <h4 className="bold center_text_2">How to use it?</h4>
     <ol>
-      <li>Specify cache properties and click "Simulate"</li>
+      <li>Specify cache properties and click "Simulate".</li>
       <li>Enter processor instructions either in the text area as a free floating assembly program (limited assembly) or
-        a single instruction in the form and click "Run"
+        a single instruction in the form and click "Run".
       </li>
       <li>Check updated cache memory, register content and main memory to analyze the results of the instruction.
       </li>
@@ -37,7 +37,7 @@ let About = () => (
     <h4 className="bold center_text_2">Contributing</h4>
     <p>Bug reports and ideas for development extensions are welcome on the
       <a href="https://github.com/Limmen/cache_simulator" target="_blank"> GitHub Repo</a> or contact me directly at
-      <a href="mailto:kimham@kth.se?Subject=wwww.cachesimulator.com" target="_top"> kimham@kth.se</a></p>
+      <a href="mailto:kimham@kth.se?Subject=wwww.cachesimulator.com" target="_top"> kimham@kth.se</a>.</p>
   </div>
 );
 

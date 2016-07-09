@@ -16,12 +16,13 @@ let Tutorial = () => (
       quicker.</i>
       </p>
     <p>
-      A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the
-      cost to access data from the main memory.
-      The idea behind it is that the cache memory allows faster access than the regular main memory (RAM).
-      Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time
-      will be
-      reduced.
+      A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to increase execution speed.
+      Since CPU's generally are able to perform operations on given operands faster than the time it takes the CPU to fetch or store data from the main memory,
+       the performance can be enhanced by reducing the time the CPU spends waiting for operands and other data to be fetched or stored.
+      </p>
+    <p>
+      The idea behind it is to store some part of the main memory in duplicate.  A copy of the data is stored in a cache memory that allows faster access than the regular main memory (RAM).
+      If the CPU can access the requested data from a copy in the cache memory instead of the main memory, the access time will be reduced.
       Logically since the cache memory provides more rapid access than the main memory it is also more expensive.
       To keep the price budget on a reasonable level we get to choose between a large but slow
       memory (main memory)
@@ -38,7 +39,7 @@ let Tutorial = () => (
     <p>
       Cache memories vary in size, the bigger the more pricey.
       When using the simulator you initiate by specifying cache size, block size, associativity count and replacement algorithm.
-      Cache size is entered in bytes and specify the size of the whole cache memory.
+      Cache size is entered in bytes and determines the size of the whole cache memory.
       As far as possible you want to design the cache and the program to be ran such that the CPU can avoid having to access
       the main memory and
       fetch form the cache memory instead.
@@ -93,6 +94,12 @@ let Tutorial = () => (
       Each block in the cache contains one bit called the <i>valid bit</i> that tells if the block is valid or not. The valid bit will be looked at by the replacement algorithms.
     </p>
     <img src="images/replacement_algo.png" alt="Replacement Algorithm" className="img-responsive center-image"/>
+    <h4 className="bold center_text_2">When to fetch from main memory to the cache</h4>
+    <p>There are two established options for when to fetch from main memory to the cache, pre-fetch or on-demand.</p>
+    <p>By using a hardware component that eavesdrops on the execution and memory accesses of the processor, it is possible to predict
+    what memory addresses will be required before they're needed, giving the possibility to fetch those memory addresses in advance.
+     When done successfully, this technique can boost the execution speed but it is also rather complex, it is not always possible to make correct predictions.</p>
+    <p>The simulator fetches from main memory on-demand, which means that data is not fetched from main memory to the cache memory until it is needed by the CPU.</p>
     <h4 className="bold center_text_2">Cache Memory Performance and Utility</h4>
     <p>
       So what is the optimal cache size, block size, associativity count and replacement algorithm?
@@ -191,7 +198,7 @@ let Tutorial = () => (
       STORE 1 4
     </code> <br/> <br/>
     <p>
-      The instruction above will store the content of register 1 into memory address 0x4
+      The instruction above will store the content of register 1 into memory address 0x4.
     </p>
     <div className="alert alert-info">
       <strong>Note:</strong> For simplicity, all instructions in the simulator handles WORDS of data (4 bytes).
