@@ -20,11 +20,7 @@ describe('Footer', () => {
   it('should render one footer', () => {
     expect(component.find("footer").length).toEqual(1);
   });
-
-  it('should render correct footer text', () => {
-    expect(component.find("footer").text()).toEqual('Copyright 2016@Kim Hammar')
-  });
-
+  
   it('should have its component name as default className', () => {
     expect(component.find("div").hasClass("footer-component")).toEqual(true)
   });

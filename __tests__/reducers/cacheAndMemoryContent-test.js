@@ -308,6 +308,89 @@ describe('cacheAndMemoryContent-reducer', () => {
     expect(result.get("instructionHistory").get(6).get("address")).toBe("0x0")
     expect(result.get("instructionHistory").get(6).get("result")).toBe("MISS")
     expect(result.get("instructionHistory").get(6).get("register")).toBe(10)
+
+    /*
+     * Testing the LRU algorithm
+     */
+
+    state = Map({
+      cache: initialCacheContent(16, 8, 2, "LRU"),
+      memory: initialMemoryContent(1024),
+      register: initialRegisterContent(),
+      instructionHistory: List(),
+      instructionResult: "",
+      simulating: false
+    });
+
+    assembly =
+      [
+        { operationType: "LOAD", register: 0, address: "0"},
+        { operationType: "LOAD", register: 0, address: "8"},
+        { operationType: "LOAD", register: 0, address: "16"},
+        { operationType: "LOAD", register: 0, address: "0"},
+      ]
+    result = assembly.reduce((acc, instruction) => {
+      return new Instruction(acc, parseInt(instruction.address, 16), instruction.operationType, instruction.register).simulate();
+    }, state)
+
+    expect(result.get("instructionHistory").size).toBe(4);
+    expect(result.get("instructionHistory").get(0).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(1).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(2).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(3).get("result")).toBe("MISS")
+
+    assembly =
+      [
+        { operationType: "LOAD", register: 0, address: "0"},
+        { operationType: "LOAD", register: 0, address: "8"},
+        { operationType: "LOAD", register: 0, address: "0"},
+        { operationType: "LOAD", register: 0, address: "16"},
+        { operationType: "LOAD", register: 0, address: "0"},
+      ]
+    result = assembly.reduce((acc, instruction) => {
+      return new Instruction(acc, parseInt(instruction.address, 16), instruction.operationType, instruction.register).simulate();
+    }, state)
+
+    expect(result.get("instructionHistory").size).toBe(5);
+    expect(result.get("instructionHistory").get(0).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(1).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(2).get("result")).toBe("HIT")
+    expect(result.get("instructionHistory").get(3).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(4).get("result")).toBe("HIT")
+
+    /*
+     * Testing the FIFO algorithm
+     */
+
+    state = Map({
+      cache: initialCacheContent(16, 8, 2, "FIFO"),
+      memory: initialMemoryContent(1024),
+      register: initialRegisterContent(),
+      instructionHistory: List(),
+      instructionResult: "",
+      simulating: false
+    });
+
+    assembly =
+      [
+        { operationType: "LOAD", register: 0, address: "0"},
+        { operationType: "LOAD", register: 0, address: "8"},
+        { operationType: "LOAD", register: 0, address: "0"},
+        { operationType: "LOAD", register: 0, address: "10"},
+        { operationType: "LOAD", register: 0, address: "0"}
+      ]
+    result = assembly.reduce((acc, instruction) => {
+      return new Instruction(acc, parseInt(instruction.address, 16), instruction.operationType, instruction.register).simulate();
+    }, state)
+
+    expect(result.get("instructionHistory").size).toBe(5);
+    expect(result.get("instructionHistory").get(0).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(1).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(2).get("result")).toBe("HIT")
+    expect(result.get("instructionHistory").get(3).get("result")).toBe("MISS")
+    expect(result.get("instructionHistory").get(4).get("result")).toBe("MISS")
+
   })
+
 })
 

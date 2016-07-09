@@ -30,7 +30,8 @@ let About = () => (
       </li>
     </ol>
     <h4 className="bold center_text_2">Can i use this for teaching?</h4>
-    <p>Yes. It is distributed under the Creative Commons Attribution-ShareAlike 4.0 International license and you can use it however you like
+    <p>Yes. It is distributed under a Creative Commons <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">license </a>
+      and you can use it however you like
       as long as you don't violate the license or copyright.</p>
     <h4 className="bold center_text_2">Contributing</h4>
     <p>Bug reports and ideas for development extensions are welcome on the

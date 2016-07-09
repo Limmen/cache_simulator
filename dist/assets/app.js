@@ -49492,7 +49492,13 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Yes. It is distributed under the Creative Commons Attribution-ShareAlike 4.0 International license and you can use it however you like as long as you don\'t violate the license or copyright.'
+	      'Yes. It is distributed under a Creative Commons ',
+	      _react2.default.createElement(
+	        'a',
+	        { rel: 'license', href: 'http://creativecommons.org/licenses/by-sa/4.0/' },
+	        'license '
+	      ),
+	      'and you can use it however you like as long as you don\'t violate the license or copyright.'
 	    ),
 	    _react2.default.createElement(
 	      'h4',
@@ -49564,7 +49570,16 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'A cache is a hardware or software component that stores data so future requests for that data can be served quicker. A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the cost to access data from the main memory. The idea behind it is that the cache memory allows faster access than the regular main memory (RAM). Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time will be reduced. Logically since the cache memory provides more rapid access than the main memory it is also more expensive. So to keep the price budget on a resonable level we get to choose between a large but slow memory (main memory) and a fast but small memory (cache memory). The most common strategy that is not too costly and still provides performance gains is to use both.'
+	      _react2.default.createElement(
+	        'i',
+	        null,
+	        ' A cache is a hardware or software component that stores data so future requests for that data can be served quicker.'
+	      )
+	    ),
+	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the cost to access data from the main memory. The idea behind it is that the cache memory allows faster access than the regular main memory (RAM). Thus if the CPU can access the requested data from the cache memory instead of the main memory the access time will be reduced. Logically since the cache memory provides more rapid access than the main memory it is also more expensive. To keep the price budget on a reasonable level we get to choose between a large but slow memory (main memory) and a fast but small memory (cache memory). The most common strategy that is not too costly and still provides performance gains is to use both.'
 	    ),
 	    _react2.default.createElement('img', { src: 'images/cache_arch.png', alt: 'Cache memory architecture', className: 'img-responsive center-image' }),
 	    _react2.default.createElement(
@@ -49580,7 +49595,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'Cache memories vary in size, the bigger the more pricey. When using the simulator you start off by specifying cache size, block size, associativity count and replacement algorithm. Cache size is entered in bytes and specify the size of the whole cache memory. As far as possible you want to design the cache and the program to be ran such that the CPU can avoid having to access the main memory and fetch form the cache memory instead. When the processor finds the address it\'s looking or in the cache we say that it is a ',
+	      'Cache memories vary in size, the bigger the more pricey. When using the simulator you initiate by specifying cache size, block size, associativity count and replacement algorithm. Cache size is entered in bytes and specify the size of the whole cache memory. As far as possible you want to design the cache and the program to be ran such that the CPU can avoid having to access the main memory and fetch form the cache memory instead. When the processor finds the address it\'s looking for in the cache we say that it is a ',
 	      _react2.default.createElement(
 	        'i',
 	        null,
@@ -49635,7 +49650,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'This is handled in a neat way by translating the main memory address into a cache memory address. The main memory address is divided into parts, one parts decides the row (block) in the cache (also called the index part), one part decides the byte inside the block (also called the byte offset), and the remaininig part represents the address tag in the main memory. For this cache simulator we assume that main memory addresses are of size 32 bits.'
+	      'This is handled in a neat way by translating the main memory address into a cache memory address. The main memory address is divided into parts, one parts decides the row in the cache (also called the index part), one part decides the byte inside the block (also called the byte offset), and the remaininig part represents the address tag in the main memory. For this cache simulator we assume that main memory addresses are of size 32 bits.'
 	    ),
 	    _react2.default.createElement(
 	      'p',
@@ -49721,7 +49736,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'The code snippet above have high temporal locality (memory addresses recently accessed will soon be accessed again). Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will soon be accessed as well.'
+	      'The code snippet above have high temporal locality (memory addresses recently accessed will likely soon be accessed again). Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will likely soon be accessed as well.'
 	    ),
 	    _react2.default.createElement(
 	      _reactHighlight2.default,
@@ -49752,7 +49767,7 @@
 	    _react2.default.createElement(
 	      'p',
 	      null,
-	      'In systems with multiple processors it is common to have one cache memory for each processor, which also introduces the problem of cache coherence, however in this simulator we assume a uniprocesor system (only one processor). Further more, it is common to separate data and instruction caches into two  separate cache memories. The reason for it is that a cache memory can only do one thing at a time, thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel. In computers with separate instruction and data caches, all instructions that don\'t need to access the memory goes through the instruction cache and all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache.'
+	      'In systems with multiple processors it is common to have one cache memory for each processor, which also introduces the problem of cache coherence. However in this simulator we assume a uniprocessor system (only one processor). Further more, it is common to separate data and instruction caches into two  separate cache memories. The reason for it is that a cache memory can only do one thing at a time, thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel. In computers with separate instruction and data caches, all instructions that don\'t need to access the memory goes through the instruction cache and all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache (d-cache).'
 	    ),
 	    _react2.default.createElement(
 	      'p',

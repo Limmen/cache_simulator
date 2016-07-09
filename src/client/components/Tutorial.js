@@ -12,8 +12,10 @@ let Tutorial = () => (
   <div className="tutorial-component left_align_text">
     <h3 className="bold center_text_2">Tutorial <small>A short primer on cache memories</small></h3>
     <p>
-      A cache is a hardware or software component that stores data so future requests for that data can be served
-      quicker.
+     <i> A cache is a hardware or software component that stores data so future requests for that data can be served
+      quicker.</i>
+      </p>
+    <p>
       A CPU cache is an example of an hardware cache that is used by the central processing unit (CPU) to reduce the
       cost to access data from the main memory.
       The idea behind it is that the cache memory allows faster access than the regular main memory (RAM).
@@ -21,7 +23,7 @@ let Tutorial = () => (
       will be
       reduced.
       Logically since the cache memory provides more rapid access than the main memory it is also more expensive.
-      So to keep the price budget on a resonable level we get to choose between a large but slow
+      To keep the price budget on a reasonable level we get to choose between a large but slow
       memory (main memory)
       and a fast but small memory (cache memory). The most common strategy that is not too costly and
       still provides performance gains is to use both.
@@ -35,12 +37,12 @@ let Tutorial = () => (
     </p>
     <p>
       Cache memories vary in size, the bigger the more pricey.
-      When using the simulator you start off by specifying cache size, block size, associativity count and replacement algorithm.
+      When using the simulator you initiate by specifying cache size, block size, associativity count and replacement algorithm.
       Cache size is entered in bytes and specify the size of the whole cache memory.
       As far as possible you want to design the cache and the program to be ran such that the CPU can avoid having to access
       the main memory and
       fetch form the cache memory instead.
-      When the processor finds the address it's looking or in the cache we say that it is a <i>cache hit</i>, otherwise
+      When the processor finds the address it's looking for in the cache we say that it is a <i>cache hit</i>, otherwise
       it's a <i>cache miss</i>.
     </p>
     <h4 className="bold center_text_2">Cache Memory Structure</h4>
@@ -63,7 +65,7 @@ let Tutorial = () => (
     </p>
     <p>
       This is handled in a neat way by translating the main memory address into a cache memory address.
-      The main memory address is divided into parts, one parts decides the row (block) in the cache (also called the index
+      The main memory address is divided into parts, one parts decides the row in the cache (also called the index
       part),
       one part decides the byte inside the block (also called the byte offset), and the remaininig part represents the
       address tag in the main memory.
@@ -120,9 +122,9 @@ let Tutorial = () => (
         <li>locality in the space (spatial locality)</li>
       </ul>
     <p>
-      The code snippet above have high temporal locality (memory addresses recently accessed will soon be accessed again).
+      The code snippet above have high temporal locality (memory addresses recently accessed will likely soon be accessed again).
       Spatial locality means that when a certain memory address have been accessed, addresses close to it in memory will
-      soon be accessed as well.
+      likely soon be accessed as well.
       </p>
     <Highlight className='assembly'>
       {"LOAD 0 0 \n" +
@@ -154,13 +156,13 @@ let Tutorial = () => (
     </p>
     <p>
       In systems with multiple processors it is common to have one cache memory for each processor,
-      which also introduces the problem of cache coherence, however in this simulator we assume a uniprocesor system (only one processor).
+      which also introduces the problem of cache coherence. However in this simulator we assume a uniprocessor system (only one processor).
       Further more, it is common to separate data and instruction caches into two  separate cache memories.
       The reason for it is that a cache memory can only do one thing at a time,
       thus if you use a single cache memory for both data and instructions you get a delay in that you cannot execute
       instructions when fetches from main main memory are being made. With separate instruction and data caches you can do certain operations in parallel.
       In computers with separate instruction and data caches, all instructions that don't need to access the memory goes through the instruction cache and
-      all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache.
+      all instructions that need to access the memory goes through the data cache. In this simulator we simulate a data-cache (d-cache).
     </p>
     <p>
       A load-store architecture means that the only instructions that interact with the memory are LOAD and STORE instructions.
