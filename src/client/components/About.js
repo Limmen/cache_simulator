@@ -20,6 +20,7 @@ let About = () => (
     </p>
     <p>Before simulation you enter properties for the cache and you have the freedom to decide yourself if you want to
       simulate a direct-mapped cache or a set-associative cache</p>
+    <p>For a introduction to the simulator and cache memories in general, see <a href="tutorial">Tutorial</a></p>
     <h4 className="bold center_text_2">How to use it?</h4>
     <ol>
       <li>Specify cache properties and click "Simulate"</li>

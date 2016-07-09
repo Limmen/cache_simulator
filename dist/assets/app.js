@@ -49461,6 +49461,16 @@
 	      'Before simulation you enter properties for the cache and you have the freedom to decide yourself if you want to simulate a direct-mapped cache or a set-associative cache'
 	    ),
 	    _react2.default.createElement(
+	      'p',
+	      null,
+	      'For a introduction to the simulator and cache memories in general, see ',
+	      _react2.default.createElement(
+	        'a',
+	        { href: 'tutorial' },
+	        'Tutorial'
+	      )
+	    ),
+	    _react2.default.createElement(
 	      'h4',
 	      { className: 'bold center_text_2' },
 	      'How to use it?'
